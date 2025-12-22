@@ -392,7 +392,7 @@ class MainWindow(QMainWindow):
         if not self._weather_initial_fetched:
             pass
         else:
-            # ⛔ Skip kalau halaman WeatherCloud tidak aktif
+            # Skip kalau halaman WeatherCloud tidak aktif
             if self.ui.stackedWidget.currentWidget() != self.ui.page3_monitoringSensor:
                 return
     
@@ -444,9 +444,7 @@ class MainWindow(QMainWindow):
             if avg_hum != getattr(self, "_last_dht_hum", None):
                 self.ui.humidIndoor_value.setText(f"{avg_hum:.1f} %")
                 self._last_dht_hum = avg_hum
-                
-            
-                
+                   
         if avg_temp is not None:
             if not hasattr(self, "_last_dht_log"):
                 self._last_dht_log = 0
