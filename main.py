@@ -536,9 +536,7 @@ class MainWindow(QMainWindow):
             for btn in self.ac_buttons:
                 btn.setEnabled(statemcuB)
                 
-
-
-# Run Application Mantap
+# Run Application 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
