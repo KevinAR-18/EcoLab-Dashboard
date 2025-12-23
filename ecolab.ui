@@ -1259,7 +1259,7 @@ Button */
 </string>
                               </property>
                               <property name="text">
-                               <string>Growatt Monitoring</string>
+                               <string>EcoLab Power Monitoring</string>
                               </property>
                               <property name="alignment">
                                <set>Qt::AlignmentFlag::AlignCenter</set>

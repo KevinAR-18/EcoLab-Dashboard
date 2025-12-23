@@ -75,6 +75,7 @@ class GrowattBackend:
             "pv2_voltage": storagepopup.get("vpv2"),
             "pv1_charge_current": storagepopup.get("iChargePV1"),
             "pv2_charge_current": storagepopup.get("iChargePV2"),
+            "rateVA":storagepopup.get("rateVA"),
 
             # 🔌 Charging
             "total_charge_current": storagepopup.get("chgCurr"),

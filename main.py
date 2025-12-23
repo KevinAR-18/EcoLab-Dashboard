@@ -18,7 +18,6 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator
 from ui_mainwindow import Ui_MainWindow
 from ui_functions import UIFunctions
 
-
 from lamp_setup import LampSetup
 from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
@@ -32,9 +31,6 @@ from backend.lampbutton_backend import LampButtonBackend
 from backend.acbutton_backend import ACButtonBackend
 from backend.growatt_worker import GrowattWorker
 from backend.mcu_status_backend import MCUStatusBackend
-
-
-
 
 # Class untuk mengatur Hari dan Waktu
 class Date:
@@ -303,7 +299,7 @@ class MainWindow(QMainWindow):
 
         # 🔌 Total Charge
         self.lblTotalCharge.setText(
-            f"Total Charge Current: {fmt(flow.get('total_charge_current'), ' A')}"
+            f"Total Charge Current: {fmt(flow.get('total_charge_current'), 'A')}"
         )
 
         # ⚡ AC Input
@@ -320,12 +316,12 @@ class MainWindow(QMainWindow):
 
         # 🏠 Consumption
         self.lblConsumption.setText(
-            f"Consumption Power: {fmt_int(flow.get('consumption_power'), ' W')}"
+            f"Consumption Power: {fmt_int(flow.get('consumption_power'), 'W')}/ {fmt_int(flow.get('rateVA'), 'VA')}"
         )
 
         # 📊 Load
         self.lblLoad.setText(
-            f"Load Percentage: {fmt(flow.get('load_percentage'), ' %')}"
+            f"Load Percentage: {fmt(flow.get('load_percentage'), '%')}"
         )
 
         
@@ -400,6 +396,7 @@ class MainWindow(QMainWindow):
         try:
             data = self.weather.fetch()
             
+            
             # tandai initial fetch sudah dilakukan
             self._weather_initial_fetched = True
         
@@ -414,6 +411,31 @@ class MainWindow(QMainWindow):
             self.ui.totalrainW_value.setText(f"{data['rain_total']} mm")
             self.ui.rainrateW_value.setText(f"{data['rain_rate']} mm/h")
             self.ui.heatindexW_value.setText(f"{data['heat_index']} °C")
+            
+            temp_outdoor = data.get("temperature")
+            
+            self.update_temp_style(
+                temp_outdoor,
+                self.ui.frameTempWeather,
+                self.ui.titletempW
+            )
+            
+            heat_index = data.get("heat_index")
+
+            self.update_heatindex_style(
+                heat_index,
+                self.ui.frameHeatindexWeather,
+                self.ui.titleheatindexW
+            )
+            
+            humid_outdoor = data.get("humidity")
+
+            self.update_humidity_style(
+                humid_outdoor,
+                self.ui.frameHumidWeather,
+                self.ui.titlehumidw
+            )
+
 
         except Exception as e:
             print("dataWeather Cloud:", e)
@@ -454,6 +476,19 @@ class MainWindow(QMainWindow):
             if now - self._last_dht_log >= 30:  # log tiap 30 detik
                 self.log(f"[DHT] Avg Temp: {avg_temp:.1f} °C")
                 self._last_dht_log = now
+                
+        self.update_temp_style(
+            avg_temp,
+            self.ui.frameTempIndoor,
+            self.ui.titleSuhuIndoor
+        )
+        
+        self.update_humidity_style(
+            avg_hum,
+            self.ui.frameHumidIndoor,
+            self.ui.titleHumidIndoor
+        )
+
 
     def publish_lamp(self, lamp_index: int, state: bool):
         self.lampbutton_backend.set_lamp(lamp_index, state)
@@ -534,6 +569,148 @@ class MainWindow(QMainWindow):
             
             for btn in self.ac_buttons:
                 btn.setEnabled(statemcuB)
+    
+    def update_temp_style(self, temperature, frame, title):
+        if temperature is None:
+            return
+
+        try:
+            temp = float(temperature)
+        except (ValueError, TypeError):
+            return
+
+        if temp < 20:
+            frame_color = "#E3F2FD"
+            border_color = "#90CAF9"
+            title_bg = "#42A5F5"
+        elif temp < 26:
+            frame_color = "#FFF3E6"
+            border_color = "#FFD6B0"
+            title_bg = "#F4A261"
+        elif temp < 32:
+            frame_color = "#FFF8E1"
+            border_color = "#FFE082"
+            title_bg = "#F9A825"
+        else:
+            frame_color = "#FDECEA"
+            border_color = "#F5C6CB"
+            title_bg = "#E53935"
+
+        frame.setStyleSheet(f"""
+        QFrame#{frame.objectName()} {{
+            background-color: {frame_color};
+            border: 2px solid {border_color};
+            border-radius: 10px;
+        }}
+        """)
+
+        title.setStyleSheet(f"""
+        QLabel#{title.objectName()} {{
+            font: bold 14pt "Segoe UI";
+            color: white;
+            background-color: {title_bg};
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid {title_bg};
+        }}
+        """)
+        
+    def update_heatindex_style(self, heat_index, frame, title):
+        if heat_index is None:
+            return
+
+        try:
+            hi = float(heat_index)
+        except (ValueError, TypeError):
+            return
+
+        if hi < 27:
+            frame_color = "#E8F5E9"   # hijau muda
+            border_color = "#A5D6A7"
+            title_bg = "#43A047"
+        elif hi < 32:
+            frame_color = "#FFFDE7"   # kuning muda
+            border_color = "#FFF59D"
+            title_bg = "#FBC02D"
+        elif hi < 41:
+            frame_color = "#FFF3E0"   # oranye muda
+            border_color = "#FFCC80"
+            title_bg = "#FB8C00"
+        elif hi < 54:
+            frame_color = "#FDECEA"   # merah muda
+            border_color = "#EF9A9A"
+            title_bg = "#E53935"
+        else:
+            frame_color = "#4E342E"   # maroon gelap
+            border_color = "#3E2723"
+            title_bg = "#212121"
+
+        frame.setStyleSheet(f"""
+        QFrame#{frame.objectName()} {{
+            background-color: {frame_color};
+            border: 2px solid {border_color};
+            border-radius: 10px;
+        }}
+        """)
+
+        title.setStyleSheet(f"""
+        QLabel#{title.objectName()} {{
+            font: bold 14pt "Segoe UI";
+            color: white;
+            background-color: {title_bg};
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid {title_bg};
+        }}
+        """)
+        
+    def update_humidity_style(self, humidity, frame, title):
+        if humidity is None:
+            return
+
+        try:
+            h = float(humidity)
+        except (ValueError, TypeError):
+            return
+
+        if h < 30:
+            frame_color = "#E3F2FD"   # kering (biru)
+            border_color = "#90CAF9"
+            title_bg = "#42A5F5"
+        elif h < 60:
+            frame_color = "#E8F5E9"   # ideal (hijau)
+            border_color = "#A5D6A7"
+            title_bg = "#43A047"
+        elif h < 70:
+            frame_color = "#E0F2F1"   # lembap (toska)
+            border_color = "#80CBC4"
+            title_bg = "#26A69A"
+        else:
+            frame_color = "#F3E5F5"   # sangat lembap (ungu)
+            border_color = "#CE93D8"
+            title_bg = "#8E24AA"
+
+        frame.setStyleSheet(f"""
+        QFrame#{frame.objectName()} {{
+            background-color: {frame_color};
+            border: 2px solid {border_color};
+            border-radius: 10px;
+        }}
+        """)
+
+        title.setStyleSheet(f"""
+        QLabel#{title.objectName()} {{
+            font: bold 14pt "Segoe UI";
+            color: white;
+            background-color: {title_bg};
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid {title_bg};
+        }}
+        """)
+
+
+
                 
 # Run Application Mantap Sekali 
 if __name__ == "__main__":

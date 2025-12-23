@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabvnLdoY.ui'
+## Form generated from reading UI file 'ecolabQEmQPj.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.0
+## Created by: Qt User Interface Compiler version 6.10.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -5021,7 +5021,7 @@ class Ui_MainWindow(object):
         self.closeAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Close", None))
 #endif // QT_CONFIG(tooltip)
         self.closeAppBtn.setText("")
-        self.titleGrowattpage1.setText(QCoreApplication.translate("MainWindow", u"Growatt Monitoring", None))
+        self.titleGrowattpage1.setText(QCoreApplication.translate("MainWindow", u"EcoLab Power Monitoring", None))
         self.titleFlow.setText(QCoreApplication.translate("MainWindow", u"Current Power", None))
         self.currentpvpower_value.setText(QCoreApplication.translate("MainWindow", u"PV Power: 0W", None))
         self.labeltextImportGrid.setText(QCoreApplication.translate("MainWindow", u"Import from Grid:", None))
