@@ -18,11 +18,12 @@ from PySide6.QtGui import QIntValidator, QDoubleValidator
 from ui_mainwindow import Ui_MainWindow
 from ui_functions import UIFunctions
 
-from lamp_setup import LampSetup
-from widgets.lamp_button import LampButton
 
+from lamp_setup import LampSetup
 from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
+
+from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
 from backend.weathercloud_backend import WeatherCloudBackend
 from backend.mqtt_client import MqttClient
@@ -534,7 +535,7 @@ class MainWindow(QMainWindow):
             for btn in self.ac_buttons:
                 btn.setEnabled(statemcuB)
                 
-# Run Application 
+# Run Application Mantap Sekali 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
