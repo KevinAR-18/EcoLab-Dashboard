@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabQEmQPj.ui'
+## Form generated from reading UI file 'ecolabLqFDDp.ui'
 ##
+## Created by: Qt User Interface Compiler version 6.10.1
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -228,19 +229,18 @@ class Ui_MainWindow(object):
 "#contentTopBg{	\n"
 "	background-color: #002B5B;\n"
 "}\n"
-"#contentBottom{\n"
-"	border-top: 3px solid #005C99;\n"
-"	/* background-color: #E6F4FF; \u2705 biru muda mendekati putih */\n"
+"\n"
+"#contentBottom {\n"
+"    border-top: 3px solid #005C99;\n"
+"\n"
 "    background: qlineargradient(\n"
 "        x1:0, y1:0, x2:0, y2:1,\n"
-"        stop:0 #E1F2FB,   /* atas */\n"
-"        stop:1 #F1F9F9    /* bawah */\n"
+"        stop:0 #E1F2FB,\n"
+"        stop:1 #F1F9F9\n"
 "    );\n"
+"\n"
+"    border-image: url(:/images/images/images/bg5.png) 0 0 0 0 stretch stretch;\n"
 "}\n"
-"\n"
-"\n"
-"\n"
-"\n"
 "\n"
 "/* Top Buttons */\n"
 "#rightButtons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }\n"
@@ -249,10 +249,10 @@ class Ui_MainWindow(object):
 "\n"
 "/* Theme Settings */\n"
 "#extraRightBox { background-color: #003F7D; }\n"
-"#themeSettingsTopDetail { background-color: #0091"
-                        "E5; }\n"
+"#themeSettingsTopDetail { background-color: #0091E5; }\n"
 "\n"
-"/* Bottom Bar */\n"
+"/*"
+                        " Bottom Bar */\n"
 "#bottomBar { background-color: #003F7D; }\n"
 "#bottomBar QLabel { font-size: 11px; color: rgb(210, 230, 255); padding-left: 10px; padding-right: 10px; padding-bottom: 2px; }\n"
 "\n"
@@ -283,9 +283,9 @@ class Ui_MainWindow(object):
 "	background-color: #003F7D;\n"
 "}\n"
 "#pagesContainer QPushButton:hover {\n"
-"	background-"
-                        "color: #005C99;\n"
-"	border: 2px solid #0074CC;\n"
+"	background-color: #005C99;\n"
+""
+                        "	border: 2px solid #0074CC;\n"
 "}\n"
 "#pagesContainer QPushButton:pressed {	\n"
 "	background-color: #002B5B;\n"
@@ -297,6 +297,7 @@ class Ui_MainWindow(object):
 "")
         self.horizontalLayout_54 = QHBoxLayout(self.styleSheet)
         self.horizontalLayout_54.setObjectName(u"horizontalLayout_54")
+        self.horizontalLayout_54.setContentsMargins(-1, -1, 9, -1)
         self.bgApp = QFrame(self.styleSheet)
         self.bgApp.setObjectName(u"bgApp")
         self.bgApp.setFrameShape(QFrame.Shape.StyledPanel)
@@ -2555,12 +2556,13 @@ class Ui_MainWindow(object):
         self.frameLamp.setFrameShape(QFrame.Shape.NoFrame)
         self.frameLamp.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_42 = QVBoxLayout(self.frameLamp)
+        self.verticalLayout_42.setSpacing(25)
         self.verticalLayout_42.setObjectName(u"verticalLayout_42")
-        self.verticalLayout_42.setContentsMargins(-1, 250, -1, 250)
+        self.verticalLayout_42.setContentsMargins(-1, 230, -1, 230)
         self.frameInsideLamp = QFrame(self.frameLamp)
         self.frameInsideLamp.setObjectName(u"frameInsideLamp")
-        self.frameInsideLamp.setMinimumSize(QSize(0, 0))
-        self.frameInsideLamp.setMaximumSize(QSize(16777215, 310))
+        self.frameInsideLamp.setMinimumSize(QSize(0, 150))
+        self.frameInsideLamp.setMaximumSize(QSize(16777215, 16777215))
         self.frameInsideLamp.setStyleSheet(u"#frameInsideLamp{\n"
 "	background-color: #def0ff;        /* warna latar belakang (gelap elegan)  #c6e1f7 */\n"
 "	border: 2px solid #cfe7fa;        /* ketebalan dan warna border */\n"
@@ -3441,10 +3443,14 @@ class Ui_MainWindow(object):
         self.horizontalLayout_32.setContentsMargins(0, 0, 0, 0)
         self.frameIndoor = QFrame(self.frame_3)
         self.frameIndoor.setObjectName(u"frameIndoor")
+        self.frameIndoor.setMaximumSize(QSize(16777215, 550))
         self.frameIndoor.setStyleSheet(u"#frameIndoor {\n"
 "    background-color: #EDF6FC;   /* biru sangat pucat */\n"
-"    border: 1.5px solid #D9E9F6; /* garis tipis, hampir menyatu */\n"
+"\n"
+"    border: 1.5px solid transparent;\n"
 "    border-radius: 12px;\n"
+"\n"
+"    /*border-image: url(:/images/images/images/bg9.png) 12 12 12 12 stretch stretch;*/\n"
 "}\n"
 "")
         self.frameIndoor.setFrameShape(QFrame.Shape.NoFrame)
@@ -3454,11 +3460,12 @@ class Ui_MainWindow(object):
         self.verticalLayout_49.setContentsMargins(50, 50, 50, 50)
         self.frame_7 = QFrame(self.frameIndoor)
         self.frame_7.setObjectName(u"frame_7")
+        self.frame_7.setMaximumSize(QSize(16777215, 538))
         self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_7.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_51 = QVBoxLayout(self.frame_7)
         self.verticalLayout_51.setObjectName(u"verticalLayout_51")
-        self.verticalLayout_51.setContentsMargins(0, 176, 0, 185)
+        self.verticalLayout_51.setContentsMargins(0, 0, 0, 0)
         self.IndoorTitleFrame = QFrame(self.frame_7)
         self.IndoorTitleFrame.setObjectName(u"IndoorTitleFrame")
         self.IndoorTitleFrame.setMaximumSize(QSize(16777215, 100))
@@ -3477,6 +3484,7 @@ class Ui_MainWindow(object):
         self.titleIndoor.setObjectName(u"titleIndoor")
         sizePolicy2.setHeightForWidth(self.titleIndoor.sizePolicy().hasHeightForWidth())
         self.titleIndoor.setSizePolicy(sizePolicy2)
+        self.titleIndoor.setMinimumSize(QSize(522, 40))
         self.titleIndoor.setMaximumSize(QSize(422, 45))
         self.titleIndoor.setFont(font6)
         self.titleIndoor.setStyleSheet(u"#titleIndoor{\n"
@@ -3518,6 +3526,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_45.setContentsMargins(0, 0, 0, 0)
         self.frameTempIndoor = QFrame(self.frame_5)
         self.frameTempIndoor.setObjectName(u"frameTempIndoor")
+        self.frameTempIndoor.setMinimumSize(QSize(0, 374))
+        self.frameTempIndoor.setMaximumSize(QSize(16777215, 374))
         self.frameTempIndoor.setStyleSheet(u"#frameTempIndoor{\n"
 "    background-color: #FFF3E6;   /* cream orange muda */\n"
 "    border: 2px solid #FFD6B0;   /* peach soft */\n"
@@ -3602,6 +3612,8 @@ class Ui_MainWindow(object):
 
         self.frameHumidIndoor = QFrame(self.frame_5)
         self.frameHumidIndoor.setObjectName(u"frameHumidIndoor")
+        self.frameHumidIndoor.setMinimumSize(QSize(0, 374))
+        self.frameHumidIndoor.setMaximumSize(QSize(16777215, 374))
         self.frameHumidIndoor.setStyleSheet(u"#frameHumidIndoor{\n"
 "background-color: #EAF7F4;   /* hijau sangat muda */\n"
 "border: 2px solid #CDE6E0;   /* hijau abu soft */\n"
@@ -3690,6 +3702,7 @@ class Ui_MainWindow(object):
         self.frameOutdoor = QFrame(self.frame_3)
         self.frameOutdoor.setObjectName(u"frameOutdoor")
         self.frameOutdoor.setMinimumSize(QSize(0, 0))
+        self.frameOutdoor.setMaximumSize(QSize(16777215, 700))
         self.frameOutdoor.setStyleSheet(u"#frameOutdoor {\n"
 "    background-color: #EDF6FC;   /* biru sangat pucat */\n"
 "    border: 1.5px solid #D9E9F6; /* garis tipis, hampir menyatu */\n"
@@ -3713,6 +3726,7 @@ class Ui_MainWindow(object):
         self.titleOutdoor.setObjectName(u"titleOutdoor")
         sizePolicy2.setHeightForWidth(self.titleOutdoor.sizePolicy().hasHeightForWidth())
         self.titleOutdoor.setSizePolicy(sizePolicy2)
+        self.titleOutdoor.setMinimumSize(QSize(522, 45))
         self.titleOutdoor.setMaximumSize(QSize(422, 45))
         self.titleOutdoor.setFont(font6)
         self.titleOutdoor.setStyleSheet(u"#titleOutdoor{\n"

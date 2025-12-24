@@ -107,6 +107,7 @@ class MainWindow(QMainWindow):
             self.ui_functions.toggle_max_restore
         )
         self.ui.closeAppBtn.clicked.connect(self.close)
+        self.ui.btn_exit.clicked.connect(self.close)
 
         # DRAG TITLE BAR
         self.ui.contentTopBg.mousePressEvent = self.ui_functions.mouse_press

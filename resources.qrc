@@ -257,6 +257,15 @@
     <file>images/icons/icon_settings.png</file>
   </qresource>
   <qresource prefix="images">
+    <file>images/images/bg7.png</file>
+    <file>images/images/bg8.png</file>
+    <file>images/images/bg9.png</file>
+    <file>images/images/bg6.png</file>
+    <file>images/images/bg2.png</file>
+    <file>images/images/bg3.png</file>
+    <file>images/images/bg4.png</file>
+    <file>images/images/bg5.png</file>
+    <file>images/images/bg1.png</file>
     <file>images/images/019-battery.png</file>
     <file>images/images/growatt.png</file>
     <file>images/images/024-electric-tower.png</file>

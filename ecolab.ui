@@ -222,19 +222,18 @@ Content App */
 #contentTopBg{	
 	background-color: #002B5B;
 }
-#contentBottom{
-	border-top: 3px solid #005C99;
-	/* background-color: #E6F4FF; ✅ biru muda mendekati putih */
+
+#contentBottom {
+    border-top: 3px solid #005C99;
+
     background: qlineargradient(
         x1:0, y1:0, x2:0, y2:1,
-        stop:0 #E1F2FB,   /* atas */
-        stop:1 #F1F9F9    /* bawah */
+        stop:0 #E1F2FB,
+        stop:1 #F1F9F9
     );
+
+    border-image: url(:/images/images/images/bg5.png) 0 0 0 0 stretch stretch;
 }
-
-
-
-
 
 /* Top Buttons */
 #rightButtons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
@@ -289,6 +288,9 @@ Button */
 </string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_54">
+    <property name="rightMargin">
+     <number>9</number>
+    </property>
     <item>
      <widget class="QFrame" name="bgApp">
       <property name="frameShape">
@@ -5549,24 +5551,27 @@ qproperty-alignment: AlignCenter;
                              <enum>QFrame::Shadow::Raised</enum>
                             </property>
                             <layout class="QVBoxLayout" name="verticalLayout_42">
+                             <property name="spacing">
+                              <number>25</number>
+                             </property>
                              <property name="topMargin">
-                              <number>250</number>
+                              <number>230</number>
                              </property>
                              <property name="bottomMargin">
-                              <number>250</number>
+                              <number>230</number>
                              </property>
                              <item>
                               <widget class="QFrame" name="frameInsideLamp">
                                <property name="minimumSize">
                                 <size>
                                  <width>0</width>
-                                 <height>0</height>
+                                 <height>150</height>
                                 </size>
                                </property>
                                <property name="maximumSize">
                                 <size>
                                  <width>16777215</width>
-                                 <height>310</height>
+                                 <height>16777215</height>
                                 </size>
                                </property>
                                <property name="styleSheet">
@@ -7187,11 +7192,20 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                           </property>
                           <item>
                            <widget class="QFrame" name="frameIndoor">
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>550</height>
+                             </size>
+                            </property>
                             <property name="styleSheet">
                              <string notr="true">#frameIndoor {
     background-color: #EDF6FC;   /* biru sangat pucat */
-    border: 1.5px solid #D9E9F6; /* garis tipis, hampir menyatu */
+
+    border: 1.5px solid transparent;
     border-radius: 12px;
+
+    /*border-image: url(:/images/images/images/bg9.png) 12 12 12 12 stretch stretch;*/
 }
 </string>
                             </property>
@@ -7216,6 +7230,12 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                              </property>
                              <item>
                               <widget class="QFrame" name="frame_7">
+                               <property name="maximumSize">
+                                <size>
+                                 <width>16777215</width>
+                                 <height>538</height>
+                                </size>
+                               </property>
                                <property name="frameShape">
                                 <enum>QFrame::Shape::NoFrame</enum>
                                </property>
@@ -7227,13 +7247,13 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                                  <number>0</number>
                                 </property>
                                 <property name="topMargin">
-                                 <number>176</number>
+                                 <number>0</number>
                                 </property>
                                 <property name="rightMargin">
                                  <number>0</number>
                                 </property>
                                 <property name="bottomMargin">
-                                 <number>185</number>
+                                 <number>0</number>
                                 </property>
                                 <item>
                                  <widget class="QFrame" name="IndoorTitleFrame">
@@ -7267,6 +7287,12 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                                        <horstretch>0</horstretch>
                                        <verstretch>0</verstretch>
                                       </sizepolicy>
+                                     </property>
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>522</width>
+                                       <height>40</height>
+                                      </size>
                                      </property>
                                      <property name="maximumSize">
                                       <size>
@@ -7346,6 +7372,18 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                                    </property>
                                    <item>
                                     <widget class="QFrame" name="frameTempIndoor">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>0</width>
+                                       <height>374</height>
+                                      </size>
+                                     </property>
+                                     <property name="maximumSize">
+                                      <size>
+                                       <width>16777215</width>
+                                       <height>374</height>
+                                      </size>
+                                     </property>
                                      <property name="styleSheet">
                                       <string notr="true">#frameTempIndoor{
     background-color: #FFF3E6;   /* cream orange muda */
@@ -7515,6 +7553,18 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                                    </item>
                                    <item>
                                     <widget class="QFrame" name="frameHumidIndoor">
+                                     <property name="minimumSize">
+                                      <size>
+                                       <width>0</width>
+                                       <height>374</height>
+                                      </size>
+                                     </property>
+                                     <property name="maximumSize">
+                                      <size>
+                                       <width>16777215</width>
+                                       <height>374</height>
+                                      </size>
+                                     </property>
                                      <property name="styleSheet">
                                       <string notr="true">#frameHumidIndoor{
 background-color: #EAF7F4;   /* hijau sangat muda */
@@ -7696,6 +7746,12 @@ qproperty-alignment: AlignCenter;
                               <height>0</height>
                              </size>
                             </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>700</height>
+                             </size>
+                            </property>
                             <property name="styleSheet">
                              <string notr="true">#frameOutdoor {
     background-color: #EDF6FC;   /* biru sangat pucat */
@@ -7730,6 +7786,12 @@ qproperty-alignment: AlignCenter;
                                    <horstretch>0</horstretch>
                                    <verstretch>0</verstretch>
                                   </sizepolicy>
+                                 </property>
+                                 <property name="minimumSize">
+                                  <size>
+                                   <width>522</width>
+                                   <height>45</height>
+                                  </size>
                                  </property>
                                  <property name="maximumSize">
                                   <size>
