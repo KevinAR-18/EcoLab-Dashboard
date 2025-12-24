@@ -1,4 +1,4 @@
-import sys,random
+import sys,random,os
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
     QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject,
@@ -50,6 +50,9 @@ class MainWindow(QMainWindow):
         # SETUP UI
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        
+        # Method untuk inisialisasi GUI yang saat aplikasi berjalan.
+        self.initUI()
 
         self.ui.logPlainEdit.setReadOnly(True)
         self._weather_initial_fetched = False
@@ -710,8 +713,24 @@ class MainWindow(QMainWindow):
         }}
         """)
 
-
-
+    def initUI(self):
+        """Pengaturan Awal GUI"""
+        # Mengatur Judul Aplikasi
+        self.setWindowTitle("EcoLab Dashboard")
+    
+        # Mengatur Icon Aplikasi
+        pixmap = QPixmap(self.resource_path("icon\\ecolablogo.ico"))
+        icon = QIcon(pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.setWindowIcon(icon)
+        
+    def resource_path(self, relative_path):
+        """ Mengonversi path relatif menjadi path absolut. 
+        Berguna untuk memastikan file dapat ditemukan dari 
+        direktori aplikasi saat ini.
+        """
+        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini. 
+        return os.path.join(base_path, relative_path)
+        
                 
 # Run Application Mantap Sekali 
 if __name__ == "__main__":
