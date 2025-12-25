@@ -719,7 +719,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("EcoLab Dashboard")
     
         # Mengatur Icon Aplikasi
-        pixmap = QPixmap(self.resource_path("icon\\ecolablogo.ico"))
+        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.setWindowIcon(icon)
         
