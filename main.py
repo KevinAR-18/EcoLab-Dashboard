@@ -228,7 +228,12 @@ class MainWindow(QMainWindow):
         # Disable input IP & add button (belum digunakan)
         self.ui.inputIP.setEnabled(False)
         self.ui.btn_add.setEnabled(False)
-
+        
+        self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
+        self.lampbutton_backend.start()
+        
+        self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
+        self.acbutton_backend.start()
 
         # AC CONTROL BUTTONS
         self.ui.btn_temp_up.clicked.connect(self.ac_temp_up)
@@ -258,6 +263,14 @@ class MainWindow(QMainWindow):
         self.timerMCUStatus = QTimer(self)
         self.timerMCUStatus.timeout.connect(self.update_mcu_status_ui)
         self.timerMCUStatus.start(1000)  # 1 detik
+        
+        self.timerLampState = QTimer(self)
+        self.timerLampState.timeout.connect(self.update_lamp_ui_from_state)
+        self.timerLampState.start(300)
+        
+        self.timerACState = QTimer(self)
+        self.timerACState.timeout.connect(self.update_ac_ui_from_state)
+        self.timerACState.start(300)
 
         # SHOW WINDOW
         self.show()
@@ -485,7 +498,7 @@ class MainWindow(QMainWindow):
             avg_temp,
             self.ui.frameTempIndoor,
             self.ui.titleSuhuIndoor
-        )
+        )   
         
         self.update_humidity_style(
             avg_hum,
@@ -495,7 +508,8 @@ class MainWindow(QMainWindow):
 
 
     def publish_lamp(self, lamp_index: int, state: bool):
-        self.lampbutton_backend.set_lamp(lamp_index, state)
+        # self.lampbutton_backend.set_lamp(lamp_index, state)
+        self.lampbutton_backend.publish(lamp_index, state)
         self.log(f"Lamp {lamp_index}: {state}")
 
     def publish_ac_power(self, state: bool):
@@ -730,6 +744,24 @@ class MainWindow(QMainWindow):
         """
         base_path = os.path.abspath(".")  # Mengatur ke directory saat ini. 
         return os.path.join(base_path, relative_path)
+    
+    
+    def update_lamp_ui_from_state(self):
+        for idx, lamp in enumerate(self.lamps, start=1):
+            state = self.lampbutton_backend.states.get(idx)
+            if state is not None:
+                lamp.blockSignals(True)
+                lamp.setChecked(state)
+                lamp.blockSignals(False)
+                
+    def update_ac_ui_from_state(self):
+        state = self.acbutton_backend.state
+        if state is not None:
+            self.ac_button.blockSignals(True)
+            self.ac_button.setChecked(state)
+            self.ac_button.blockSignals(False)
+
+
         
                 
 # Run Application Mantap Sekali 
