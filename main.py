@@ -80,6 +80,8 @@ class MainWindow(QMainWindow):
 
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
         self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
+        QTimer.singleShot(500, self.sync_ui_from_mqtt)
+
 
         # ROOT & BODY LAYOUT
         for w in [self.ui.styleSheet, self.ui.bgApp]:
@@ -751,9 +753,9 @@ class MainWindow(QMainWindow):
             state = self.lampbutton_backend.states.get(idx)
             if state is not None:
                 lamp.blockSignals(True)
-                lamp.setChecked(state)
+                lamp.setChecked(state)   # ✅ BENAR
                 lamp.blockSignals(False)
-                
+
     def update_ac_ui_from_state(self):
         state = self.acbutton_backend.state
         if state is not None:
@@ -761,8 +763,17 @@ class MainWindow(QMainWindow):
             self.ac_button.setChecked(state)
             self.ac_button.blockSignals(False)
 
+            # 🔥 TAMBAHAN WAJIB
+            if hasattr(self, "update_ac_status"):
+                self.update_ac_status(state)
 
-        
+    def sync_ui_from_mqtt(self):
+        # sinkron lampu
+        self.update_lamp_ui_from_state()
+
+        # sinkron AC
+        self.update_ac_ui_from_state()
+
                 
 # Run Application Mantap Sekali 
 if __name__ == "__main__":

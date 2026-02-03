@@ -22,7 +22,7 @@ class ACButton(QWidget):
         super().__init__(parent)
         self.setFixedSize(width, height)
         self.setCursor(Qt.PointingHandCursor)
-
+        
         # Warna pastel
         self.off_color = QColor("#DCE9F5")
         self.on_color = QColor("#A5E8FF")
@@ -114,3 +114,32 @@ class ACButton(QWidget):
         p.setBrush(Qt.white)
         p.setPen(QPen(QColor(200, 200, 200), 1))
         p.drawEllipse(self._handle_pos, 3, d, d)
+        
+
+    # def setChecked(self, state: bool):
+    #     """
+    #     Sinkron state dari MQTT / aplikasi lain
+    #     TANPA emit toggled (biar tidak loop)
+    #     """
+    #     if self._is_on == state:
+    #         return
+
+    #     self._is_on = state
+    #     self._animate_switch()
+    #     self._color_timer.start()
+
+
+    def setChecked(self, state: bool):
+        """
+        Sinkron state AC dari MQTT / restore state
+        TANPA emit signal toggled
+        """
+        if self._is_on == state:
+            return
+
+        self._is_on = state
+
+        # 🔥 PAKSA update tampilan AC
+        self._animate_switch()     # posisi toggle
+        self._color_timer.start()  # trigger warna ON/OFF
+        self.update()              # repaint widget

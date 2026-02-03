@@ -15,6 +15,7 @@ class LampButton(QWidget):
                  on_color=QColor("#FFD166"),
                  off_color=QColor("#E6EEF5")):
         super().__init__(parent)
+        
 
         self.setCursor(Qt.PointingHandCursor)
 
@@ -178,3 +179,25 @@ class LampButton(QWidget):
         p.setPen(QPen(QColor(0, 0, 0, 30), 1))
         p.setBrush(Qt.NoBrush)
         p.drawPath(egg)
+
+    def setChecked(self, state: bool):
+        if self._is_on == state:
+            return
+
+        self._is_on = state
+
+        self.fade_anim.stop()
+
+        if state:
+            self.fade_anim.setStartValue(self._glow_alpha)
+            self.fade_anim.setEndValue(0.3)
+            self.fade_anim.finished.connect(self._startPulse)
+            self.fade_anim.start()
+        else:
+            self.pulse_timer.stop()
+            self.fade_anim.setStartValue(self._glow_alpha)
+            self.fade_anim.setEndValue(0.0)
+            self.fade_anim.start()
+
+        self.update()
+

@@ -42,11 +42,7 @@ class MqttClient:
             self.client.subscribe(topic)
             self.client.message_callback_add(topic, callback)
             
-    def publish(self, topic: str, payload: str):
-        if not self.client.is_connected():
-            if self.logger:
-                self.logger(f"[MQTT] Not connected, publish skipped: {topic}")
-            return
+    def publish(self, topic, payload, retain=False):
+        self.client.publish(topic, payload, retain=retain)
 
-        self.client.publish(topic, payload)
 
