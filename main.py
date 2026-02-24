@@ -360,12 +360,19 @@ class MainWindow(QMainWindow):
         self.ui.pvtotal_value.setText(f"{data['pv_total']}")
         self.ui.loadtoday_value.setText(f"{data['load_today']}")
         self.ui.loadtotal_value.setText(f"{data['load_total']}")
-        self.ui.chargingtoday_value.setText(f"{data['battery_charge_today']}")
         self.ui.chargingtotal_value.setText(f"{data['battery_charge_total']}")
         self.ui.dischargingtoday_value.setText(f"{data['battery_discharge_today']}")
         self.ui.dischargingtotal_value.setText(f"{data['battery_discharge_total']}")
-        self.ui.imporgridttoday_value.setText(f"{data['grid_today']}")
         self.ui.imporgridttotal_value.setText(f"{data['grid_total']}")
+        
+        # self.ui.chargingtoday_value.setText(f"{data['battery_charge_today']}")
+        # self.ui.imporgridttoday_value.setText(f"{data['grid_today']}")
+        
+        charge_today = self._safe_energy_value(data.get("battery_charge_today"))
+        grid_today = self._safe_energy_value(data.get("grid_today"))
+        
+        self.ui.chargingtoday_value.setText(f"{charge_today}")
+        self.ui.imporgridttoday_value.setText(f"{grid_today}")
 
         pbat = data["battery_power"]
 
@@ -774,7 +781,23 @@ class MainWindow(QMainWindow):
         # sinkron AC
         self.update_ac_ui_from_state()
 
-                
+    def _safe_energy_value(self, value, max_limit=100000):
+        """
+        Convert value to float safely.
+        Jika invalid / terlalu besar -> return 0
+        """
+        try:
+            val = float(value)
+
+            # jika nilai terlalu besar (bug device)
+            if abs(val) > max_limit:
+                return 0
+
+            return round(val, 2)
+
+        except (ValueError, TypeError):
+            return 0
+                    
 # Run Application Mantap Sekali 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
