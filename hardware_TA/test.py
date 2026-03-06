@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 import time
 
-BROKER = "10.33.11.148"
+BROKER = "192.168.100.10" #192.168.100.10 10.33.11.148
 PORT = 1883
 TOPIC = "esp32c/data"
 

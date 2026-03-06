@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-BROKER = "10.33.11.148"   # ganti kalau broker beda
+BROKER = "10.33.73.139" #192.168.100.10 10.33.11.148
 PORT = 1883
 
 def on_connect(client, userdata, flags, rc):
@@ -13,6 +13,7 @@ def on_message(client, userdata, msg):
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
+
 
 print("[SNIFFER] Connecting to broker...")
 client.connect(BROKER, PORT, 60)

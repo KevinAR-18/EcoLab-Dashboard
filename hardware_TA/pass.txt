@@ -1,0 +1,8 @@
+dashboard, ecolab123
+mcua, mcua123
+mcub, mcub123
+smartsocket1, smart1
+smartsocket2, smart2
+smartsocket3, smart3
+smartsocket4, smart4
+smartsocket5, smart5

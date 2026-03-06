@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-BROKER = "10.33.11.148"
+BROKER = "192.168.100.10"
 PORT = 1883
 TOPIC = "esp32c/simple"
 
