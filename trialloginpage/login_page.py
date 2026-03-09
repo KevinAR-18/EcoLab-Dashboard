@@ -5,7 +5,6 @@ from pathlib import Path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
-    QInputDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
@@ -80,12 +79,10 @@ class LoginPage(QWidget):
         login = QPushButton("Login")
         signup = QPushButton("Sign Up")
         google = QPushButton("Sign in with Google")
-        forgot = QPushButton("Forgot Password")
 
         login.clicked.connect(self.login)
         signup.clicked.connect(self.signup)
         google.clicked.connect(self.google_login)
-        forgot.clicked.connect(self.reset_password)
 
         layout.addWidget(self.email)
         layout.addWidget(self.password)
@@ -93,7 +90,6 @@ class LoginPage(QWidget):
         layout.addWidget(login)
         layout.addWidget(signup)
         layout.addWidget(google)
-        layout.addWidget(forgot)
 
         self.setLayout(layout)
 
@@ -117,18 +113,6 @@ class LoginPage(QWidget):
     def google_login(self):
         result = self.service.login_with_google()
         self._handle_login_result(result, error_title="Google Login Error")
-
-    def reset_password(self):
-        email, ok = QInputDialog.getText(self, "Reset Password", "Enter Email")
-        if not ok:
-            return
-
-        result = self.service.send_reset_password(email)
-        self._show_result(
-            result,
-            success_title="Email Sent",
-            error_title="Error",
-        )
 
     def _handle_login_result(self, result, error_title):
         status = result.get("status")
