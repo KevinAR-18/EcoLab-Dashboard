@@ -1,7 +1,16 @@
 from __future__ import annotations
 
+import sys
+import types
 from datetime import datetime
 from pathlib import Path
+
+try:
+    import urllib3.contrib.appengine  # type: ignore[import-not-found]
+except ModuleNotFoundError:
+    appengine_stub = types.ModuleType("urllib3.contrib.appengine")
+    appengine_stub.is_appengine_sandbox = lambda: False
+    sys.modules["urllib3.contrib.appengine"] = appengine_stub
 
 import pyrebase
 import requests

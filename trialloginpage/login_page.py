@@ -1,3 +1,7 @@
+import importlib.util
+import sys
+from pathlib import Path
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -18,11 +22,41 @@ except ImportError:
     from auth_service import TrialLoginService
 
 
+_ROOT_MAIN_MODULE_NAME = "_ecolab_root_main"
+_ROOT_MAIN_PATH = Path(__file__).resolve().parent.parent / "main.py"
+
+
+def _resolve_root_mainwindow_class():
+    module = sys.modules.get(_ROOT_MAIN_MODULE_NAME)
+    if module is None:
+        spec = importlib.util.spec_from_file_location(_ROOT_MAIN_MODULE_NAME, _ROOT_MAIN_PATH)
+        if spec is None or spec.loader is None:
+            raise RuntimeError(f"Cannot load dashboard module from {_ROOT_MAIN_PATH}")
+
+        module = importlib.util.module_from_spec(spec)
+        root_dir = str(_ROOT_MAIN_PATH.parent)
+        if root_dir not in sys.path:
+            sys.path.insert(0, root_dir)
+        sys.modules[_ROOT_MAIN_MODULE_NAME] = module
+        try:
+            spec.loader.exec_module(module)
+        except Exception:
+            sys.modules.pop(_ROOT_MAIN_MODULE_NAME, None)
+            raise
+
+    main_window = getattr(module, "MainWindow", None)
+    if main_window is None:
+        raise RuntimeError("Dashboard module does not expose MainWindow")
+
+    return main_window
+
+
 class LoginPage(QWidget):
     def __init__(self, service=None):
         super().__init__()
         self.service = service or TrialLoginService()
         self.admin = None
+        self.dashboard = None
 
         self.setWindowTitle("EcoLab Login")
         self.resize(350, 420)
@@ -105,12 +139,32 @@ class LoginPage(QWidget):
             self.admin.show()
             return
 
+        if status == "success":
+            self._open_dashboard()
+            return
+
         if status in {"pending", "blocked", "missing_user_data", "error"}:
             title = self._warning_title(status, error_title)
             QMessageBox.warning(self, title, message)
             return
 
         QMessageBox.information(self, "Login", message)
+
+    def _open_dashboard(self):
+        try:
+            dashboard_class = _resolve_root_mainwindow_class()
+            self.dashboard = dashboard_class()
+            self.dashboard.show()
+        except Exception as exc:
+            self.dashboard = None
+            QMessageBox.warning(
+                self,
+                "Dashboard Error",
+                f"Unable to open dashboard: {exc}",
+            )
+            return
+
+        self.close()
 
     def _show_result(self, result, success_title, error_title):
         if result.get("status") == "error":
