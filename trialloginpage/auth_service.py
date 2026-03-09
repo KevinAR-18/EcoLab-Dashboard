@@ -92,6 +92,7 @@ class TrialLoginService:
                 "role_request": "admin",
                 "status": "active",
                 "date": self._today(),
+                "auth_provider": "email",
             }
         )
 
@@ -118,6 +119,7 @@ class TrialLoginService:
                     "role": "user",
                     "status": "pending",
                     "date": self._today(),
+                    "auth_provider": "email",
                 }
             )
 
@@ -142,15 +144,21 @@ class TrialLoginService:
                         "role": "user",
                         "status": "pending",
                         "date": self._today(),
+                        "auth_provider": "google",
                     }
                 )
                 return {
-                    "status": "success",
-                    "message": "Google signup request sent",
+                    "status": "pending",
+                    "message": "Google account registered, waiting admin approval",
                     "user_id": uid,
                 }
 
-            return self._build_login_result(uid, user, success_message="Google login success")
+            return self._build_login_result(
+                uid,
+                self._normalize_user_record(uid, user),
+                success_message="Google login success",
+                pending_message="Google account registered, waiting admin approval",
+            )
         except Exception as exc:
             return self._error_result(exc)
 
@@ -272,13 +280,19 @@ class TrialLoginService:
             timeout=30,
         ).json()
 
-    def _build_login_result(self, uid, user_data, success_message="Login success"):
+    def _build_login_result(
+        self,
+        uid,
+        user_data,
+        success_message="Login success",
+        pending_message="Waiting admin approval",
+    ):
         if not user_data:
             return {"status": "missing_user_data", "message": "User data not found"}
 
         status = user_data.get("status")
         if status == "pending":
-            return {"status": "pending", "message": "Waiting admin approval", "user_id": uid}
+            return {"status": "pending", "message": pending_message, "user_id": uid}
 
         if status == "blocked":
             return {"status": "blocked", "message": "Account blocked", "user_id": uid}
@@ -307,6 +321,7 @@ class TrialLoginService:
             "status": data.get("status", "pending"),
             "date": data.get("date", ""),
             "created_date": data.get("date", ""),
+            "auth_provider": data.get("auth_provider", "email"),
         }
 
     @staticmethod

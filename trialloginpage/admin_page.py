@@ -265,15 +265,18 @@ class AdminPage(QWidget):
             layout.addWidget(button, 0, column)
             column += 1
 
-        password = QPushButton("Password")
-        password.setProperty("kind", "secondary")
-        password.clicked.connect(lambda: self.open_password_dialog(user))
-        layout.addWidget(password, 1, 0)
+        next_column = 0
+        if (user.get("auth_provider") or "email") == "email":
+            password = QPushButton("Password")
+            password.setProperty("kind", "secondary")
+            password.clicked.connect(lambda: self.open_password_dialog(user))
+            layout.addWidget(password, 1, next_column)
+            next_column += 1
 
         delete = QPushButton("Delete")
         delete.setProperty("kind", "danger")
         delete.clicked.connect(lambda: self.confirm_delete(user))
-        layout.addWidget(delete, 1, 1)
+        layout.addWidget(delete, 1, next_column)
         return container
 
     def _status_actions(self, user):
