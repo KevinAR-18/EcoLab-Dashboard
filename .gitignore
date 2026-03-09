@@ -40,3 +40,6 @@ build
 dist
 
 trialloginpage\client_secret.json
+trialloginpage/firebase_service_account.json
+trialloginpage/client_secret.json
+

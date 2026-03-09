@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LoginPage</class>
+ <widget class="QWidget" name="LoginPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>520</width>
+    <height>720</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Ecolab Login</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+
+QWidget {
+    background: qlineargradient(
+        x1:0, y1:0, x2:1, y2:1,
+        stop:0 #1f5fae,
+        stop:1 #6fb3ff
+    );
+    font-family: Segoe UI;
+}
+
+/* LOGIN CARD */
+#loginCard {
+    background: rgba(255,255,255,0.85);
+    border-radius: 20px;
+}
+
+/* INPUT */
+QLineEdit {
+    background: rgba(255,255,255,0.8);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 6px;
+}
+
+/* BUTTON PRIMARY */
+QPushButton#loginButton {
+    background-color: #2f80ed;
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: bold;
+}
+
+QPushButton#loginButton:hover {
+    background-color: #1c6dd0;
+}
+
+/* BUTTON GUEST */
+QPushButton#guestButton {
+    background-color: #3c8ce7;
+    color: white;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* GOOGLE BUTTON */
+QPushButton#googleButton {
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+QPushButton {
+    font-size: 13px;
+}
+
+   </string>
+  </property>
+
+  <layout class="QVBoxLayout" name="verticalLayoutMain">
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+
+   <item>
+    <widget class="QFrame" name="loginCard">
+     <property name="minimumSize">
+      <size>
+       <width>380</width>
+       <height>560</height>
+      </size>
+     </property>
+
+     <layout class="QVBoxLayout" name="cardLayout">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <property name="leftMargin">
+       <number>24</number>
+      </property>
+      <property name="rightMargin">
+       <number>24</number>
+      </property>
+      <property name="topMargin">
+       <number>24</number>
+      </property>
+      <property name="bottomMargin">
+       <number>24</number>
+      </property>
+
+      <!-- LOGO -->
+      <item>
+       <widget class="QLabel" name="labelLogo">
+        <property name="text">
+         <string>Ecolab</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+font-size:28px;
+font-weight:bold;
+color:#1e3a8a;
+         </string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- TITLE -->
+      <item>
+       <widget class="QLabel" name="labelWelcome">
+        <property name="text">
+         <string>Welcome to EcoLab</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+font-size:20px;
+font-weight:600;
+         </string>
+        </property>
+       </widget>
+      </item>
+
+      <item>
+       <widget class="QLabel" name="labelSubtitle">
+        <property name="text">
+         <string>Energy Monitoring System</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+color:#475569;
+         </string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- GUEST BUTTON -->
+      <item>
+       <widget class="QPushButton" name="guestButton">
+        <property name="text">
+         <string>Continue as Guest</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- EMAIL -->
+      <item>
+       <widget class="QLineEdit" name="inputEmail">
+        <property name="placeholderText">
+         <string>Email</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- PASSWORD -->
+      <item>
+       <widget class="QLineEdit" name="inputPassword">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+        <property name="placeholderText">
+         <string>Password</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- REMEMBER -->
+      <item>
+       <layout class="QHBoxLayout" name="rememberLayout">
+        <item>
+         <widget class="QCheckBox" name="rememberCheck">
+          <property name="text">
+           <string>Remember me</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer1">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelForgot">
+          <property name="text">
+           <string>Forgot Password?</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">
+color:#2563eb;
+           </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+
+      <!-- LOGIN -->
+      <item>
+       <widget class="QPushButton" name="loginButton">
+        <property name="text">
+         <string>Sign In</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- GOOGLE -->
+      <item>
+       <widget class="QPushButton" name="googleButton">
+        <property name="text">
+         <string>Sign in with Google</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- SIGNUP -->
+      <item>
+       <widget class="QLabel" name="labelSignup">
+        <property name="text">
+         <string>Don't have an account? Sign Up</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+color:#1e40af;
+         </string>
+        </property>
+       </widget>
+      </item>
+
+     </layout>
+    </widget>
+   </item>
+
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
