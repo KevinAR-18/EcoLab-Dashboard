@@ -25,6 +25,8 @@ _FIREBASE_ENV_MAP = {
     "appId": "TRIALLOGIN_FIREBASE_APP_ID",
 }
 
+_DEFAULT_ADMIN_SERVICE_ACCOUNT = BASE_DIR / "firebase_service_account.json"
+
 
 def get_firebase_config():
     config = {}
@@ -33,3 +35,19 @@ def get_firebase_config():
         config[key] = os.getenv(env_name, _FIREBASE_DEFAULTS[key])
 
     return config
+
+
+def get_firebase_project_id():
+    return os.getenv("TRIALLOGIN_FIREBASE_PROJECT_ID", _FIREBASE_DEFAULTS["projectId"])
+
+
+def get_firebase_web_api_key():
+    return os.getenv("TRIALLOGIN_FIREBASE_API_KEY", _FIREBASE_DEFAULTS["apiKey"])
+
+
+def get_admin_service_account_path():
+    configured_path = os.getenv("TRIALLOGIN_FIREBASE_SERVICE_ACCOUNT")
+    if configured_path:
+        return Path(configured_path)
+
+    return _DEFAULT_ADMIN_SERVICE_ACCOUNT
