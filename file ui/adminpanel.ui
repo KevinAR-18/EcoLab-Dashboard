@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1920</width>
-    <height>1080</height>
+    <height>1094</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -62,9 +62,122 @@
 /* Top Buttons */
 #rightButtons .QPushButton { background-color: rgba(255, 255, 255, 0); border: none;  border-radius: 5px; }
 #rightButtons .QPushButton:hover { background-color: #003F7D; border-style: solid; border-radius: 4px; }
-#rightButtons .QPushButton:pressed { background-color: #002B5B; border-style: solid; border-radius: 4px; }</string>
+#rightButtons .QPushButton:pressed { background-color: #002B5B; border-style: solid; border-radius: 4px; }
+
+/* ================= TABLE ================= */
+QTableWidget {
+    background-color: #FFFFFF;
+    alternate-background-color: #F4FAFF;
+    gridline-color: #D6EAF8;
+
+    border: 1px solid #005C99;   /* border biru */
+    border-radius: 10px;         /* rounded utama */
+
+    color: #002B5B;
+
+    selection-background-color: #005C99;
+    selection-color: #FFFFFF;
+}
+
+/* ================= ITEM ================= */
+QTableWidget::item {
+    border-bottom: 1px solid #E1F2FB;
+    padding: 6px;
+}
+
+/* ================= HEADER (BIAR NYATU &amp; ROUNDED LOOK) ================= */
+QHeaderView {
+    background-color: #003F7D;   /* base header */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+QHeaderView::section {
+    background-color: transparent; /* ikut parent biar nyatu */
+    color: #FFFFFF;
+    padding: 6px;
+    border: none;
+    font-weight: 600;
+}
+
+/* ================= CORNER ================= */
+QTableCornerButton::section {
+    background-color: #003F7D;
+    border: none;
+}
+
+/* ================= SCROLLBAR VERTICAL ================= */
+QTableWidget QScrollBar:vertical {
+    background: transparent;
+    width: 12px;
+    margin: 4px 2px 4px 2px;
+}
+
+QTableWidget QScrollBar::handle:vertical {
+    background: #005C99;
+    border-radius: 5px;
+    min-height: 20px;
+}
+
+QTableWidget QScrollBar::handle:vertical:hover {
+    background: #003F7D;
+}
+
+QTableWidget QScrollBar::handle:vertical:pressed {
+    background: #002B5B;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+/* ================= SCROLLBAR HORIZONTAL ================= */
+QTableWidget QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+    margin: 2px;
+}
+
+QTableWidget QScrollBar::handle:horizontal {
+    background: #005C99;
+    border-radius: 5px;
+    min-width: 20px;
+}
+
+QTableWidget QScrollBar::handle:horizontal:hover {
+    background: #003F7D;
+}
+
+QTableWidget QScrollBar::handle:horizontal:pressed {
+    background: #002B5B;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+#infoaccountFrame QFrame {
+    background-color: #EDF6FC;   /* biru sangat pucat */
+    border: 2px solid #D9E9F6; /* garis tipis, hampir menyatu */
+    border-radius: 12px;
+    margin: 4px;
+    padding: 8px 0;
+}
+
+#infoaccountFrame QLabel {
+    border: none;              /* hapus border default */
+    background: transparent;    /* pastikan tidak ada background */
+    color: #0b3d91;            /* warna font */
+    font-weight: bold;
+    font-size: 36px;
+}
+
+
+</string>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QFrame" name="bgApp">
       <property name="styleSheet">
@@ -419,6 +532,239 @@
             <property name="frameShadow">
              <enum>QFrame::Shadow::Raised</enum>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <property name="leftMargin">
+              <number>30</number>
+             </property>
+             <property name="topMargin">
+              <number>20</number>
+             </property>
+             <property name="rightMargin">
+              <number>30</number>
+             </property>
+             <item>
+              <widget class="QFrame" name="insidetitleFrame">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>150</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>200</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">#insidetitleFrame {
+    background-color: #EDF6FC;   /* biru sangat pucat */
+    border: 1.5px solid #D9E9F6; /* garis tipis, hampir menyatu */
+    border-radius: 12px;
+}
+</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Shape::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="leftMargin">
+                 <number>10</number>
+                </property>
+                <property name="topMargin">
+                 <number>10</number>
+                </property>
+                <property name="rightMargin">
+                 <number>10</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>10</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="setFrame">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>70</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>70</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">#insidetitleFrame {
+    background-color: #EDF6FC;   /* biru sangat pucat */
+    border: 1.5px solid #D9E9F6; /* garis tipis, hampir menyatu */
+    border-radius: 12px;
+}
+</string>
+                  </property>
+                  <property name="frameShape">
+                   <enum>QFrame::Shape::NoFrame</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Shadow::Raised</enum>
+                  </property>
+                  <layout class="QHBoxLayout" name="horizontalLayout">
+                   <property name="spacing">
+                    <number>0</number>
+                   </property>
+                   <property name="leftMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="topMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QFrame" name="frame">
+                     <property name="frameShape">
+                      <enum>QFrame::Shape::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Shadow::Raised</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLabel" name="labelTitle">
+                     <property name="font">
+                      <font>
+                       <family>Segoe UI</family>
+                       <pointsize>32</pointsize>
+                       <italic>false</italic>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">#labelTitle{
+    font: bold 32pt &quot;Segoe UI&quot;;
+    color: white;
+    background-color: #33A1E0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    border: 1px solid #33A1E0;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+    qproperty-alignment: AlignCenter; /* biar teks di tengah */
+    /* Tambahan pengaturan ukuran */
+    min-width: 500px;    /* lebar minimum */
+    max-width: 1000px;    /* lebar maksimum */
+}
+</string>
+                     </property>
+                     <property name="text">
+                      <string>User Management Desk</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QFrame" name="frame_2">
+                     <property name="frameShape">
+                      <enum>QFrame::Shape::NoFrame</enum>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Shadow::Raised</enum>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_5">
+                      <item>
+                       <widget class="QFrame" name="frame_3">
+                        <property name="frameShape">
+                         <enum>QFrame::Shape::NoFrame</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Shadow::Raised</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="btn_back">
+                        <property name="minimumSize">
+                         <size>
+                          <width>90</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>90</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <family>Arial</family>
+                          <pointsize>12</pointsize>
+                          <bold>true</bold>
+                         </font>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+    border: none;
+    border-radius: 12px;
+    background-color: rgb(65, 127, 193); /* Warna background utama */
+    color: rgb(255, 255, 255); /* Warna teks */
+}
+
+QPushButton:hover {
+    background-color: rgba(65, 127, 193, 150); /* Warna saat hover */
+}
+</string>
+                        </property>
+                        <property name="text">
+                         <string>Back</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelSubtitle">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <fontweight>DemiBold</fontweight>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #33A1E0;
+    font-size: 14px;
+    font-weight: 600;
+
+</string>
+                  </property>
+                  <property name="text">
+                   <string>Review every account in one surface, confirm role changes deliberately, and use guarded actions for password and deletion flows.</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -429,12 +775,309 @@
               <height>150</height>
              </size>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>140</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::Shape::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Shadow::Raised</enum>
             </property>
+            <layout class="QHBoxLayout" name="horizontalLayoutInfo">
+             <property name="leftMargin">
+              <number>30</number>
+             </property>
+             <property name="rightMargin">
+              <number>30</number>
+             </property>
+             <item>
+              <widget class="QFrame" name="frameAccounts">
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayoutAccounts">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>20</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="labelAccountsCount">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>6</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelAccountsText">
+                  <property name="styleSheet">
+                   <string notr="true">    font-size: 14px;
+    font-weight: 600;
+	color: none;  
+</string>
+                  </property>
+                  <property name="text">
+                   <string>ACCOUNTS</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="framePending">
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayoutPending">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>20</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="labelPendingCount">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelPendingText">
+                  <property name="styleSheet">
+                   <string notr="true">    font-size: 14px;
+    font-weight: 600;
+	color: none;  
+</string>
+                  </property>
+                  <property name="text">
+                   <string>PENDING</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameActive">
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayoutActive">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>20</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="labelActiveCount">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>4</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelActiveText">
+                  <property name="styleSheet">
+                   <string notr="true">    font-size: 14px;
+    font-weight: 600;
+	color: none;  
+</string>
+                  </property>
+                  <property name="text">
+                   <string>ACTIVE</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameBlocked">
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayoutBlocked">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>20</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="labelBlockedCount">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>2</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelBlockedText">
+                  <property name="styleSheet">
+                   <string notr="true">    font-size: 14px;
+    font-weight: 600;
+	color: none;  
+</string>
+                  </property>
+                  <property name="text">
+                   <string>BLOCKED</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="frameAdmins">
+               <property name="frameShape">
+                <enum>QFrame::Shape::StyledPanel</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayoutAdmins">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>20</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="labelAdminsCount">
+                  <property name="font">
+                   <font>
+                    <pointsize>-1</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>2</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelAdminsText">
+                  <property name="styleSheet">
+                   <string notr="true">    font-size: 14px;
+    font-weight: 600;
+	color: none;  
+</string>
+                  </property>
+                  <property name="text">
+                   <string>ADMINS</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -471,7 +1114,7 @@
               <number>30</number>
              </property>
              <property name="bottomMargin">
-              <number>85</number>
+              <number>20</number>
              </property>
              <item>
               <widget class="QTableWidget" name="tabeldata">

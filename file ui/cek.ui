@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1920</width>
+    <height>1080</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+
+  <!-- ================= TITLE FRAME ================= -->
+  <widget class="QFrame" name="titleFrame">
+   <layout class="QVBoxLayout" name="titleLayout">
+
+    <item>
+     <widget class="QLabel" name="label_admin_editorial">
+      <property name="text">
+       <string>ADMIN EDITORIAL</string>
+      </property>
+     </widget>
+    </item>
+
+    <item>
+     <widget class="QLabel" name="label_title_main">
+      <property name="text">
+       <string>User management desk</string>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>20</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+     </widget>
+    </item>
+
+    <item>
+     <widget class="QLabel" name="label_description">
+      <property name="text">
+       <string>Review every account in one surface, confirm role changes deliberately, and use guarded actions for password and deletion flows.</string>
+      </property>
+     </widget>
+    </item>
+
+   </layout>
+  </widget>
+
+  <!-- ================= INFO ACCOUNT FRAME ================= -->
+  <widget class="QFrame" name="infoaccountFrame">
+   <layout class="QHBoxLayout" name="infoLayout">
+
+    <!-- CARD 1 -->
+    <item>
+     <widget class="QFrame" name="card_accounts">
+      <layout class="QVBoxLayout" name="cardLayout_accounts">
+       <item>
+        <widget class="QLabel" name="label_accounts_value">
+         <property name="text">
+          <string>6</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_accounts_text">
+         <property name="text">
+          <string>ACCOUNTS</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- CARD 2 -->
+    <item>
+     <widget class="QFrame" name="card_pending">
+      <layout class="QVBoxLayout" name="cardLayout_pending">
+       <item>
+        <widget class="QLabel" name="label_pending_value">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_pending_text">
+         <property name="text">
+          <string>PENDING</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- CARD 3 -->
+    <item>
+     <widget class="QFrame" name="card_active">
+      <layout class="QVBoxLayout" name="cardLayout_active">
+       <item>
+        <widget class="QLabel" name="label_active_value">
+         <property name="text">
+          <string>4</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_active_text">
+         <property name="text">
+          <string>ACTIVE</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- CARD 4 -->
+    <item>
+     <widget class="QFrame" name="card_blocked">
+      <layout class="QVBoxLayout" name="cardLayout_blocked">
+       <item>
+        <widget class="QLabel" name="label_blocked_value">
+         <property name="text">
+          <string>2</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_blocked_text">
+         <property name="text">
+          <string>BLOCKED</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+    <!-- CARD 5 -->
+    <item>
+     <widget class="QFrame" name="card_admins">
+      <layout class="QVBoxLayout" name="cardLayout_admins">
+       <item>
+        <widget class="QLabel" name="label_admins_value">
+         <property name="text">
+          <string>2</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_admins_text">
+         <property name="text">
+          <string>ADMINS</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+
+   </layout>
+  </widget>
+
+ </widget>
+</ui>

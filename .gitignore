@@ -43,3 +43,9 @@ trialloginpage\client_secret.json
 trialloginpage/firebase_service_account.json
 trialloginpage/client_secret.json
 
+# =========================
+# Sensitive Files / Secrets
+# =========================
+firebase_service_account.json
+client_secret.json
+

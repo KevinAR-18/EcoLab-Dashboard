@@ -54,7 +54,7 @@ background-repeat:no-repeat;
     background-repeat: no-repeat;
     background-position: top;
     border-radius:18px;
-    border:1px solid rgba(255,255,255,0.6);
+border: 1px solid #D9E9F6;
 }
 
 /* INPUT */
@@ -217,8 +217,8 @@ text-decoration:underline;
            <widget class="QPushButton" name="closeAppBtn">
             <property name="minimumSize">
              <size>
-              <width>25</width>
-              <height>25</height>
+              <width>0</width>
+              <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -232,6 +232,22 @@ text-decoration:underline;
             </property>
             <property name="toolTip">
              <string>Close</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton#closeAppBtn {
+    background-color: #5A8BD8;       /* biru kalem, agak gelap dari background */
+    border: none;
+    border-radius: 12px;             /* rounded corners */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+QPushButton#closeAppBtn:hover {
+    background-color: #4672C4;       /* biru lebih gelap saat hover */
+}
+QPushButton#closeAppBtn:pressed {
+    background-color: #3B5CA0;       /* biru lebih gelap saat ditekan */
+}</string>
             </property>
             <property name="text">
              <string/>
@@ -653,7 +669,7 @@ border:1px solid #cfd8e3;
  <resources>
   <include location="../resources.qrc"/>
   <include location="../resources.qrc"/>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
