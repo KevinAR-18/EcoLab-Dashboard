@@ -21,10 +21,21 @@ const int mqtt_port = 8883;
 const char *mqtt_user = "smartsocket1";
 const char *mqtt_pass = "smart1";
 
+const char* client_id = "smartsocket1";
+
 // MQTT topics
 const char *topic_control = "ecolab/socket/1/control";
 const char *topic_energy = "ecolab/socket/1/energy";
-const char *topic_status = "ecolab/socket/1/status";
+const char *topic_device_status = "ecolab/socket/1/devicestatus";
+const char *topic_statusrelay = "ecolab/socket/1/relaystatus";
+
+
+// ================= MQTT TOPIC TAMBAHAN =================
+const char *topic_timer = "ecolab/socket/1/timer";
+const char *topic_timer_status = "ecolab/socket/1/timer/status";
+
+const char *topic_schedule = "ecolab/socket/1/schedule";
+const char *topic_schedule_status = "ecolab/socket/1/schedule/status";
 
 // ================= TLS CERT =================
 const char *ca_cert = R"EOF(
@@ -70,20 +81,55 @@ DS1302 rtc(RTC_CE, RTC_IO, RTC_SCLK);
 WiFiClientSecure espClient;
 PubSubClient client(espClient);
 
+// ================= GLOBAL =================
 unsigned long lastEnergy = 0;
-
 bool relayState = false;
 
-// ================= WIFI =================
+// ================= TIMER =================
+bool timerActive = false;
+unsigned long timerStartMillis = 0;
+unsigned long timerDuration = 0;
+
+// ================= SCHEDULE =================
+bool scheduleActive = false;
+int schedHour = 0;
+int schedMinute = 0;
+bool scheduleTriggered = false;
+
+
+// ================= LED FUNCTION =================
+void blinkLED(int pin, int times, int delayMs)
+{
+    for (int i = 0; i < times; i++)
+    {
+        digitalWrite(pin, HIGH);
+        delay(delayMs);
+        digitalWrite(pin, LOW);
+        delay(delayMs);
+    }
+}
+
+void blinkDualLED(int times)
+{
+    for (int i = 0; i < times; i++)
+    {
+        digitalWrite(RED_LED_PIN, HIGH);
+        digitalWrite(GREEN_LED_PIN, HIGH);
+        delay(150);
+        digitalWrite(RED_LED_PIN, LOW);
+        digitalWrite(GREEN_LED_PIN, LOW);
+        delay(150);
+    }
+}
+
+// ================= WIFI MODIF =================
 void start_wifi()
 {
-
     WiFi.mode(WIFI_STA);
-
     WiFi.setSleep(false);
     WiFi.setAutoReconnect(true);
     WiFi.persistent(false);
-    WiFi.setTxPower(WIFI_POWER_8_5dBm);  
+    WiFi.setTxPower(WIFI_POWER_8_5dBm)
 
     WiFi.begin(ssid, password);
 
@@ -97,66 +143,139 @@ void start_wifi()
 
     Serial.println("\nWiFi connected");
     Serial.println(WiFi.localIP());
+
+    blinkLED(BLUE_LED_PIN, 3, 200);
+    digitalWrite(BLUE_LED_PIN, HIGH);
 }
 
-// ================= MQTT CALLBACK =================
 void callback(char *topic, byte *payload, unsigned int length)
 {
-
-    String msg;
-
+    String msg = "";
     for (int i = 0; i < length; i++)
     {
         msg += (char)payload[i];
     }
 
-    Serial.print("Control Message: ");
+    Serial.print("Topic: ");
+    Serial.println(topic);
+    Serial.print("Message: ");
     Serial.println(msg);
 
-    if (msg == "ON")
+    // ================= CONTROL RELAY =================
+    if (String(topic) == topic_control)
     {
-
-        digitalWrite(RELAY_PIN, HIGH);
-        relayState = true;
-
-        client.publish(topic_status, "ON");
-    }
-
-    if (msg == "OFF")
-    {
-
-        digitalWrite(RELAY_PIN, LOW);
-        relayState = false;
-
-        client.publish(topic_status, "OFF");
-    }
-}
-
-// ================= MQTT CONNECT =================
-void connect_mqtt()
-{
-
-    while (!client.connected())
-    {
-
-        Serial.print("Connecting MQTT...");
-
-        if (client.connect("smartsocket1", mqtt_user, mqtt_pass))
+        if (msg == "ON")
         {
+            digitalWrite(RELAY_PIN, HIGH);
+            relayState = true;
+            client.publish(topic_statusrelay, "ON");
+        }
+        else if (msg == "OFF")
+        {
+            digitalWrite(RELAY_PIN, LOW);
+            relayState = false;
+            client.publish(topic_statusrelay, "OFF");
+        }
+    }
 
-            Serial.println("connected");
+    // ================= TIMER =================
+    else if (String(topic) == topic_timer)
+    {
+        timerDuration = msg.toInt() * 1000; // detik → ms
+        timerStartMillis = millis();
+        timerActive = true;
 
-            client.subscribe(topic_control);
+        client.publish(topic_timer_status, "TIMER STARTED");
+    }
 
-            client.publish(topic_status, "online");
+    // ================= SCHEDULE =================
+    else if (String(topic) == topic_schedule)
+    {
+        // format: HH:MM
+        int separator = msg.indexOf(':');
+        if (separator != -1)
+        {
+            schedHour = msg.substring(0, separator).toInt();
+            schedMinute = msg.substring(separator + 1).toInt();
+
+            scheduleActive = true;
+
+            client.publish(topic_schedule_status, "SCHEDULE SET");
         }
         else
         {
+            client.publish(topic_schedule_status, "FORMAT ERROR");
+        }
+    }
+}
 
-            Serial.print("failed rc=");
-            Serial.println(client.state());
+// ================= MQTT CONNECT MODIF =================
+void reconnect()
+{
+    while (!client.connected())
+    {
+        Serial.print("Connecting MQTT...");
 
+        if (client.connect(client_id, mqtt_user, mqtt_pass,
+                           topic_device_status, 0, true, "OFFLINE"))
+        {
+            Serial.println("connected");
+
+            // 🔥 KIRIM STATUS ONLINE
+            client.publish(topic_device_status, "ONLINE", true);
+
+            // 🔥 SUBSCRIBE
+            client.subscribe(topic_control);
+            client.subscribe(topic_timer);
+            client.subscribe(topic_schedule);
+        }
+        else
+        {
+            Serial.print("failed, rc=");
+            Serial.print(client.state());
             delay(2000);
+        }
+    }
+}
+
+// ================= LOOP TAMBAHAN =================
+void handleTimer()
+{
+    if (timerActive)
+    {
+        if (millis() - timerStartMillis >= timerDuration)
+        {
+            timerActive = false;
+
+            digitalWrite(RELAY_PIN, LOW);
+            relayState = false;
+
+            client.publish(topic_timer_status, "TIMER_DONE");
+        }
+    }
+}
+
+void handleSchedule()
+{
+    if (scheduleActive)
+    {
+        Time timeRTC = rtc.time();
+
+        if (timeRTC.hr == schedHour && timeRTC.min == schedMinute)
+        {
+            if (!scheduleTriggered)
+            {
+                scheduleTriggered = true;
+
+                relayState = !relayState;
+                digitalWrite(RELAY_PIN, relayState);
+
+                client.publish(topic_schedule_status, "SCHEDULE_TRIGGER");
+            }
+        }
+        else
+        {
+            scheduleTriggered = false;
         }
     }
 }
@@ -164,13 +283,13 @@ void connect_mqtt()
 // ================= SETUP =================
 void setup()
 {
-
     Serial.begin(115200);
 
     pinMode(RELAY_PIN, OUTPUT);
     pinMode(RED_LED_PIN, OUTPUT);
     pinMode(GREEN_LED_PIN, OUTPUT);
     pinMode(BLUE_LED_PIN, OUTPUT);
+
     digitalWrite(RELAY_PIN, LOW);
     digitalWrite(RED_LED_PIN, LOW);
     digitalWrite(GREEN_LED_PIN, LOW);
@@ -182,30 +301,31 @@ void setup()
 
     client.setServer(mqtt_server, mqtt_port);
     client.setCallback(callback);
+    client.setKeepAlive(60);
+    client.setKeepAlive(60);
 
-    // RTC init
     rtc.writeProtect(false);
     rtc.halt(false);
 
-    // PZEM start
+    // ===== SET WAKTU SEKALI SAJA =====
+    Time timeRTC(2026, 2, 6, 10, 30, 0, Time::kFriday);
+    rtc.time(timeRTC);
+
     PZEMSerial.begin(9600, SERIAL_8N1, PZEM_RX_PIN, PZEM_TX_PIN);
 }
 
 // ================= LOOP =================
 void loop()
 {
-
     if (!client.connected())
     {
-        connect_mqtt();
+        reconnect();
     }
 
     client.loop();
 
-    // ================= ENERGY DATA =================
     if (millis() - lastEnergy > 2000)
     {
-
         lastEnergy = millis();
 
         float voltage = pzem.voltage();
@@ -217,7 +337,6 @@ void loop()
 
         if (!isnan(voltage))
         {
-
             String payload = "{";
 
             payload += "\"voltage\":" + String(voltage, 2) + ",";
@@ -239,4 +358,7 @@ void loop()
             Serial.println("PZEM not responding");
         }
     }
+
+    handleTimer();
+    handleSchedule();
 }

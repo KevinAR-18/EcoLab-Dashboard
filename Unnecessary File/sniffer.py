@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 
-BROKER = "10.33.73.139" #192.168.100.10 10.33.11.148
+BROKER = "10 10.33.11.148" 10.33.73.139" #192.168.100.10 10.33.11.148
 PORT = 1883
 
 def on_connect(client, userdata, flags, rc):

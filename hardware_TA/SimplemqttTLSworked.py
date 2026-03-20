@@ -4,14 +4,14 @@ import paho.mqtt.client as mqtt
 
 # ================= MQTT CONFIG =================
 
-BROKER = "10.139.6.151"
+BROKER = "DESKTOP-CVPE153"
 PORT = 8883
 
 USERNAME = "dashboard"
 PASSWORD = "ecolab123"
 
 TOPIC_CONTROL = "ecolab/socket/1/control"
-TOPIC_STATUS = "ecolab/socket/1/status"
+TOPIC_STATUS = "ecolab/socket/1/devicestatus"
 TOPIC_ENERGY = "ecolab/socket/1/energy"
 
 CA_CERT = "ca.crt"   # path file ca.crt
