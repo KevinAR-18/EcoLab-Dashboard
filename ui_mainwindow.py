@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabgwwqGp.ui'
+## Form generated from reading UI file 'ecolabTocFkm.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##

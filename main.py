@@ -2,7 +2,7 @@ import sys,random,os
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
     QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject,
-    QObject, QPoint, QRect, QSize, QTime, QTimer, QUrl, Qt, QEvent, QStandardPaths
+    QObject, QPoint, QRect, QSize, QTime, QTimer, QUrl, Qt, QEvent, QStandardPaths, Signal
 )
 
 from PySide6.QtGui import (
@@ -12,11 +12,14 @@ from PySide6.QtGui import (
 )
 
 from PySide6.QtWidgets import *
-from PySide6.QtGui import QIntValidator, QDoubleValidator
 
 # Import UI hasil Qt Designer
 from ui_mainwindow import Ui_MainWindow
 from ui_functions import UIFunctions
+
+# Import Session Manager dan Auth Service untuk user features
+from session_manager import SessionManager
+from auth_service import TrialLoginService
 
 from lamp_setup import LampSetup
 from ac_setup import ACSetup
@@ -43,19 +46,29 @@ class Date:
         label.setText(QCoreApplication.translate("MainWindow", f"{time_text} - {date_text}", None))
         
 # Main Window
-class MainWindow(QMainWindow): 
-    def __init__(self):
+class MainWindow(QMainWindow):
+    # Signal untuk notify launcher saat logout terjadi
+    logout_signal = Signal()
+
+    def __init__(self, user_session=None):
         super().__init__()
+
+        # Simpan user session
+        self.user_session = user_session
 
         # SETUP UI
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        
+
         # Method untuk inisialisasi GUI yang saat aplikasi berjalan.
         self.initUI()
 
         self.ui.logPlainEdit.setReadOnly(True)
         self._weather_initial_fetched = False
+
+        # Setup user features (Settings page)
+        if self.user_session:
+            self.setup_user_features()
 
         # SETUP UI COMPONENTS (Lamp, AC, Arrow)
         LampSetup.setup(self.ui, self)
@@ -747,12 +760,130 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(icon)
         
     def resource_path(self, relative_path):
-        """ Mengonversi path relatif menjadi path absolut. 
-        Berguna untuk memastikan file dapat ditemukan dari 
+        """ Mengonversi path relatif menjadi path absolut.
+        Berguna untuk memastikan file dapat ditemukan dari
         direktori aplikasi saat ini.
         """
-        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini. 
+        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
         return os.path.join(base_path, relative_path)
+
+    # ===============================
+    # USER FEATURES (Settings Page)
+    # ===============================
+    def setup_user_features(self):
+        """Setup user features di Settings page"""
+        if not self.user_session:
+            return
+
+        # 1. Load user profile data
+        self.load_user_profile()
+
+        # 2. Connect tombol Update Password
+        self.ui.btnUpdatePassword.clicked.connect(self.handle_update_password)
+
+        # 3. Connect tombol Logout
+        self.ui.btnLogout.clicked.connect(self.handle_logout)
+
+        # 4. Setup Admin Panel button (jika role admin)
+        if self.user_session.get("role") == "admin":
+            # Pastikan tombol admin panel ada (belum ada di UI, perlu ditambahkan)
+            # Untuk sekarang, kita bisa tambahkan di menu atau tombol terpisah
+            self.setup_admin_features()
+
+    def load_user_profile(self):
+        """Load username dan email ke Settings page"""
+        if self.user_session:
+            # Set username dan email ke input fields
+            self.ui.inputUsername.setText(self.user_session.get("username", ""))
+            self.ui.inputEmail.setText(self.user_session.get("email", ""))
+
+    def handle_update_password(self):
+        """Handle tombol Update Password diklik"""
+        if not self.user_session:
+            return
+
+        # Cek apakah user pakai Google Auth
+        if self.user_session.get("auth_provider") == "google":
+            QMessageBox.warning(
+                self,
+                "Update Password",
+                "❌ Cannot update password for Google accounts.\n\n"
+                "Google authentication is managed by Google."
+            )
+            return
+
+        # Input dialog untuk password baru
+        from PySide6.QtWidgets import QInputDialog
+        new_password, ok = QInputDialog.getText(
+            self,
+            "Update Password",
+            "Enter your new password:",
+            QLineEdit.EchoMode.Password
+        )
+
+        if ok and new_password:
+            # Validasi password
+            if len(new_password) < 6:
+                QMessageBox.warning(
+                    self,
+                    "Invalid Password",
+                    "❌ Password must be at least 6 characters!"
+                )
+                return
+
+            # Update password via Firebase
+            try:
+                from auth_service import TrialLoginService
+                auth_service = TrialLoginService()
+
+                result = auth_service.set_user_password(
+                    self.user_session["uid"],
+                    new_password
+                )
+
+                if result["status"] == "success":
+                    QMessageBox.information(
+                        self,
+                        "Success",
+                        "✅ Password updated successfully!"
+                    )
+                else:
+                    QMessageBox.critical(
+                        self,
+                        "Error",
+                        f"❌ Failed to update password:\n{result['message']}"
+                    )
+
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Error",
+                    f"❌ Failed to update password:\n{str(e)}"
+                )
+
+    def handle_logout(self):
+        """Handle tombol Logout diklik"""
+        reply = QMessageBox.question(
+            self,
+            "Logout",
+            "Are you sure you want to logout?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if reply == QMessageBox.StandardButton.Yes:
+            # Emit logout signal untuk launcher
+            self.logout_signal.emit()
+
+    def setup_admin_features(self):
+        """Setup fitur admin (buka admin panel)"""
+        # Untuk sekarang, admin bisa buka admin panel melalui:
+        # 1. Tombol terpisah (perlu ditambahkan di UI)
+        # 2. Atau keyboard shortcut
+        # 3. Atau menu
+
+        # Placeholder untuk diimplementasikan nanti
+        pass
     
     
     def update_lamp_ui_from_state(self):

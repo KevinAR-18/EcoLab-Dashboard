@@ -22,6 +22,9 @@ import login_settings
 # Import Auth Service untuk Firebase
 from auth_service import TrialLoginService
 
+# Import Session Manager untuk remember me
+from session_manager import SessionManager
+
 # Import Role Selection Dialog dan Admin Window
 from ui_role_selection import RoleSelectionDialog
 from admin_window import AdminPanelWindow
@@ -37,6 +40,10 @@ class LoginWindow(QMainWindow):
 
         # SETUP AUTH SERVICE
         self.auth_service = TrialLoginService()
+
+        # SETUP SESSION MANAGER
+        self.session_manager = SessionManager()
+        self.user_session = None  # Store user session after login
 
         # SETUP UI FUNCTIONS (untuk draggable window)
         self.ui_functions = UIFunctions(self)
@@ -235,11 +242,20 @@ class LoginWindow(QMainWindow):
         """
         status = result.get("status")
         message = result.get("message", "")
+        user_id = result.get("user_id")
 
         # ===== ADMIN LOGIN SUCCESS =====
         if status == "admin":
-            # Tampilkan popup pilihan
-            self.show_admin_selection_dialog()
+            # Load user data dari Firebase
+            if self._load_and_save_user_session(user_id):
+                # Tampilkan popup pilihan
+                self.show_admin_selection_dialog()
+            else:
+                QMessageBox.critical(
+                    self,
+                    "Login Error",
+                    "❌ Failed to load user data"
+                )
 
         # ===== SUCCESS =====
         elif status == "success":
@@ -258,15 +274,21 @@ class LoginWindow(QMainWindow):
                 self._clear_signup_form()
                 self.show_signin_page()
             else:
-                # Login berhasil - buka dashboard
-                QMessageBox.information(
-                    self,
-                    "Login Successful",
-                    f"Welcome back! 🎉\n\n{message}"
-                )
-                # TODO: Buka dashboard utama
-                self._open_dashboard()
-                self.close()
+                # Login berhasil - load user session
+                if self._load_and_save_user_session(user_id):
+                    QMessageBox.information(
+                        self,
+                        "Login Successful",
+                        f"Welcome back! 🎉\n\n{message}"
+                    )
+                    # Close window untuk biarkan launcher ambil session
+                    self.close()
+                else:
+                    QMessageBox.critical(
+                        self,
+                        "Login Error",
+                        "❌ Failed to load user session"
+                    )
 
         # ===== PENDING (Need Admin Approval) =====
         elif status == "pending":
@@ -304,14 +326,61 @@ class LoginWindow(QMainWindow):
                 message
             )
 
+    def _load_and_save_user_session(self, uid):
+        """
+        Load user data dari Firebase dan simpan ke session
+
+        Args:
+            uid: User ID dari Firebase
+
+        Returns:
+            bool: True jika berhasil, False jika gagal
+        """
+        try:
+            # Get user record dari Firebase
+            user_data = self.auth_service.get_user_record(uid)
+
+            if not user_data:
+                print(f"ERROR: User data not found for uid: {uid}")
+                return False
+
+            # Build session object
+            self.user_session = {
+                "uid": uid,
+                "username": user_data.get("username", ""),
+                "email": user_data.get("email", ""),
+                "role": user_data.get("role", "user"),
+                "auth_provider": user_data.get("auth_provider", "email"),
+                "remember_me": self.ui.rememberCheck.isChecked()
+            }
+
+            print(f"DEBUG: User session created: {self.user_session}")
+
+            # SIMPAN SESSION SETIAP LOGIN SUCCESS (ignore remember_me sementara)
+            print(f"DEBUG: Saving session...")
+            result = self.session_manager.save_session(self.user_session)
+            print(f"DEBUG: Save result: {result}")
+
+            return True
+
+        except Exception as e:
+            print(f"ERROR loading user session: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def get_user_session(self):
+        """
+        Get user session setelah login success
+
+        Returns:
+            dict: User session data atau None
+        """
+        return self.user_session
+
     def _open_dashboard(self):
         """Buka dashboard utama"""
-        QMessageBox.information(
-            self,
-            "Opening Dashboard",
-            "Dashboard akan dibuka... 🚀\n\nTODO: Implementasi buka dashboard"
-        )
-        # TODO: Implementasi buka dashboard
+        # Close login window agar launcher bisa detect session dan buka dashboard
         self.close()
 
     def _open_admin_panel(self):
