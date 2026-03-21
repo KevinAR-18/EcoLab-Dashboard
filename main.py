@@ -778,10 +778,13 @@ class MainWindow(QMainWindow):
         # 1. Load user profile data
         self.load_user_profile()
 
-        # 2. Cek role user
+        # 2. Cek role dan auth provider
         user_role = self.user_session.get("role", "user")
+        auth_provider = self.user_session.get("auth_provider", "email")
+
         is_guest = user_role == "guest"
         is_admin = user_role == "admin"
+        is_google = auth_provider == "google"
 
         # 3. Setup tombol Admin Panel
         if is_admin:
@@ -797,25 +800,29 @@ class MainWindow(QMainWindow):
             else:
                 self.ui.btnAdminpanel.setToolTip("Admin access only")
 
-        # 4. Cek apakah guest mode
-        if is_guest:
-            # GUEST MODE: Disable fitur
+        # 4. Setup tombol Update Password
+        if is_guest or is_google:
+            # GUEST atau GOOGLE: Disable tombol Update Password
             self.ui.btnUpdatePassword.setEnabled(False)
-            self.ui.btnUpdatePassword.setToolTip("Not available in Guest Mode")
-            self.ui.btnLogout.setEnabled(False)
-            self.ui.btnLogout.setToolTip("Cannot logout from Guest Mode")
-            # Jangan connect tombol untuk guest
+            if is_guest:
+                self.ui.btnUpdatePassword.setToolTip("Not available in Guest Mode")
+            else:  # is_google
+                self.ui.btnUpdatePassword.setToolTip("Managed by Google authentication")
         else:
-            # REGULAR USER & ADMIN: Enable dan connect tombol
+            # REGULAR USER & ADMIN: Enable dan connect tombol Update Password
             self.ui.btnUpdatePassword.setEnabled(True)
             self.ui.btnUpdatePassword.setToolTip("")
-            self.ui.btnLogout.setEnabled(True)
-            self.ui.btnLogout.setToolTip("")
-
-            # Connect tombol Update Password
             self.ui.btnUpdatePassword.clicked.connect(self.handle_update_password)
 
-            # Connect tombol Logout
+        # 5. Setup tombol Logout
+        if is_guest:
+            # GUEST: Disable tombol Logout
+            self.ui.btnLogout.setEnabled(False)
+            self.ui.btnLogout.setToolTip("Cannot logout from Guest Mode")
+        else:
+            # REGULAR USER & ADMIN (termasuk Google): Enable tombol Logout
+            self.ui.btnLogout.setEnabled(True)
+            self.ui.btnLogout.setToolTip("")
             self.ui.btnLogout.clicked.connect(self.handle_logout)
 
     def load_user_profile(self):
