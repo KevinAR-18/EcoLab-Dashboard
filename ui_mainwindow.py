@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabTocFkm.ui'
+## Form generated from reading UI file 'ecolabiLjALG.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -4730,8 +4730,10 @@ class Ui_MainWindow(object):
         self.inputUsername.setEnabled(False)
         self.inputUsername.setMaximumSize(QSize(16777215, 50))
         self.inputUsername.setStyleSheet(u"QLineEdit#inputUsername {\n"
-"    background-color: rgba(240, 243, 247, 0.9);\n"
-"    color: rgb(160, 170, 180);\n"
+"    background-color: rgba(240, 243, 247, 0.9); /* soft background */\n"
+"    color: rgb(40, 40, 40); /* teks gelap, jelas terbaca */\n"
+"    font-size: 13pt; /* ukuran font */\n"
+"    font-weight: 500; /* sedikit bold supaya lebih jelas */\n"
 "    border: 2px solid rgb(210, 220, 230);\n"
 "    border-radius: 8px;\n"
 "    padding: 6px;\n"
@@ -4769,8 +4771,10 @@ class Ui_MainWindow(object):
         self.inputEmail.setEnabled(False)
         self.inputEmail.setMaximumSize(QSize(16777215, 50))
         self.inputEmail.setStyleSheet(u"QLineEdit#inputEmail {\n"
-"    background-color: rgba(240, 243, 247, 0.9);\n"
-"    color: rgb(160, 170, 180);\n"
+"    background-color: rgba(240, 243, 247, 0.9); /* soft background */\n"
+"    color: rgb(40, 40, 40); /* teks gelap, jelas terbaca */\n"
+"    font-size: 13pt; /* ukuran font */\n"
+"    font-weight: 500; /* sedikit bold supaya lebih jelas */\n"
 "    border: 2px solid rgb(210, 220, 230);\n"
 "    border-radius: 8px;\n"
 "    padding: 6px;\n"
@@ -5204,6 +5208,7 @@ class Ui_MainWindow(object):
         self.titleSettings.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.titleProfile.setText(QCoreApplication.translate("MainWindow", u"User Profile", None))
         self.labelUsername.setText(QCoreApplication.translate("MainWindow", u"Username", None))
+        self.inputUsername.setText("")
         self.labelEmail.setText(QCoreApplication.translate("MainWindow", u"Email", None))
         self.btnUpdatePassword.setText(QCoreApplication.translate("MainWindow", u"Update Password", None))
         self.btnAdminpanel.setText(QCoreApplication.translate("MainWindow", u"Admin Panel", None))

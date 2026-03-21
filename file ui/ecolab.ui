@@ -9702,12 +9702,17 @@ color: white;
                                        </property>
                                        <property name="styleSheet">
                                         <string notr="true">QLineEdit#inputUsername {
-    background-color: rgba(240, 243, 247, 0.9);
-    color: rgb(160, 170, 180);
+    background-color: rgba(240, 243, 247, 0.9); /* soft background */
+    color: rgb(40, 40, 40); /* teks gelap, jelas terbaca */
+    font-size: 13pt; /* ukuran font */
+    font-weight: 500; /* sedikit bold supaya lebih jelas */
     border: 2px solid rgb(210, 220, 230);
     border-radius: 8px;
     padding: 6px;
 }</string>
+                                       </property>
+                                       <property name="text">
+                                        <string/>
                                        </property>
                                       </widget>
                                      </item>
@@ -9769,8 +9774,10 @@ qproperty-alignment: AlignCenter;
                                        </property>
                                        <property name="styleSheet">
                                         <string notr="true">QLineEdit#inputEmail {
-    background-color: rgba(240, 243, 247, 0.9);
-    color: rgb(160, 170, 180);
+    background-color: rgba(240, 243, 247, 0.9); /* soft background */
+    color: rgb(40, 40, 40); /* teks gelap, jelas terbaca */
+    font-size: 13pt; /* ukuran font */
+    font-weight: 500; /* sedikit bold supaya lebih jelas */
     border: 2px solid rgb(210, 220, 230);
     border-radius: 8px;
     padding: 6px;
