@@ -139,7 +139,14 @@ class TrialLoginService:
         except Exception as exc:
             return self._error_result(exc)
 
-    def login_with_google(self):
+    def login_with_google(self, create_if_not_exists=True):
+        """
+        Login dengan Google OAuth.
+
+        Args:
+            create_if_not_exists: Jika True, auto create account jika belum ada.
+                                 Jika False, hanya login, return error jika belum ada.
+        """
         try:
             userinfo = self._google_auth_login()
             uid = userinfo["id"]
@@ -148,22 +155,31 @@ class TrialLoginService:
             user = self.get_user_record(uid)
 
             if not user:
-                self.db.child("users").child(uid).set(
-                    {
-                        "username": name,
-                        "email": email,
-                        "role_request": "user",
-                        "role": "user",
+                # Jika user belum ada
+                if create_if_not_exists:
+                    # Sign up mode - auto create account
+                    self.db.child("users").child(uid).set(
+                        {
+                            "username": name,
+                            "email": email,
+                            "role_request": "user",
+                            "role": "user",
+                            "status": "pending",
+                            "date": self._today(),
+                            "auth_provider": "google",
+                        }
+                    )
+                    return {
                         "status": "pending",
-                        "date": self._today(),
-                        "auth_provider": "google",
+                        "message": "Google account registered, waiting admin approval",
+                        "user_id": uid,
                     }
-                )
-                return {
-                    "status": "pending",
-                    "message": "Google account registered, waiting admin approval",
-                    "user_id": uid,
-                }
+                else:
+                    # Sign in mode - jangan create, return error
+                    return {
+                        "status": "error",
+                        "message": "Google account not registered. Please sign up first.",
+                    }
 
             return self._build_login_result(
                 uid,
@@ -246,9 +262,30 @@ class TrialLoginService:
 
     def delete_user(self, uid):
         try:
-            self.admin_client.delete_user(uid)
-            self.db.child("users").child(uid).remove()
-            return {"status": "success", "message": "User deleted", "user_id": uid}
+            # Get user data untuk cek auth provider
+            user = self.get_user_record(uid)
+
+            if not user:
+                return {"status": "error", "message": "User data not found"}
+
+            auth_provider = user.get("auth_provider", "email")
+
+            if auth_provider == "google":
+                # Google Auth users tidak bisa dihapus dari Firebase Auth
+                # Hanya hapus dari database
+                self.db.child("users").child(uid).remove()
+                return {
+                    "status": "success",
+                    "message": "Google user removed from database. Note: User may still be able to login with Google.",
+                    "user_id": uid,
+                    "warning": "google_auth"
+                }
+            else:
+                # Email auth users - bisa dihapus dari Firebase Auth
+                self.admin_client.delete_user(uid)
+                self.db.child("users").child(uid).remove()
+                return {"status": "success", "message": "User deleted successfully", "user_id": uid}
+
         except Exception as exc:
             return self._error_result(exc)
 

@@ -74,6 +74,8 @@ QTableWidget {
     border-radius: 10px;         /* rounded utama */
 
     color: #002B5B;
+    font-size: 11pt;
+    font-weight: 600;
 
     selection-background-color: #005C99;
     selection-color: #FFFFFF;
@@ -82,7 +84,17 @@ QTableWidget {
 /* ================= ITEM ================= */
 QTableWidget::item {
     border-bottom: 1px solid #E1F2FB;
-    padding: 6px;
+    padding: 8px;
+    font-weight: 600;
+}
+
+QTableWidget::item:hover {
+    background-color: #E8F4FC;
+}
+
+QTableWidget::item:selected {
+    background-color: #005C99;
+    color: #FFFFFF;
 }
 
 /* ================= HEADER (BIAR NYATU &amp; ROUNDED LOOK) ================= */
@@ -95,9 +107,47 @@ QHeaderView {
 QHeaderView::section {
     background-color: transparent; /* ikut parent biar nyatu */
     color: #FFFFFF;
-    padding: 6px;
+    padding: 10px 8px;
     border: none;
+    font-weight: bold;
+    font-size: 11pt;
+}
+
+/* ================= COMBOBOX (ROLE DROPDOWN) ================= */
+QTableWidget QComboBox {
+    background-color: #FFFFFF;
+    border: 1px solid #005C99;
+    border-radius: 5px;
+    padding: 4px 8px;
     font-weight: 600;
+    font-size: 10pt;
+    color: #002B5B;
+}
+
+QTableWidget QComboBox:hover {
+    background-color: #E8F4FC;
+    border: 1px solid #003F7D;
+}
+
+QTableWidget QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QTableWidget QComboBox::down-arrow {
+    image: url(none);
+    border: 2px solid #005C99;
+    width: 8px;
+    height: 8px;
+    background-color: #005C99;
+}
+
+QTableWidget QComboBox QAbstractItemView {
+    background-color: #FFFFFF;
+    border: 1px solid #005C99;
+    selection-background-color: #005C99;
+    selection-color: #FFFFFF;
+    padding: 4px;
 }
 
 /* ================= CORNER ================= */
@@ -1164,9 +1214,6 @@ QPushButton:hover {
                   <pointsize>11</pointsize>
                  </font>
                 </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
-                </property>
                </column>
                <column>
                 <property name="text">
@@ -1177,9 +1224,6 @@ QPushButton:hover {
                   <family>Arial</family>
                   <pointsize>11</pointsize>
                  </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
                 </property>
                </column>
                <column>
@@ -1192,9 +1236,6 @@ QPushButton:hover {
                   <pointsize>11</pointsize>
                  </font>
                 </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
-                </property>
                </column>
                <column>
                 <property name="text">
@@ -1205,9 +1246,6 @@ QPushButton:hover {
                   <family>Arial</family>
                   <pointsize>11</pointsize>
                  </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
                 </property>
                </column>
                <column>
@@ -1220,9 +1258,6 @@ QPushButton:hover {
                   <pointsize>11</pointsize>
                  </font>
                 </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
-                </property>
                </column>
                <column>
                 <property name="text">
@@ -1234,9 +1269,6 @@ QPushButton:hover {
                   <pointsize>11</pointsize>
                  </font>
                 </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
-                </property>
                </column>
                <column>
                 <property name="text">
@@ -1247,9 +1279,6 @@ QPushButton:hover {
                   <family>Arial</family>
                   <pointsize>11</pointsize>
                  </font>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignLeading|AlignVCenter</set>
                 </property>
                </column>
               </widget>

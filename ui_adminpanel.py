@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'adminpanelRFucDt.ui'
+## Form generated from reading UI file 'adminpanelGpksKT.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -78,6 +78,8 @@ class Ui_MainWindow(object):
 "    border-radius: 10px;         /* rounded utama */\n"
 "\n"
 "    color: #002B5B;\n"
+"    font-size: 11pt;\n"
+"    font-weight: 600;\n"
 "\n"
 "    selection-background-color: #005C99;\n"
 "    selection-color: #FFFFFF;\n"
@@ -86,26 +88,75 @@ class Ui_MainWindow(object):
 "/* ================= ITEM ================= */\n"
 "QTableWidget::item {\n"
 "    border-bottom: 1px solid #E1F2FB;\n"
-"    padding: 6px;\n"
+"    padding: 8px;\n"
+"    font-weight: 600;\n"
+"}\n"
+"\n"
+"QTableWidget::item:hover {\n"
+"    background-color: #E8F4FC;\n"
+"}\n"
+"\n"
+"QTableWidget::item:selected {\n"
+"    background-color: #005C99;\n"
+"    color: #FFFFFF;\n"
 "}\n"
 "\n"
 "/* ================= HEADER (BIAR NYATU & ROUNDED LOOK) ================= */\n"
 "QHeaderView {\n"
 "    background-color: #003F7D;   /* base header */\n"
-"    border-top-left-radius: 10px;\n"
+"    border-top-left-radius: 10px"
+                        ";\n"
 "    border-top-right-radius: 10px;\n"
 "}\n"
 "\n"
 "QHeaderView::section {\n"
 "    background-color: transparent; /* ikut parent biar nyatu */\n"
 "    color: #FFFFFF;\n"
-"    padding: 6px;\n"
+"    padding: 10px 8px;\n"
 "    border: none;\n"
-"    font-weight: 600;\n"
+"    font-weight: bold;\n"
+"    font-size: 11pt;\n"
 "}\n"
 "\n"
-"/*"
-                        " ================= CORNER ================= */\n"
+"/* ================= COMBOBOX (ROLE DROPDOWN) ================= */\n"
+"QTableWidget QComboBox {\n"
+"    background-color: #FFFFFF;\n"
+"    border: 1px solid #005C99;\n"
+"    border-radius: 5px;\n"
+"    padding: 4px 8px;\n"
+"    font-weight: 600;\n"
+"    font-size: 10pt;\n"
+"    color: #002B5B;\n"
+"}\n"
+"\n"
+"QTableWidget QComboBox:hover {\n"
+"    background-color: #E8F4FC;\n"
+"    border: 1px solid #003F7D;\n"
+"}\n"
+"\n"
+"QTableWidget QComboBox::drop-down {\n"
+"    border: none;\n"
+"    width: 20px;\n"
+"}\n"
+"\n"
+"QTableWidget QComboBox::down-arrow {\n"
+"    image: url(none);\n"
+"    border: 2px solid #005C99;\n"
+"    width: 8px;\n"
+"    height: 8px;\n"
+"    background-color: #005C99;\n"
+"}\n"
+"\n"
+"QTableWidget QComboBox QAbstr"
+                        "actItemView {\n"
+"    background-color: #FFFFFF;\n"
+"    border: 1px solid #005C99;\n"
+"    selection-background-color: #005C99;\n"
+"    selection-color: #FFFFFF;\n"
+"    padding: 4px;\n"
+"}\n"
+"\n"
+"/* ================= CORNER ================= */\n"
 "QTableCornerButton::section {\n"
 "    background-color: #003F7D;\n"
 "    border: none;\n"
@@ -137,15 +188,15 @@ class Ui_MainWindow(object):
 "    height: 0px;\n"
 "}\n"
 "\n"
-"/* ================= SCROLLBAR HORIZONTAL ================= */\n"
+"/* ================= SCROLLBAR HORIZ"
+                        "ONTAL ================= */\n"
 "QTableWidget QScrollBar:horizontal {\n"
 "    background: transparent;\n"
 "    height: 10px;\n"
 "    margin: 2px;\n"
 "}\n"
 "\n"
-"QTableWidget QScrollBar::handle:horizontal "
-                        "{\n"
+"QTableWidget QScrollBar::handle:horizontal {\n"
 "    background: #005C99;\n"
 "    border-radius: 5px;\n"
 "    min-width: 20px;\n"
@@ -175,7 +226,8 @@ class Ui_MainWindow(object):
 "#infoaccountFrame QLabel {\n"
 "    border: none;              /* hapus border default */\n"
 "    background: transparent;    /* pastikan tidak ada background */\n"
-"    color: #0b3d91;            /* warna font */\n"
+"    color: #0b3"
+                        "d91;            /* warna font */\n"
 "    font-weight: bold;\n"
 "    font-size: 36px;\n"
 "}\n"
@@ -633,31 +685,24 @@ class Ui_MainWindow(object):
         font7.setFamilies([u"Arial"])
         font7.setPointSize(11)
         __qtablewidgetitem = QTableWidgetItem()
-        __qtablewidgetitem.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
-        __qtablewidgetitem1.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem1.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(1, __qtablewidgetitem1)
         __qtablewidgetitem2 = QTableWidgetItem()
-        __qtablewidgetitem2.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem2.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         __qtablewidgetitem3 = QTableWidgetItem()
-        __qtablewidgetitem3.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem3.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
-        __qtablewidgetitem4.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem4.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(4, __qtablewidgetitem4)
         __qtablewidgetitem5 = QTableWidgetItem()
-        __qtablewidgetitem5.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem5.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(5, __qtablewidgetitem5)
         __qtablewidgetitem6 = QTableWidgetItem()
-        __qtablewidgetitem6.setTextAlignment(Qt.AlignLeading|Qt.AlignVCenter);
         __qtablewidgetitem6.setFont(font7);
         self.tabeldata.setHorizontalHeaderItem(6, __qtablewidgetitem6)
         self.tabeldata.setObjectName(u"tabeldata")

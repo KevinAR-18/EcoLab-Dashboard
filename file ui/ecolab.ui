@@ -413,7 +413,6 @@ Button */
                <family>Segoe UI Semibold</family>
                <pointsize>12</pointsize>
                <italic>false</italic>
-               <fontweight></fontweight>
               </font>
              </property>
              <property name="text">
@@ -9426,7 +9425,7 @@ qproperty-alignment: AlignCenter;
                          </property>
                          <layout class="QHBoxLayout" name="horizontalLayout_79">
                           <item>
-                           <widget class="QLabel" name="titleGrowattpage1_2">
+                           <widget class="QLabel" name="titleSettings">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -9448,7 +9447,7 @@ qproperty-alignment: AlignCenter;
                              </font>
                             </property>
                             <property name="styleSheet">
-                             <string notr="true">#titleGrowattpage1_2 {
+                             <string notr="true">#titleSettings {
     font: bold 14pt &quot;Segoe UI&quot;;
     color: white;
     background-color: #5775dc;
@@ -9465,7 +9464,7 @@ qproperty-alignment: AlignCenter;
 </string>
                             </property>
                             <property name="text">
-                             <string>Debug and Settings</string>
+                             <string>Settings</string>
                             </property>
                             <property name="alignment">
                              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -9476,7 +9475,7 @@ qproperty-alignment: AlignCenter;
                         </widget>
                        </item>
                        <item>
-                        <widget class="QFrame" name="frame_52">
+                        <widget class="QFrame" name="framecontentsettings">
                          <property name="frameShape">
                           <enum>QFrame::Shape::NoFrame</enum>
                          </property>
@@ -9563,7 +9562,7 @@ qproperty-alignment: AlignCenter;
                                     </widget>
                                    </item>
                                    <item>
-                                    <widget class="QLabel" name="titlesettingmain">
+                                    <widget class="QLabel" name="titleProfile">
                                      <property name="sizePolicy">
                                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                                        <horstretch>0</horstretch>
@@ -9585,7 +9584,7 @@ qproperty-alignment: AlignCenter;
                                       </font>
                                      </property>
                                      <property name="styleSheet">
-                                      <string notr="true">#titlesettingmain{
+                                      <string notr="true">#titleProfile{
 font: bold 12pt &quot;Segoe UI&quot;;
 color: white;
 background-color: #4A90D9;   /* biru energi */
@@ -9601,7 +9600,7 @@ qproperty-alignment: AlignCenter;
 </string>
                                      </property>
                                      <property name="text">
-                                      <string>Settings</string>
+                                      <string>User Profile</string>
                                      </property>
                                      <property name="alignment">
                                       <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -9631,64 +9630,68 @@ qproperty-alignment: AlignCenter;
                                   </property>
                                   <layout class="QVBoxLayout" name="verticalLayout_33">
                                    <property name="spacing">
-                                    <number>0</number>
+                                    <number>15</number>
+                                   </property>
+                                   <property name="leftMargin">
+                                    <number>20</number>
                                    </property>
                                    <property name="topMargin">
-                                    <number>80</number>
+                                    <number>30</number>
+                                   </property>
+                                   <property name="rightMargin">
+                                    <number>20</number>
                                    </property>
                                    <property name="bottomMargin">
-                                    <number>80</number>
+                                    <number>30</number>
                                    </property>
                                    <item>
                                     <layout class="QHBoxLayout" name="horizontalLayout_81">
                                      <item>
-                                      <widget class="QLabel" name="titlesettingIP">
-                                       <property name="sizePolicy">
-                                        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                                         <horstretch>0</horstretch>
-                                         <verstretch>0</verstretch>
-                                        </sizepolicy>
+                                      <widget class="QLabel" name="labelUsername">
+                                       <property name="minimumSize">
+                                        <size>
+                                         <width>120</width>
+                                         <height>40</height>
+                                        </size>
                                        </property>
                                        <property name="maximumSize">
                                         <size>
-                                         <width>172</width>
-                                         <height>45</height>
+                                         <width>16777215</width>
+                                         <height>40</height>
                                         </size>
                                        </property>
                                        <property name="font">
                                         <font>
                                          <family>Segoe UI</family>
-                                         <pointsize>12</pointsize>
+                                         <pointsize>14</pointsize>
                                          <italic>false</italic>
                                          <bold>true</bold>
                                         </font>
                                        </property>
                                        <property name="styleSheet">
-                                        <string notr="true">#titlesettingIP{
-font: bold 12pt &quot;Segoe UI&quot;;
-color: white;
-background-color: #4A90D9;   /* biru energi */
-border-radius: 8px;
-padding: 6px 10px;
-border: 1px solid #4A90D9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
-min-width: 100px;
-max-width: 150px;
-qproperty-alignment: AlignCenter;
+                                        <string notr="true">QLabel#labelUsername {
+    font: bold 14pt &quot;Segoe UI&quot;;
+    color: white;
+    background-color: #33A1E0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    border: 1px solid #33A1E0;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+	qproperty-alignment: AlignCenter;
 }
+
 </string>
                                        </property>
                                        <property name="text">
-                                        <string>Setting IP :</string>
-                                       </property>
-                                       <property name="alignment">
-                                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                                        <string>Username</string>
                                        </property>
                                       </widget>
                                      </item>
                                      <item>
-                                      <widget class="QLineEdit" name="inputIP">
+                                      <widget class="QLineEdit" name="inputUsername">
+                                       <property name="enabled">
+                                        <bool>false</bool>
+                                       </property>
                                        <property name="maximumSize">
                                         <size>
                                          <width>16777215</width>
@@ -9696,23 +9699,13 @@ qproperty-alignment: AlignCenter;
                                         </size>
                                        </property>
                                        <property name="styleSheet">
-                                        <string notr="true">QLineEdit#inputIP {
-    background-color: rgba(255, 255, 255, 0.85); /* putih kebiruan transparan */
-    color: rgb(32, 74, 135);                      /* teks biru gelap */
-    border: 2px solid rgb(74, 144, 217);          /* biru energi */
-    border-radius: 8px;
-    padding: 6px;
-}
-QLineEdit#inputIP:focus {
-    border: 2px solid rgb(58, 155, 220);          /* biru lebih terang */
-    background-color: rgba(74, 144, 217, 0.12);   /* efek fokus lembut */
-}
-QLineEdit#inputIP:disabled {
+                                        <string notr="true">QLineEdit#inputUsername {
     background-color: rgba(240, 243, 247, 0.9);
     color: rgb(160, 170, 180);
     border: 2px solid rgb(210, 220, 230);
-}
-</string>
+    border-radius: 8px;
+    padding: 6px;
+}</string>
                                        </property>
                                       </widget>
                                      </item>
@@ -9721,7 +9714,139 @@ QLineEdit#inputIP:disabled {
                                    <item>
                                     <layout class="QHBoxLayout" name="horizontalLayout_82">
                                      <item>
+                                      <widget class="QLabel" name="labelEmail">
+                                       <property name="minimumSize">
+                                        <size>
+                                         <width>120</width>
+                                         <height>40</height>
+                                        </size>
+                                       </property>
+                                       <property name="maximumSize">
+                                        <size>
+                                         <width>16777215</width>
+                                         <height>40</height>
+                                        </size>
+                                       </property>
+                                       <property name="font">
+                                        <font>
+                                         <family>Segoe UI</family>
+                                         <pointsize>14</pointsize>
+                                         <italic>false</italic>
+                                         <bold>true</bold>
+                                        </font>
+                                       </property>
+                                       <property name="styleSheet">
+                                        <string notr="true">QLabel#labelEmail {
+    font: bold 14pt &quot;Segoe UI&quot;;
+    color: white;
+    background-color: #33A1E0;
+    border-radius: 8px;
+    padding: 6px 10px;
+    border: 1px solid #33A1E0;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+qproperty-alignment: AlignCenter;
+}
+</string>
+                                       </property>
+                                       <property name="text">
+                                        <string>Email</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item>
+                                      <widget class="QLineEdit" name="inputEmail">
+                                       <property name="enabled">
+                                        <bool>false</bool>
+                                       </property>
+                                       <property name="maximumSize">
+                                        <size>
+                                         <width>16777215</width>
+                                         <height>50</height>
+                                        </size>
+                                       </property>
+                                       <property name="styleSheet">
+                                        <string notr="true">QLineEdit#inputEmail {
+    background-color: rgba(240, 243, 247, 0.9);
+    color: rgb(160, 170, 180);
+    border: 2px solid rgb(210, 220, 230);
+    border-radius: 8px;
+    padding: 6px;
+}</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                    </layout>
+                                   </item>
+                                   <item>
+                                    <layout class="QHBoxLayout" name="horizontalLayout_83">
+                                     <item>
+                                      <widget class="QPushButton" name="btnUpdatePassword">
+                                       <property name="minimumSize">
+                                        <size>
+                                         <width>150</width>
+                                         <height>45</height>
+                                        </size>
+                                       </property>
+                                       <property name="maximumSize">
+                                        <size>
+                                         <width>160</width>
+                                         <height>45</height>
+                                        </size>
+                                       </property>
+                                       <property name="font">
+                                        <font>
+                                         <family>Segoe UI</family>
+                                         <pointsize>11</pointsize>
+                                         <italic>false</italic>
+                                         <bold>true</bold>
+                                        </font>
+                                       </property>
+                                       <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                       </property>
+                                       <property name="styleSheet">
+                                        <string notr="true">QPushButton#btnUpdatePassword {
+    background-color: #4A90D9;
+    border: 2px solid #4A90D9;
+    border-radius: 8px;
+    color: white;
+    font: bold 11pt &quot;Segoe UI&quot;;
+    padding: 6px 14px;
+}
+
+QPushButton#btnUpdatePassword:hover {
+    background-color: #5BA0E9;
+}
+
+QPushButton#btnUpdatePassword:pressed {
+    background-color: #3A7BC4;
+}
+
+QPushButton#btnUpdatePassword:disabled {
+    background-color: #B5D9F0;
+    color: #F2FAF7;
+    border: 2px solid #9BC9E8;
+}</string>
+                                       </property>
+                                       <property name="text">
+                                        <string>Update Password</string>
+                                       </property>
+                                      </widget>
+                                     </item>
+                                     <item>
                                       <widget class="QFrame" name="frame_61">
+                                       <property name="minimumSize">
+                                        <size>
+                                         <width>40</width>
+                                         <height>0</height>
+                                        </size>
+                                       </property>
+                                       <property name="maximumSize">
+                                        <size>
+                                         <width>40</width>
+                                         <height>16777215</height>
+                                        </size>
+                                       </property>
                                        <property name="frameShape">
                                         <enum>QFrame::Shape::NoFrame</enum>
                                        </property>
@@ -9731,54 +9856,56 @@ QLineEdit#inputIP:disabled {
                                       </widget>
                                      </item>
                                      <item>
-                                      <widget class="QPushButton" name="btn_add">
+                                      <widget class="QPushButton" name="btnLogout">
                                        <property name="minimumSize">
                                         <size>
-                                         <width>90</width>
-                                         <height>40</height>
+                                         <width>100</width>
+                                         <height>45</height>
                                         </size>
                                        </property>
                                        <property name="maximumSize">
                                         <size>
-                                         <width>90</width>
-                                         <height>40</height>
+                                         <width>100</width>
+                                         <height>45</height>
                                         </size>
                                        </property>
                                        <property name="font">
                                         <font>
                                          <family>Segoe UI</family>
-                                         <pointsize>12</pointsize>
+                                         <pointsize>11</pointsize>
                                          <italic>false</italic>
                                          <bold>true</bold>
                                         </font>
                                        </property>
+                                       <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                       </property>
                                        <property name="styleSheet">
-                                        <string notr="true">QPushButton {
-    background-color: #4CAF8E;
-    border: 2px solid #3E9E7F;
+                                        <string notr="true">QPushButton#btnLogout {
+    background-color: #E74C3C;
+    border: 2px solid #E74C3C;
     border-radius: 8px;
     color: white;
-    font: bold 12pt &quot;Segoe UI&quot;;
+    font: bold 11pt &quot;Segoe UI&quot;;
     padding: 6px 14px;
 }
 
-QPushButton:hover {
-    background-color: #5FBFA5;
+QPushButton#btnLogout:hover {
+    background-color: #F75C4C;
 }
 
-QPushButton:pressed {
-    background-color: #3E9E7F;
+QPushButton#btnLogout:pressed {
+    background-color: #C0392B;
 }
 
-QPushButton:disabled {
-    background-color: #BFE6D8;
-    color: #F2FAF7;
-    border: 2px solid #A8D9C8;
-}
-</string>
+QPushButton#btnLogout:disabled {
+    background-color: #F5B7B1;
+    color: #FDF2F2;
+    border: 2px solid #F1948A;
+}</string>
                                        </property>
                                        <property name="text">
-                                        <string>Add</string>
+                                        <string>Logout</string>
                                        </property>
                                       </widget>
                                      </item>
@@ -9960,7 +10087,7 @@ QScrollBar::sub-line:vertical {
                            </widget>
                           </item>
                           <item>
-                           <widget class="QFrame" name="frame_54">
+                           <widget class="QFrame" name="framekosong">
                             <property name="minimumSize">
                              <size>
                               <width>936</width>

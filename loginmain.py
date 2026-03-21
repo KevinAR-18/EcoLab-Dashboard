@@ -3,12 +3,11 @@ Login Main Entry Point
 Frameless window dengan centered position, draggable, dan navigasi
 """
 import sys
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QRect
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QMessageBox, QDialog,
-    QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame, QWidget
+    QApplication, QMainWindow, QMessageBox, QDialog
 )
-from PySide6.QtGui import QScreen, QFont
+from PySide6.QtGui import QScreen
 
 # Import Qt Resources untuk load gambar
 import resources_rc
@@ -23,225 +22,9 @@ import login_settings
 # Import Auth Service untuk Firebase
 from auth_service import TrialLoginService
 
-
-class RoleSelectionDialog(QDialog):
-    """
-    Popup dialog untuk memilih dashboard atau admin panel
-    Desain simple dan clean mengikuti tema login page
-    """
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Select Destination")
-        self.setModal(True)
-        self.setFixedSize(400, 250)
-
-        # Set frameless
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-
-        self._setup_ui()
-        self._setup_animations()
-
-    def _setup_ui(self):
-        """Setup UI dengan styling mirip login page"""
-        # Main container
-        self.container = QFrame()
-        self.container.setObjectName("dialogContainer")
-        self.container.setStyleSheet("""
-            QFrame#dialogContainer {
-                background: qlineargradient(
-                    x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #E1F2FB,
-                    stop:1 #F1F9F9
-                );
-                border-radius: 18px;
-                border: 2px solid #005C99;
-            }
-        """)
-
-        layout = QVBoxLayout(self.container)
-        layout.setContentsMargins(30, 25, 30, 25)
-        layout.setSpacing(15)
-
-        # Title
-        title = QLabel("Welcome Admin! 🎉")
-        title.setObjectName("dialogTitle")
-        title.setStyleSheet("""
-            QLabel#dialogTitle {
-                font-size: 18pt;
-                font-weight: bold;
-                color: #1f3c5a;
-                background: transparent;
-            }
-        """)
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
-
-        # Subtitle
-        subtitle = QLabel("Where do you want to go?")
-        subtitle.setObjectName("dialogSubtitle")
-        subtitle.setStyleSheet("""
-            QLabel#dialogSubtitle {
-                font-size: 11pt;
-                color: #4a647d;
-                background: transparent;
-            }
-        """)
-        subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(subtitle)
-
-        # Spacer
-        layout.addSpacing(10)
-
-        # Buttons container
-        buttons_layout = QHBoxLayout()
-        buttons_layout.setSpacing(12)
-
-        # Dashboard Button
-        self.dashboard_btn = QPushButton("Dashboard")
-        self.dashboard_btn.setObjectName("dashboardBtn")
-        self.dashboard_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.dashboard_btn.setMinimumHeight(45)
-        self.dashboard_btn.setStyleSheet("""
-            QPushButton#dashboardBtn {
-                background-color: #4c8ed9;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 12px;
-                font-size: 11pt;
-                font-weight: bold;
-            }
-            QPushButton#dashboardBtn:hover {
-                background-color: #3979c7;
-            }
-            QPushButton#dashboardBtn:pressed {
-                background-color: #2d6ab3;
-            }
-        """)
-        self.dashboard_btn.clicked.connect(self.select_dashboard)
-        buttons_layout.addWidget(self.dashboard_btn)
-
-        # Admin Panel Button
-        self.admin_btn = QPushButton("Admin Panel")
-        self.admin_btn.setObjectName("adminBtn")
-        self.admin_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.admin_btn.setMinimumHeight(45)
-        self.admin_btn.setStyleSheet("""
-            QPushButton#adminBtn {
-                background-color: #2b6cb0;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 12px;
-                font-size: 11pt;
-                font-weight: bold;
-            }
-            QPushButton#adminBtn:hover {
-                background-color: #1e4f8a;
-            }
-            QPushButton#adminBtn:pressed {
-                background-color: #174173;
-            }
-        """)
-        self.admin_btn.clicked.connect(self.select_admin_panel)
-        buttons_layout.addWidget(self.admin_btn)
-
-        layout.addLayout(buttons_layout)
-
-        # Set main layout
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addWidget(self.container)
-
-        self.choice = None
-
-    def _setup_animations(self):
-        """Setup fade in animation"""
-        self.fade_animation = QPropertyAnimation(self, b"windowOpacity")
-        self.fade_animation.setDuration(300)
-        self.fade_animation.setStartValue(0.0)
-        self.fade_animation.setEndValue(1.0)
-        self.fade_animation.setEasingCurve(QEasingCurve.Type.InOutQuad)
-
-    def select_dashboard(self):
-        """User memilih dashboard"""
-        self.choice = "dashboard"
-        self.accept()
-
-    def select_admin_panel(self):
-        """User memilih admin panel"""
-        self.choice = "admin_panel"
-        self.accept()
-
-    def center_dialog(self):
-        """Center dialog on screen"""
-        from PySide6.QtWidgets import QApplication
-
-        screen = QApplication.primaryScreen().availableGeometry()
-        dialog_rect = self.geometry()
-
-        # Calculate center position
-        x = (screen.width() - dialog_rect.width()) // 2
-        y = (screen.height() - dialog_rect.height()) // 2
-
-        # Set position
-        self.move(x, y)
-
-    def exec_with_animation(self):
-        """Show dialog dengan fade in effect"""
-        self.center_dialog()
-        self.fade_animation.start()
-        return self.exec()
-
-
-class AdminPanelWindow(QMainWindow):
-    """Admin Panel Window dengan tombol back yang bisa kembali ke popup"""
-
-    def __init__(self, login_window):
-        super().__init__()
-        self.login_window = login_window  # Simpan reference ke login window
-
-        # Import admin panel UI
-        from ui_adminpanel import Ui_MainWindow as AdminPanelUI
-        from ui_functions import UIFunctions
-
-        self.ui = AdminPanelUI()
-        self.ui.setupUi(self)
-        self.ui_functions = UIFunctions(self)
-
-        # ROOT & BODY LAYOUT (SAMA SEPERTI MAIN.PY)
-        for w in [self.ui.styleSheet, self.ui.bgApp]:
-            w.setContentsMargins(0, 0, 0, 0)
-            if w.layout():
-                w.layout().setContentsMargins(0, 0, 0, 0)
-                w.layout().setSpacing(0)
-
-        self.ui.contentTop.setContentsMargins(0, 0, 0, 0)
-
-        # WINDOW SETTINGS (SAMA SEPERTI MAIN.PY)
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.Window)
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowTitle("EcoLab Admin Panel")
-
-        # Connect signals
-        self.ui.minimizeAppBtn.clicked.connect(self.showMinimized)
-        self.ui.maximizeRestoreAppBtn.clicked.connect(self.ui_functions.toggle_max_restore)
-        self.ui.closeAppBtn.clicked.connect(self.close)
-        self.ui.btn_back.clicked.connect(self.go_back_to_selection)  # ← Diubah!
-
-        # Mouse events for dragging
-        self.mousePressEvent = lambda e: self.ui_functions.mouse_press(e) if e.button() == Qt.MouseButton.LeftButton else None
-        self.mouseMoveEvent = self.ui_functions.mouse_move
-
-    def go_back_to_selection(self):
-        """Kembali ke popup pilihan dashboard/admin panel"""
-        self.close()  # Close admin panel
-
-        # Show login window lagi
-        if self.login_window:
-            self.login_window.show_admin_selection_dialog()  # Panggil popup lagi
+# Import Role Selection Dialog dan Admin Window
+from ui_role_selection import RoleSelectionDialog
+from admin_window import AdminPanelWindow
 
 
 class LoginWindow(QMainWindow):
@@ -397,22 +180,36 @@ class LoginWindow(QMainWindow):
         # TODO: Implementasi guest login logic
 
     def handle_google_signin(self):
-        """Handle tombol Google sign in diklik"""
-        QMessageBox.information(
-            self,
-            "Google Sign In",
-            "Google authentication coming soon!"
-        )
-        # TODO: Implementasi Google sign in logic
+        """Handle tombol Google sign in diklik - HANYA LOGIN, jangan create account"""
+        try:
+            # Panggil auth service untuk Google sign in (JANGAN create account)
+            result = self.auth_service.login_with_google(create_if_not_exists=False)
+
+            # Handle hasil
+            self._handle_auth_result(result, "Google Sign In")
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Google Sign In Error",
+                f"❌ Failed to sign in with Google:\n\n{str(e)}\n\nPlease try again."
+            )
 
     def handle_google_signup(self):
-        """Handle tombol Google sign up diklik"""
-        QMessageBox.information(
-            self,
-            "Google Sign Up",
-            "Google authentication coming soon!"
-        )
-        # TODO: Implementasi Google sign up logic
+        """Handle tombol Google sign up diklik - Auto create account jika belum ada"""
+        try:
+            # Panggil auth service untuk Google sign up (BOLEH create account)
+            result = self.auth_service.login_with_google(create_if_not_exists=True)
+
+            # Handle hasil
+            self._handle_auth_result(result, "Google Sign Up")
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Google Sign Up Error",
+                f"❌ Failed to sign up with Google:\n\n{str(e)}\n\nPlease try again."
+            )
 
     def show_admin_selection_dialog(self):
         """Tampilkan popup pilihan dashboard/admin panel"""

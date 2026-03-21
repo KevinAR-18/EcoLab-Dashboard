@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabLqFDDp.ui'
+## Form generated from reading UI file 'ecolabLvnfTh.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.1
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -335,7 +334,7 @@ class Ui_MainWindow(object):
         font = QFont()
         font.setFamilies([u"Segoe UI Semibold"])
         font.setPointSize(12)
-        # font.setWeight(QFont.)
+        font.setWeight(QFont.)
         font.setItalic(False)
         self.titleLeftApp.setFont(font)
         self.titleLeftApp.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
@@ -4591,13 +4590,13 @@ class Ui_MainWindow(object):
         self.framesettings.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout_79 = QHBoxLayout(self.framesettings)
         self.horizontalLayout_79.setObjectName(u"horizontalLayout_79")
-        self.titleGrowattpage1_2 = QLabel(self.framesettings)
-        self.titleGrowattpage1_2.setObjectName(u"titleGrowattpage1_2")
-        sizePolicy2.setHeightForWidth(self.titleGrowattpage1_2.sizePolicy().hasHeightForWidth())
-        self.titleGrowattpage1_2.setSizePolicy(sizePolicy2)
-        self.titleGrowattpage1_2.setMaximumSize(QSize(422, 45))
-        self.titleGrowattpage1_2.setFont(font6)
-        self.titleGrowattpage1_2.setStyleSheet(u"#titleGrowattpage1_2 {\n"
+        self.titleSettings = QLabel(self.framesettings)
+        self.titleSettings.setObjectName(u"titleSettings")
+        sizePolicy2.setHeightForWidth(self.titleSettings.sizePolicy().hasHeightForWidth())
+        self.titleSettings.setSizePolicy(sizePolicy2)
+        self.titleSettings.setMaximumSize(QSize(422, 45))
+        self.titleSettings.setFont(font6)
+        self.titleSettings.setStyleSheet(u"#titleSettings {\n"
 "    font: bold 14pt \"Segoe UI\";\n"
 "    color: white;\n"
 "    background-color: #5775dc;\n"
@@ -4612,20 +4611,20 @@ class Ui_MainWindow(object):
 "    qproperty-alignment: AlignCenter; /* biar teks di tengah */\n"
 "}\n"
 "")
-        self.titleGrowattpage1_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.titleSettings.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.horizontalLayout_79.addWidget(self.titleGrowattpage1_2)
+        self.horizontalLayout_79.addWidget(self.titleSettings)
 
 
         self.verticalLayout_21.addWidget(self.framesettings)
 
-        self.frame_52 = QFrame(self.page5_settings)
-        self.frame_52.setObjectName(u"frame_52")
-        self.frame_52.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_52.setFrameShadow(QFrame.Shadow.Raised)
-        self.horizontalLayout_78 = QHBoxLayout(self.frame_52)
+        self.framecontentsettings = QFrame(self.page5_settings)
+        self.framecontentsettings.setObjectName(u"framecontentsettings")
+        self.framecontentsettings.setFrameShape(QFrame.Shape.NoFrame)
+        self.framecontentsettings.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_78 = QHBoxLayout(self.framecontentsettings)
         self.horizontalLayout_78.setObjectName(u"horizontalLayout_78")
-        self.settingsandlogFrame = QFrame(self.frame_52)
+        self.settingsandlogFrame = QFrame(self.framecontentsettings)
         self.settingsandlogFrame.setObjectName(u"settingsandlogFrame")
         self.settingsandlogFrame.setStyleSheet(u"")
         self.settingsandlogFrame.setFrameShape(QFrame.Shape.NoFrame)
@@ -4661,13 +4660,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_80.addWidget(self.frame_58)
 
-        self.titlesettingmain = QLabel(self.frame_57)
-        self.titlesettingmain.setObjectName(u"titlesettingmain")
-        sizePolicy2.setHeightForWidth(self.titlesettingmain.sizePolicy().hasHeightForWidth())
-        self.titlesettingmain.setSizePolicy(sizePolicy2)
-        self.titlesettingmain.setMaximumSize(QSize(172, 45))
-        self.titlesettingmain.setFont(font4)
-        self.titlesettingmain.setStyleSheet(u"#titlesettingmain{\n"
+        self.titleProfile = QLabel(self.frame_57)
+        self.titleProfile.setObjectName(u"titleProfile")
+        sizePolicy2.setHeightForWidth(self.titleProfile.sizePolicy().hasHeightForWidth())
+        self.titleProfile.setSizePolicy(sizePolicy2)
+        self.titleProfile.setMaximumSize(QSize(172, 45))
+        self.titleProfile.setFont(font4)
+        self.titleProfile.setStyleSheet(u"#titleProfile{\n"
 "font: bold 12pt \"Segoe UI\";\n"
 "color: white;\n"
 "background-color: #4A90D9;   /* biru energi */\n"
@@ -4681,9 +4680,9 @@ class Ui_MainWindow(object):
 "qproperty-alignment: AlignCenter;\n"
 "}\n"
 "")
-        self.titlesettingmain.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.titleProfile.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.horizontalLayout_80.addWidget(self.titlesettingmain)
+        self.horizontalLayout_80.addWidget(self.titleProfile)
 
         self.frame_59 = QFrame(self.frame_57)
         self.frame_59.setObjectName(u"frame_59")
@@ -4700,103 +4699,161 @@ class Ui_MainWindow(object):
         self.frame_60.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_60.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_33 = QVBoxLayout(self.frame_60)
-        self.verticalLayout_33.setSpacing(0)
+        self.verticalLayout_33.setSpacing(15)
         self.verticalLayout_33.setObjectName(u"verticalLayout_33")
-        self.verticalLayout_33.setContentsMargins(-1, 80, -1, 80)
+        self.verticalLayout_33.setContentsMargins(20, 30, 20, 30)
         self.horizontalLayout_81 = QHBoxLayout()
         self.horizontalLayout_81.setObjectName(u"horizontalLayout_81")
-        self.titlesettingIP = QLabel(self.frame_60)
-        self.titlesettingIP.setObjectName(u"titlesettingIP")
-        sizePolicy2.setHeightForWidth(self.titlesettingIP.sizePolicy().hasHeightForWidth())
-        self.titlesettingIP.setSizePolicy(sizePolicy2)
-        self.titlesettingIP.setMaximumSize(QSize(172, 45))
-        self.titlesettingIP.setFont(font4)
-        self.titlesettingIP.setStyleSheet(u"#titlesettingIP{\n"
-"font: bold 12pt \"Segoe UI\";\n"
-"color: white;\n"
-"background-color: #4A90D9;   /* biru energi */\n"
-"border-radius: 8px;\n"
-"padding: 6px 10px;\n"
-"border: 1px solid #4A90D9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
-"min-width: 100px;\n"
-"max-width: 150px;\n"
-"qproperty-alignment: AlignCenter;\n"
-"}\n"
-"")
-        self.titlesettingIP.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.horizontalLayout_81.addWidget(self.titlesettingIP)
-
-        self.inputIP = QLineEdit(self.frame_60)
-        self.inputIP.setObjectName(u"inputIP")
-        self.inputIP.setMaximumSize(QSize(16777215, 50))
-        self.inputIP.setStyleSheet(u"QLineEdit#inputIP {\n"
-"    background-color: rgba(255, 255, 255, 0.85); /* putih kebiruan transparan */\n"
-"    color: rgb(32, 74, 135);                      /* teks biru gelap */\n"
-"    border: 2px solid rgb(74, 144, 217);          /* biru energi */\n"
+        self.labelUsername = QLabel(self.frame_60)
+        self.labelUsername.setObjectName(u"labelUsername")
+        self.labelUsername.setMinimumSize(QSize(120, 40))
+        self.labelUsername.setMaximumSize(QSize(16777215, 40))
+        self.labelUsername.setFont(font6)
+        self.labelUsername.setStyleSheet(u"QLabel#labelUsername {\n"
+"    font: bold 14pt \"Segoe UI\";\n"
+"    color: white;\n"
+"    background-color: #33A1E0;\n"
 "    border-radius: 8px;\n"
-"    padding: 6px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #33A1E0;\n"
+"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
+"	qproperty-alignment: AlignCenter;\n"
 "}\n"
-"QLineEdit#inputIP:focus {\n"
-"    border: 2px solid rgb(58, 155, 220);          /* biru lebih terang */\n"
-"    background-color: rgba(74, 144, 217, 0.12);   /* efek fokus lembut */\n"
-"}\n"
-"QLineEdit#inputIP:disabled {\n"
+"\n"
+"")
+
+        self.horizontalLayout_81.addWidget(self.labelUsername)
+
+        self.inputUsername = QLineEdit(self.frame_60)
+        self.inputUsername.setObjectName(u"inputUsername")
+        self.inputUsername.setEnabled(False)
+        self.inputUsername.setMaximumSize(QSize(16777215, 50))
+        self.inputUsername.setStyleSheet(u"QLineEdit#inputUsername {\n"
 "    background-color: rgba(240, 243, 247, 0.9);\n"
 "    color: rgb(160, 170, 180);\n"
 "    border: 2px solid rgb(210, 220, 230);\n"
-"}\n"
-"")
+"    border-radius: 8px;\n"
+"    padding: 6px;\n"
+"}")
 
-        self.horizontalLayout_81.addWidget(self.inputIP)
+        self.horizontalLayout_81.addWidget(self.inputUsername)
 
 
         self.verticalLayout_33.addLayout(self.horizontalLayout_81)
 
         self.horizontalLayout_82 = QHBoxLayout()
         self.horizontalLayout_82.setObjectName(u"horizontalLayout_82")
-        self.frame_61 = QFrame(self.frame_60)
-        self.frame_61.setObjectName(u"frame_61")
-        self.frame_61.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_61.setFrameShadow(QFrame.Shadow.Raised)
-
-        self.horizontalLayout_82.addWidget(self.frame_61)
-
-        self.btn_add = QPushButton(self.frame_60)
-        self.btn_add.setObjectName(u"btn_add")
-        self.btn_add.setMinimumSize(QSize(90, 40))
-        self.btn_add.setMaximumSize(QSize(90, 40))
-        self.btn_add.setFont(font4)
-        self.btn_add.setStyleSheet(u"QPushButton {\n"
-"    background-color: #4CAF8E;\n"
-"    border: 2px solid #3E9E7F;\n"
-"    border-radius: 8px;\n"
+        self.labelEmail = QLabel(self.frame_60)
+        self.labelEmail.setObjectName(u"labelEmail")
+        self.labelEmail.setMinimumSize(QSize(120, 40))
+        self.labelEmail.setMaximumSize(QSize(16777215, 40))
+        self.labelEmail.setFont(font6)
+        self.labelEmail.setStyleSheet(u"QLabel#labelEmail {\n"
+"    font: bold 14pt \"Segoe UI\";\n"
 "    color: white;\n"
-"    font: bold 12pt \"Segoe UI\";\n"
-"    padding: 6px 14px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: #5FBFA5;\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"    background-color: #3E9E7F;\n"
-"}\n"
-"\n"
-"QPushButton:disabled {\n"
-"    background-color: #BFE6D8;\n"
-"    color: #F2FAF7;\n"
-"    border: 2px solid #A8D9C8;\n"
+"    background-color: #33A1E0;\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #33A1E0;\n"
+"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
+"qproperty-alignment: AlignCenter;\n"
 "}\n"
 "")
 
-        self.horizontalLayout_82.addWidget(self.btn_add)
+        self.horizontalLayout_82.addWidget(self.labelEmail)
+
+        self.inputEmail = QLineEdit(self.frame_60)
+        self.inputEmail.setObjectName(u"inputEmail")
+        self.inputEmail.setEnabled(False)
+        self.inputEmail.setMaximumSize(QSize(16777215, 50))
+        self.inputEmail.setStyleSheet(u"QLineEdit#inputEmail {\n"
+"    background-color: rgba(240, 243, 247, 0.9);\n"
+"    color: rgb(160, 170, 180);\n"
+"    border: 2px solid rgb(210, 220, 230);\n"
+"    border-radius: 8px;\n"
+"    padding: 6px;\n"
+"}")
+
+        self.horizontalLayout_82.addWidget(self.inputEmail)
 
 
         self.verticalLayout_33.addLayout(self.horizontalLayout_82)
+
+        self.horizontalLayout_831 = QHBoxLayout()
+        self.horizontalLayout_831.setObjectName(u"horizontalLayout_831")
+        self.btnUpdatePassword = QPushButton(self.frame_60)
+        self.btnUpdatePassword.setObjectName(u"btnUpdatePassword")
+        self.btnUpdatePassword.setMinimumSize(QSize(150, 45))
+        self.btnUpdatePassword.setMaximumSize(QSize(160, 45))
+        self.btnUpdatePassword.setFont(font8)
+        self.btnUpdatePassword.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.btnUpdatePassword.setStyleSheet(u"QPushButton#btnUpdatePassword {\n"
+"    background-color: #4A90D9;\n"
+"    border: 2px solid #4A90D9;\n"
+"    border-radius: 8px;\n"
+"    color: white;\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"    padding: 6px 14px;\n"
+"}\n"
+"\n"
+"QPushButton#btnUpdatePassword:hover {\n"
+"    background-color: #5BA0E9;\n"
+"}\n"
+"\n"
+"QPushButton#btnUpdatePassword:pressed {\n"
+"    background-color: #3A7BC4;\n"
+"}\n"
+"\n"
+"QPushButton#btnUpdatePassword:disabled {\n"
+"    background-color: #B5D9F0;\n"
+"    color: #F2FAF7;\n"
+"    border: 2px solid #9BC9E8;\n"
+"}")
+
+        self.horizontalLayout_831.addWidget(self.btnUpdatePassword)
+
+        self.frame_61 = QFrame(self.frame_60)
+        self.frame_61.setObjectName(u"frame_61")
+        self.frame_61.setMinimumSize(QSize(40, 0))
+        self.frame_61.setMaximumSize(QSize(40, 16777215))
+        self.frame_61.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_61.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_831.addWidget(self.frame_61)
+
+        self.btnLogout = QPushButton(self.frame_60)
+        self.btnLogout.setObjectName(u"btnLogout")
+        self.btnLogout.setMinimumSize(QSize(100, 45))
+        self.btnLogout.setMaximumSize(QSize(100, 45))
+        self.btnLogout.setFont(font8)
+        self.btnLogout.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.btnLogout.setStyleSheet(u"QPushButton#btnLogout {\n"
+"    background-color: #E74C3C;\n"
+"    border: 2px solid #E74C3C;\n"
+"    border-radius: 8px;\n"
+"    color: white;\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"    padding: 6px 14px;\n"
+"}\n"
+"\n"
+"QPushButton#btnLogout:hover {\n"
+"    background-color: #F75C4C;\n"
+"}\n"
+"\n"
+"QPushButton#btnLogout:pressed {\n"
+"    background-color: #C0392B;\n"
+"}\n"
+"\n"
+"QPushButton#btnLogout:disabled {\n"
+"    background-color: #F5B7B1;\n"
+"    color: #FDF2F2;\n"
+"    border: 2px solid #F1948A;\n"
+"}")
+
+        self.horizontalLayout_831.addWidget(self.btnLogout)
+
+
+        self.verticalLayout_33.addLayout(self.horizontalLayout_831)
 
 
         self.verticalLayout_28.addWidget(self.frame_60)
@@ -4929,17 +4986,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_78.addWidget(self.settingsandlogFrame)
 
-        self.frame_54 = QFrame(self.frame_52)
-        self.frame_54.setObjectName(u"frame_54")
-        self.frame_54.setMinimumSize(QSize(936, 0))
-        self.frame_54.setMaximumSize(QSize(936, 16777215))
-        self.frame_54.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_54.setFrameShadow(QFrame.Shadow.Raised)
+        self.framekosong = QFrame(self.framecontentsettings)
+        self.framekosong.setObjectName(u"framekosong")
+        self.framekosong.setMinimumSize(QSize(936, 0))
+        self.framekosong.setMaximumSize(QSize(936, 16777215))
+        self.framekosong.setFrameShape(QFrame.Shape.NoFrame)
+        self.framekosong.setFrameShadow(QFrame.Shadow.Raised)
 
-        self.horizontalLayout_78.addWidget(self.frame_54)
+        self.horizontalLayout_78.addWidget(self.framekosong)
 
 
-        self.verticalLayout_21.addWidget(self.frame_52)
+        self.verticalLayout_21.addWidget(self.framecontentsettings)
 
         self.stackedWidget.addWidget(self.page5_settings)
 
@@ -5120,10 +5177,12 @@ class Ui_MainWindow(object):
         self.rainrateW_value.setText(QCoreApplication.translate("MainWindow", u"0.0 mm", None))
         self.titleheatindexW.setText(QCoreApplication.translate("MainWindow", u"Heat Index", None))
         self.heatindexW_value.setText(QCoreApplication.translate("MainWindow", u"0.0\u00b0C", None))
-        self.titleGrowattpage1_2.setText(QCoreApplication.translate("MainWindow", u"Debug and Settings", None))
-        self.titlesettingmain.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
-        self.titlesettingIP.setText(QCoreApplication.translate("MainWindow", u"Setting IP :", None))
-        self.btn_add.setText(QCoreApplication.translate("MainWindow", u"Add", None))
+        self.titleSettings.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.titleProfile.setText(QCoreApplication.translate("MainWindow", u"User Profile", None))
+        self.labelUsername.setText(QCoreApplication.translate("MainWindow", u"Username", None))
+        self.labelEmail.setText(QCoreApplication.translate("MainWindow", u"Email", None))
+        self.btnUpdatePassword.setText(QCoreApplication.translate("MainWindow", u"Update Password", None))
+        self.btnLogout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
         self.titlelog.setText(QCoreApplication.translate("MainWindow", u"Log Activity", None))
         self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"By: SKAR, IP, EcoLab DTEDI", None))
         self.version.setText(QCoreApplication.translate("MainWindow", u"v1.0", None))
