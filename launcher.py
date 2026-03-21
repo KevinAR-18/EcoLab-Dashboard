@@ -24,6 +24,7 @@ class AppLauncher(QObject):
         self.session_manager = SessionManager()
         self.main_window = None
         self.login_window = None
+        self.login_completed_received = False  # Flag untuk track apakah login completed
 
     def start(self):
         """Start aplikasi - cek session dulu"""
@@ -42,14 +43,17 @@ class AppLauncher(QObject):
     def open_login(self):
         """Buka login window"""
         try:
+            # Reset flag
+            self.login_completed_received = False
+
             self.login_window = LoginWindow()
             self.login_window.show()
 
-            # Setup timer untuk check apakah login window sudah close
-            # dan apakah ada session tersimpan
-            self.check_timer = QTimer()
-            self.check_timer.timeout.connect(self.check_login_status)
-            self.check_timer.start(500)  # Check setiap 500ms
+            # Connect signal login_completed (event-based, bukan polling)
+            self.login_window.login_completed.connect(self.on_login_completed)
+
+            # Connect signal ketika window di-close manual (X button atau destroy)
+            self.login_window.destroyed.connect(self.on_login_window_destroyed)
 
             return True
 
@@ -61,17 +65,10 @@ class AppLauncher(QObject):
             )
             return False
 
-    def check_login_status(self):
-        """Check apakah login window masih ada dan cek session status"""
-        # Cek apakah login window masih visible
-        if self.login_window and self.login_window.isVisible():
-            # Login window masih ada, lanjut check
-            return
-
-        # Login window sudah tidak visible, stop timer
-        self.check_timer.stop()
-
-        print("DEBUG: Login window closed, checking session...")
+    def on_login_completed(self):
+        """Handle saat login window selesai (user sudah pilih dashboard/admin)"""
+        print("DEBUG: Login completed signal received")
+        self.login_completed_received = True
 
         # Cek apakah ada session (berarti user berhasil login)
         session = self.session_manager.load_session()
@@ -83,6 +80,30 @@ class AppLauncher(QObject):
         else:
             print("DEBUG: No session found, quitting app")
             # Login cancelled/failed → exit app
+            QApplication.quit()
+
+    def on_login_window_destroyed(self):
+        """Handle saat login window di-close manual (X button atau admin panel)"""
+        print("DEBUG: Login window destroyed")
+
+        # Cek apakah login completed signal sudah diterima
+        if self.login_completed_received:
+            # Login sudah completed, dashboard akan dibuka/di-handle oleh on_login_completed
+            print("DEBUG: Login already completed, ignoring destroy event")
+            return
+
+        # Login belum completed, berarti user close manual atau buka admin panel
+        # Cek apakah ada session
+        session = self.session_manager.load_session()
+
+        if session:
+            # Ada session tapi login_completed tidak diterima
+            # Kemungkinan: User buka admin panel (bukan dashboard)
+            # Jangan buka dashboard, biarkan admin panel jalan
+            print("DEBUG: Session exists but login not completed (likely admin panel), staying alive")
+        else:
+            # Tidak ada session dan window di-close manual → exit app
+            print("DEBUG: No session and window closed manually, quitting app")
             QApplication.quit()
 
     def open_dashboard(self, session):

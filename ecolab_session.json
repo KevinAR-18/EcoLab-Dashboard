@@ -1,10 +1,10 @@
 {
-    "uid": "kKHLqbxO1HX205O5lHuaADiY5j13",
-    "username": "admin",
-    "email": "admin@ecolab.com",
-    "role": "admin",
-    "auth_provider": "email",
-    "remember_me": false,
-    "created_at": "2026-03-21T22:03:56.568805",
-    "expires_at": "2026-03-28T22:03:56.568805"
+    "uid": "100653664818002071598",
+    "username": "Angela Kinanti Putri Rata",
+    "email": "angelakinanti19@gmail.com",
+    "role": "user",
+    "auth_provider": "google",
+    "remember_me": true,
+    "created_at": "2026-03-21T22:47:00.790716",
+    "expires_at": "2026-03-28T22:47:00.790716"
 }

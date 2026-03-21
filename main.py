@@ -778,17 +778,45 @@ class MainWindow(QMainWindow):
         # 1. Load user profile data
         self.load_user_profile()
 
-        # 2. Connect tombol Update Password
-        self.ui.btnUpdatePassword.clicked.connect(self.handle_update_password)
+        # 2. Cek role user
+        user_role = self.user_session.get("role", "user")
+        is_guest = user_role == "guest"
+        is_admin = user_role == "admin"
 
-        # 3. Connect tombol Logout
-        self.ui.btnLogout.clicked.connect(self.handle_logout)
+        # 3. Setup tombol Admin Panel
+        if is_admin:
+            # ADMIN: Enable dan connect tombol Admin Panel
+            self.ui.btnAdminpanel.setEnabled(True)
+            self.ui.btnAdminpanel.setToolTip("Open Admin Panel")
+            self.ui.btnAdminpanel.clicked.connect(self.handle_open_admin_panel)
+        else:
+            # GUEST & REGULAR USER: Disable tombol Admin Panel
+            self.ui.btnAdminpanel.setEnabled(False)
+            if is_guest:
+                self.ui.btnAdminpanel.setToolTip("Not available in Guest Mode")
+            else:
+                self.ui.btnAdminpanel.setToolTip("Admin access only")
 
-        # 4. Setup Admin Panel button (jika role admin)
-        if self.user_session.get("role") == "admin":
-            # Pastikan tombol admin panel ada (belum ada di UI, perlu ditambahkan)
-            # Untuk sekarang, kita bisa tambahkan di menu atau tombol terpisah
-            self.setup_admin_features()
+        # 4. Cek apakah guest mode
+        if is_guest:
+            # GUEST MODE: Disable fitur
+            self.ui.btnUpdatePassword.setEnabled(False)
+            self.ui.btnUpdatePassword.setToolTip("Not available in Guest Mode")
+            self.ui.btnLogout.setEnabled(False)
+            self.ui.btnLogout.setToolTip("Cannot logout from Guest Mode")
+            # Jangan connect tombol untuk guest
+        else:
+            # REGULAR USER & ADMIN: Enable dan connect tombol
+            self.ui.btnUpdatePassword.setEnabled(True)
+            self.ui.btnUpdatePassword.setToolTip("")
+            self.ui.btnLogout.setEnabled(True)
+            self.ui.btnLogout.setToolTip("")
+
+            # Connect tombol Update Password
+            self.ui.btnUpdatePassword.clicked.connect(self.handle_update_password)
+
+            # Connect tombol Logout
+            self.ui.btnLogout.clicked.connect(self.handle_logout)
 
     def load_user_profile(self):
         """Load username dan email ke Settings page"""
@@ -796,6 +824,13 @@ class MainWindow(QMainWindow):
             # Set username dan email ke input fields
             self.ui.inputUsername.setText(self.user_session.get("username", ""))
             self.ui.inputEmail.setText(self.user_session.get("email", ""))
+
+            # Cek apakah guest mode
+            is_guest = self.user_session.get("role") == "guest"
+
+            # Set read-only untuk guest mode (styling lewat Qt Designer)
+            self.ui.inputUsername.setReadOnly(is_guest)
+            self.ui.inputEmail.setReadOnly(is_guest)
 
     def handle_update_password(self):
         """Handle tombol Update Password diklik"""
@@ -875,14 +910,25 @@ class MainWindow(QMainWindow):
             # Emit logout signal untuk launcher
             self.logout_signal.emit()
 
+    def handle_open_admin_panel(self):
+        """Handle tombol Admin Panel diklik"""
+        try:
+            from admin_window import AdminPanelWindow
+
+            # Buka admin panel window
+            self.admin_panel_window = AdminPanelWindow(self)
+            self.admin_panel_window.show()
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"❌ Failed to open Admin Panel:\n{str(e)}"
+            )
+
     def setup_admin_features(self):
         """Setup fitur admin (buka admin panel)"""
-        # Untuk sekarang, admin bisa buka admin panel melalui:
-        # 1. Tombol terpisah (perlu ditambahkan di UI)
-        # 2. Atau keyboard shortcut
-        # 3. Atau menu
-
-        # Placeholder untuk diimplementasikan nanti
+        # Tombol Admin Panel sudah di-setup di setup_user_features()
         pass
     
     

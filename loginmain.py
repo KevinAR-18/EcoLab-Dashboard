@@ -3,7 +3,7 @@ Login Main Entry Point
 Frameless window dengan centered position, draggable, dan navigasi
 """
 import sys
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QMessageBox, QDialog
 )
@@ -31,6 +31,9 @@ from admin_window import AdminPanelWindow
 
 
 class LoginWindow(QMainWindow):
+    # Signal untuk notify launcher saat login selesai (user memilih dashboard/admin)
+    login_completed = Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -179,12 +182,36 @@ class LoginWindow(QMainWindow):
 
     def handle_guest_login(self):
         """Handle tombol guest login diklik"""
+        # Buat guest session object
+        self.user_session = {
+            "uid": "guest_temp",
+            "username": "Guest Viewer",
+            "email": "Temporary Guest Viewer Mode",
+            "role": "guest",
+            "auth_provider": "guest",
+            "remember_me": False
+        }
+
+        # Simpan guest session
+        print(f"DEBUG: Guest session created: {self.user_session}")
+        result = self.session_manager.save_session(self.user_session)
+        print(f"DEBUG: Save result: {result}")
+
+        # Tampilkan notifikasi
         QMessageBox.information(
             self,
-            "Guest Login",
-            "Guest login feature coming soon!"
+            "Guest Mode",
+            "🎭 Welcome, Guest!\n\n"
+            "You are in Guest Viewer Mode.\n"
+            "• Limited access to dashboard\n"
+            "• Cannot modify settings\n"
+            "• Cannot access admin panel\n\n"
+            "Enjoy browsing! 👀"
         )
-        # TODO: Implementasi guest login logic
+
+        # Emit signal dan close window
+        self.login_completed.emit()
+        self.close()
 
     def handle_google_signin(self):
         """Handle tombol Google sign in diklik - HANYA LOGIN, jangan create account"""
@@ -230,6 +257,9 @@ class LoginWindow(QMainWindow):
                 self._open_dashboard()
             elif choice == "admin_panel":
                 self._open_admin_panel()
+
+        # NOTE: Jangan emit login_completed di sini
+        # Signal akan di-emit oleh masing-masing method (_open_dashboard / _open_admin_panel)
 
     def _handle_auth_result(self, result, operation_type, signup_username=None):
         """
@@ -281,7 +311,8 @@ class LoginWindow(QMainWindow):
                         "Login Successful",
                         f"Welcome back! 🎉\n\n{message}"
                     )
-                    # Close window untuk biarkan launcher ambil session
+                    # Emit signal dan close window
+                    self.login_completed.emit()
                     self.close()
                 else:
                     QMessageBox.critical(
@@ -380,7 +411,10 @@ class LoginWindow(QMainWindow):
 
     def _open_dashboard(self):
         """Buka dashboard utama"""
-        # Close login window agar launcher bisa detect session dan buka dashboard
+        # Emit signal dulu untuk notify launcher
+        self.login_completed.emit()
+
+        # Lalu close login window agar launcher bisa buka dashboard
         self.close()
 
     def _open_admin_panel(self):
