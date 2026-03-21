@@ -228,8 +228,8 @@ class MainWindow(QMainWindow):
 
 
         # Disable input IP & add button (belum digunakan)
-        self.ui.inputIP.setEnabled(False)
-        self.ui.btn_add.setEnabled(False)
+        # self.ui.inputIP.setEnabled(False)
+        # self.ui.btn_add.setEnabled(False)
         
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
         self.lampbutton_backend.start()

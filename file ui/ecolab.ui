@@ -89,7 +89,7 @@ Left Menu */
 	background-repeat: no-repeat;
 }
 #titleLeftApp { 
-    font: 63 12pt &quot;Segoe UI Semibold&quot;; 
+    font:12pt &quot;Segoe UI Semibold&quot;; 
     color: #FFFFFF; 
 }
 #titleLeftDescription { 
@@ -413,6 +413,7 @@ Button */
                <family>Segoe UI Semibold</family>
                <pointsize>12</pointsize>
                <italic>false</italic>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -9663,16 +9664,17 @@ qproperty-alignment: AlignCenter;
                                        <property name="font">
                                         <font>
                                          <family>Segoe UI</family>
-                                         <pointsize>14</pointsize>
+                                         <pointsize>12</pointsize>
                                          <italic>false</italic>
                                          <bold>true</bold>
                                         </font>
                                        </property>
                                        <property name="styleSheet">
                                         <string notr="true">QLabel#labelUsername {
-    font: bold 14pt &quot;Segoe UI&quot;;
-    color: white;
-    background-color: #33A1E0;
+    font: bold 12pt &quot;Segoe UI&quot;;
+background-color: #4DB6AC;  /* hijau pastel */
+border: 1px solid #4DB6AC;
+color: white;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
@@ -9730,16 +9732,17 @@ qproperty-alignment: AlignCenter;
                                        <property name="font">
                                         <font>
                                          <family>Segoe UI</family>
-                                         <pointsize>14</pointsize>
+                                         <pointsize>12</pointsize>
                                          <italic>false</italic>
                                          <bold>true</bold>
                                         </font>
                                        </property>
                                        <property name="styleSheet">
                                         <string notr="true">QLabel#labelEmail {
-    font: bold 14pt &quot;Segoe UI&quot;;
-    color: white;
-    background-color: #33A1E0;
+    font: bold 12pt &quot;Segoe UI&quot;;
+background-color: #4DB6AC;  /* hijau pastel */
+border: 1px solid #4DB6AC;
+color: white;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;

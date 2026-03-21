@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabLvnfTh.ui'
+## Form generated from reading UI file 'ecolabjwgDED.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -91,7 +91,7 @@ class Ui_MainWindow(object):
 "	background-repeat: no-repeat;\n"
 "}\n"
 "#titleLeftApp { \n"
-"    font: 63 12pt \"Segoe UI Semibold\"; \n"
+"    font:12pt \"Segoe UI Semibold\"; \n"
 "    color: #FFFFFF; \n"
 "}\n"
 "#titleLeftDescription { \n"
@@ -100,9 +100,9 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "\n"
+"\n"
 ""
-                        "\n"
-"/* MENUS */\n"
+                        "/* MENUS */\n"
 "#topMenu .QPushButton {	\n"
 "	background-position: left center;\n"
 "	background-repeat: no-repeat;\n"
@@ -141,9 +141,9 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* Toggle Button */\n"
-"#toggleButton {"
-                        "\n"
-"	background-position: left center;\n"
+"#toggleButton {\n"
+""
+                        "	background-position: left center;\n"
 "	background-repeat: no-repeat;\n"
 "	border: none;\n"
 "	border-left: 20px solid transparent;\n"
@@ -186,9 +186,9 @@ class Ui_MainWindow(object):
 "/* Icon */\n"
 "#extraIcon {\n"
 "	background-position: center;\n"
-"	background-repeat: no-repeat"
-                        ";\n"
-"	background-image: url(:/icons/images/icons/icon_settings.png);\n"
+"	background-repeat: no-repeat;\n"
+""
+                        "	background-image: url(:/icons/images/icons/icon_settings.png);\n"
 "}\n"
 "\n"
 "/* Label */\n"
@@ -219,8 +219,8 @@ class Ui_MainWindow(object):
 "}\n"
 "#extraTopMenu .QPushButton:pressed {	\n"
 "	background-color: #0091E5;\n"
-"	color: "
-                        "rgb(255, 255, 255);\n"
+"	color: rgb(25"
+                        "5, 255, 255);\n"
 "}\n"
 "\n"
 "/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
@@ -250,8 +250,8 @@ class Ui_MainWindow(object):
 "#extraRightBox { background-color: #003F7D; }\n"
 "#themeSettingsTopDetail { background-color: #0091E5; }\n"
 "\n"
-"/*"
-                        " Bottom Bar */\n"
+"/* Botto"
+                        "m Bar */\n"
 "#bottomBar { background-color: #003F7D; }\n"
 "#bottomBar QLabel { font-size: 11px; color: rgb(210, 230, 255); padding-left: 10px; padding-right: 10px; padding-bottom: 2px; }\n"
 "\n"
@@ -283,8 +283,8 @@ class Ui_MainWindow(object):
 "}\n"
 "#pagesContainer QPushButton:hover {\n"
 "	background-color: #005C99;\n"
-""
-                        "	border: 2px solid #0074CC;\n"
+"	bo"
+                        "rder: 2px solid #0074CC;\n"
 "}\n"
 "#pagesContainer QPushButton:pressed {	\n"
 "	background-color: #002B5B;\n"
@@ -334,7 +334,7 @@ class Ui_MainWindow(object):
         font = QFont()
         font.setFamilies([u"Segoe UI Semibold"])
         font.setPointSize(12)
-        font.setWeight(QFont.)
+        font.setBold(False)
         font.setItalic(False)
         self.titleLeftApp.setFont(font)
         self.titleLeftApp.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
@@ -4708,11 +4708,12 @@ class Ui_MainWindow(object):
         self.labelUsername.setObjectName(u"labelUsername")
         self.labelUsername.setMinimumSize(QSize(120, 40))
         self.labelUsername.setMaximumSize(QSize(16777215, 40))
-        self.labelUsername.setFont(font6)
+        self.labelUsername.setFont(font4)
         self.labelUsername.setStyleSheet(u"QLabel#labelUsername {\n"
-"    font: bold 14pt \"Segoe UI\";\n"
-"    color: white;\n"
-"    background-color: #33A1E0;\n"
+"    font: bold 12pt \"Segoe UI\";\n"
+"background-color: #4DB6AC;  /* hijau pastel */\n"
+"border: 1px solid #4DB6AC;\n"
+"color: white;\n"
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
@@ -4747,11 +4748,12 @@ class Ui_MainWindow(object):
         self.labelEmail.setObjectName(u"labelEmail")
         self.labelEmail.setMinimumSize(QSize(120, 40))
         self.labelEmail.setMaximumSize(QSize(16777215, 40))
-        self.labelEmail.setFont(font6)
+        self.labelEmail.setFont(font4)
         self.labelEmail.setStyleSheet(u"QLabel#labelEmail {\n"
-"    font: bold 14pt \"Segoe UI\";\n"
-"    color: white;\n"
-"    background-color: #33A1E0;\n"
+"    font: bold 12pt \"Segoe UI\";\n"
+"background-color: #4DB6AC;  /* hijau pastel */\n"
+"border: 1px solid #4DB6AC;\n"
+"color: white;\n"
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
