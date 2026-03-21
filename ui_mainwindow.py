@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabjwgDED.ui'
+## Form generated from reading UI file 'ecolabgwwqGp.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -4814,14 +4814,36 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_831.addWidget(self.btnUpdatePassword)
 
-        self.frame_61 = QFrame(self.frame_60)
-        self.frame_61.setObjectName(u"frame_61")
-        self.frame_61.setMinimumSize(QSize(40, 0))
-        self.frame_61.setMaximumSize(QSize(40, 16777215))
-        self.frame_61.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_61.setFrameShadow(QFrame.Shadow.Raised)
+        self.btnAdminpanel = QPushButton(self.frame_60)
+        self.btnAdminpanel.setObjectName(u"btnAdminpanel")
+        self.btnAdminpanel.setMinimumSize(QSize(150, 45))
+        self.btnAdminpanel.setMaximumSize(QSize(100, 45))
+        self.btnAdminpanel.setFont(font8)
+        self.btnAdminpanel.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.btnAdminpanel.setStyleSheet(u"QPushButton#btnAdminpanel {\n"
+"    background-color: #8E44AD;  /* ungu utama */\n"
+"    border: 2px solid #8E44AD;\n"
+"    border-radius: 8px;\n"
+"    color: white;\n"
+"    font: bold 11pt \"Segoe UI\";\n"
+"    padding: 6px 14px;\n"
+"}\n"
+"\n"
+"QPushButton#btnAdminpanel:hover {\n"
+"    background-color: #9B59B6;  /* ungu lebih terang saat hover */\n"
+"}\n"
+"\n"
+"QPushButton#btnAdminpanel:pressed {\n"
+"    background-color: #6C3483;  /* ungu lebih gelap saat ditekan */\n"
+"}\n"
+"\n"
+"QPushButton#btnAdminpanel:disabled {\n"
+"    background-color: #D2B4DE;  /* ungu pastel saat disabled */\n"
+"    color: #F2EAF8;\n"
+"    border: 2px solid #B39DD9;\n"
+"}")
 
-        self.horizontalLayout_831.addWidget(self.frame_61)
+        self.horizontalLayout_831.addWidget(self.btnAdminpanel)
 
         self.btnLogout = QPushButton(self.frame_60)
         self.btnLogout.setObjectName(u"btnLogout")
@@ -5184,6 +5206,7 @@ class Ui_MainWindow(object):
         self.labelUsername.setText(QCoreApplication.translate("MainWindow", u"Username", None))
         self.labelEmail.setText(QCoreApplication.translate("MainWindow", u"Email", None))
         self.btnUpdatePassword.setText(QCoreApplication.translate("MainWindow", u"Update Password", None))
+        self.btnAdminpanel.setText(QCoreApplication.translate("MainWindow", u"Admin Panel", None))
         self.btnLogout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
         self.titlelog.setText(QCoreApplication.translate("MainWindow", u"Log Activity", None))
         self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"By: SKAR, IP, EcoLab DTEDI", None))
