@@ -1,54 +1,57 @@
+import paho.mqtt.client as mqtt
+import json
 import time
 
-from backend.mqtt_client import MqttClient
-from backend.mqtt_dht22_backend import DHT22MQTTBackend
+BROKER = "192.168.100.10" #192.168.100.10 10.33.11.148
+PORT = 1883
+TOPIC = "esp32c/data"
 
+# ================= CALLBACK =================
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
+        print("MQTT Connected")
+        client.subscribe(TOPIC)
+    else:
+        print("Connection failed, code:", reason_code)
 
-def main():
-    print("=== TEST MQTT DHT22 BACKEND ===")
+def on_disconnect(client, userdata, reason_code, properties):
+    print("Disconnected from broker. Reconnecting...")
 
-    # 1. Buat MQTT core
-    mqtt = MqttClient(
-        broker="10.33.11.148",   # GANTI sesuai broker kamu
-        port=1883
-    )
+def on_message(client, userdata, msg):
+    try:
+        data = json.loads(msg.payload.decode())
 
-    mqtt.start()
-    print("[TEST] MQTT client started")
+        print("===== DATA DITERIMA =====")
+        print("Voltage   :", data["voltage"], "V")
+        print("Current   :", data["current"], "A")
+        print("Power     :", data["power"], "W")
+        print("Energy    :", data["energy"], "kWh")
+        print("Frequency :", data["frequency"], "Hz")
+        print("PF        :", data["pf"])
+        print("--------------------------")
 
-    # 2. Buat backend DHT22
-    dht = DHT22MQTTBackend(mqtt)
-    dht.start()
-    print("[TEST] DHT22 backend started")
+    except Exception as e:
+        print("Invalid JSON:", e)
 
-    print("[TEST] Menunggu data DHT22...\n")
+# ================= CLIENT =================
+client = mqtt.Client(
+    client_id="PythonReceiver",
+    callback_api_version=mqtt.CallbackAPIVersion.VERSION2
+)
 
-    # 3. Loop baca data
-    while True:
-        data = dht.fetch()
+client.on_connect = on_connect
+client.on_message = on_message
+client.on_disconnect = on_disconnect
 
-        tempA = data.get("temp_A")
-        humA = data.get("hum_A")
-        tempB = data.get("temp_B")
-        humB = data.get("hum_B")
-        avgT = data.get("avg_temperature")
-        avgH = data.get("avg_humidity")
+# Auto reconnect setting
+client.reconnect_delay_set(min_delay=1, max_delay=5)
 
-        print(
-            f"T_A={tempA} °C | H_A={humA} % | "
-            f"T_B={tempB} °C | H_B={humB} % | "
-            f"AVG_T={avgT} °C | AVG_H={avgH} %"
-        )
-
-        time.sleep(1)
-
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
+# ================= CONNECT LOOP =================
+while True:
+    try:
+        print("Connecting to MQTT broker...")
+        client.connect(BROKER, PORT, 60)
+        client.loop_forever()
+    except Exception as e:
+        print("Connection error:", e)
+        time.sleep(3)

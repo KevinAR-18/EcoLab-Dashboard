@@ -3,6 +3,7 @@
 #include <PubSubClient.h>
 #include <PZEM004Tv30.h>
 #include <DS1302.h>
+#include <time.h>
 
 // ================= OUTPUT =================
 #define RELAY_PIN 7
@@ -11,11 +12,21 @@
 #define BLUE_LED_PIN 10
 
 // ================= WIFI =================
-const char *ssid = "3KSERA";
-const char *password = "04115474";
+// const char *ssid = "3KSERA";
+// const char *password = "04115474";
+
+const char *ssid = "ya gak punya kuota ya? wkwkwk";
+const char *password = "debritto21";
+
+// ================= NTP CONFIG =================
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 7 * 3600;  // GMT+7 (WIB)
+const int   daylightOffset_sec = 0;    // Tidak ada daylight saving di Indonesia
+
 
 // ================= MQTT =================
-const char *mqtt_server = "192.168.100.7";
+// const char *mqtt_server = "192.168.100.7"; 
+const char *mqtt_server = "10.65.124.151"; 
 const int mqtt_port = 8883;
 
 const char *mqtt_user = "smartsocket1";
@@ -34,8 +45,15 @@ const char *topic_statusrelay = "ecolab/socket/1/relaystatus";
 const char *topic_timer = "ecolab/socket/1/timer";
 const char *topic_timer_status = "ecolab/socket/1/timer/status";
 
-const char *topic_schedule = "ecolab/socket/1/schedule";
+// Schedule Topics (NEW: Start/Stop + Mode)
+const char *topic_schedule_start = "ecolab/socket/1/schedule/start";
+const char *topic_schedule_stop = "ecolab/socket/1/schedule/stop";
+const char *topic_schedule_mode = "ecolab/socket/1/schedule/mode";
 const char *topic_schedule_status = "ecolab/socket/1/schedule/status";
+
+// DateTime Topic (RTC status only - set from NTP)
+const char *topic_datetime_set = "ecolab/socket/1/datetime/set";     // Keep for backward compat (disabled)
+const char *topic_datetime_status = "ecolab/socket/1/datetime/status";
 
 // ================= TLS CERT =================
 const char *ca_cert = R"EOF(
@@ -83,6 +101,8 @@ PubSubClient client(espClient);
 
 // ================= GLOBAL =================
 unsigned long lastEnergy = 0;
+unsigned long lastStatusSync = 0;
+unsigned long lastDebugPrint = 0;
 bool relayState = false;
 
 // ================= TIMER =================
@@ -90,11 +110,21 @@ bool timerActive = false;
 unsigned long timerStartMillis = 0;
 unsigned long timerDuration = 0;
 
-// ================= SCHEDULE =================
-bool scheduleActive = false;
-int schedHour = 0;
-int schedMinute = 0;
-bool scheduleTriggered = false;
+// ================= SCHEDULE (NEW: Start/Stop + Daily/Onetime Mode) =================
+bool scheduleStartActive = false;
+bool scheduleStopActive = false;
+int schedStartHour = 0;
+int schedStartMinute = 0;
+int schedStopHour = 0;
+int schedStopMinute = 0;
+
+// Schedule Mode: true = Daily (repeat), false = Onetime (once only)
+bool scheduleDailyMode = true;
+
+// For onetime mode - track last triggered day
+int lastTriggeredDay = 0;
+bool startTriggered = false;
+bool stopTriggered = false;
 
 
 // ================= LED FUNCTION =================
@@ -122,6 +152,68 @@ void blinkDualLED(int times)
     }
 }
 
+// ================= NTP TO RTC =================
+void syncNTPtoRTC() {
+    Serial.println("Syncing NTP time to RTC...");
+
+    // Config NTP
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
+    // Tunggu waktu NTP tersedia
+    struct tm timeinfo;
+    int retry = 0;
+    while (!getLocalTime(&timeinfo) && retry < 10) {
+        Serial.print(".");
+        delay(500);
+        retry++;
+    }
+
+    if (retry >= 10) {
+        Serial.println("\n❌ NTP Sync FAILED! RTC not set.");
+        return;
+    }
+
+    Serial.println("\n✅ NTP Sync successful!");
+
+    // Convert tm ke Time format untuk DS1302
+    // tm_year: tahun sejak 1900 (2026 = 126)
+    // tm_mon: 0-11 (0 = Jan, 11 = Dec)
+    // tm_wday: 0-6 (0 = Sunday, 1 = Monday, ...)
+    // DS1302 Time::Day: 1-7 (1=Monday, 7=Sunday)
+
+    int year = timeinfo.tm_year + 1900;
+    int month = timeinfo.tm_mon + 1;
+    int day = timeinfo.tm_mday;
+    int hour = timeinfo.tm_hour;
+    int minute = timeinfo.tm_min;
+    int second = timeinfo.tm_sec;
+
+    // Convert tm_wday (0=Sunday) ke Time::Day (1=Monday, 7=Sunday)
+    Time::Day dow;
+    switch (timeinfo.tm_wday) {
+        case 0: dow = Time::kSunday;    break;
+        case 1: dow = Time::kMonday;    break;
+        case 2: dow = Time::kTuesday;   break;
+        case 3: dow = Time::kWednesday; break;
+        case 4: dow = Time::kThursday;  break;
+        case 5: dow = Time::kFriday;    break;
+        case 6: dow = Time::kSaturday;  break;
+        default: dow = Time::kMonday;   break;
+    }
+
+    // Set RTC
+    Time newTime(year, month, day, hour, minute, second, dow);
+    rtc.time(newTime);
+
+    Serial.print("RTC Set to: ");
+    Serial.print(year); Serial.print("-");
+    Serial.print(month); Serial.print("-");
+    Serial.print(day); Serial.print(" ");
+    Serial.print(hour); Serial.print(":");
+    Serial.print(minute); Serial.print(":");
+    Serial.println(second);
+}
+
 // ================= WIFI MODIF =================
 void start_wifi()
 {
@@ -129,7 +221,7 @@ void start_wifi()
     WiFi.setSleep(false);
     WiFi.setAutoReconnect(true);
     WiFi.persistent(false);
-    WiFi.setTxPower(WIFI_POWER_8_5dBm)
+    WiFi.setTxPower(WIFI_POWER_8_5dBm);
 
     WiFi.begin(ssid, password);
 
@@ -146,6 +238,9 @@ void start_wifi()
 
     blinkLED(BLUE_LED_PIN, 3, 200);
     digitalWrite(BLUE_LED_PIN, HIGH);
+
+    // 🔥 SYNC NTP KE RTC SETELAH WIFI CONNECT
+    syncNTPtoRTC();
 }
 
 void callback(char *topic, byte *payload, unsigned int length)
@@ -181,31 +276,121 @@ void callback(char *topic, byte *payload, unsigned int length)
     // ================= TIMER =================
     else if (String(topic) == topic_timer)
     {
-        timerDuration = msg.toInt() * 1000; // detik → ms
-        timerStartMillis = millis();
-        timerActive = true;
+        int duration = msg.toInt();
 
-        client.publish(topic_timer_status, "TIMER STARTED");
-    }
-
-    // ================= SCHEDULE =================
-    else if (String(topic) == topic_schedule)
-    {
-        // format: HH:MM
-        int separator = msg.indexOf(':');
-        if (separator != -1)
+        if (duration == 0)
         {
-            schedHour = msg.substring(0, separator).toInt();
-            schedMinute = msg.substring(separator + 1).toInt();
-
-            scheduleActive = true;
-
-            client.publish(topic_schedule_status, "SCHEDULE SET");
+            // Cancel timer
+            timerActive = false;
+            client.publish(topic_timer_status, "INACTIVE", true);
+            Serial.println("Timer cancelled");
         }
         else
         {
-            client.publish(topic_schedule_status, "FORMAT ERROR");
+            // Set timer normal
+            timerDuration = duration * 1000; // detik → ms
+            timerStartMillis = millis();
+            timerActive = true;
+
+            // Publish status immediately
+            publishStatusSync();
         }
+    }
+
+    // ================= SCHEDULE START =================
+    else if (String(topic) == topic_schedule_start)
+    {
+        if (msg == "CLEAR")
+        {
+            // Cancel start schedule
+            scheduleStartActive = false;
+            startTriggered = false;
+            publishStatusSync();
+            Serial.println("Start schedule cancelled");
+        }
+        else
+        {
+            // format: HH:MM
+            int separator = msg.indexOf(':');
+            if (separator != -1)
+            {
+                schedStartHour = msg.substring(0, separator).toInt();
+                schedStartMinute = msg.substring(separator + 1).toInt();
+
+                scheduleStartActive = true;
+                startTriggered = false; // Reset trigger
+
+                publishStatusSync();
+            }
+            else
+            {
+                client.publish(topic_schedule_status, "FORMAT ERROR");
+            }
+        }
+    }
+
+    // ================= SCHEDULE STOP =================
+    else if (String(topic) == topic_schedule_stop)
+    {
+        if (msg == "CLEAR")
+        {
+            // Cancel stop schedule
+            scheduleStopActive = false;
+            stopTriggered = false;
+            publishStatusSync();
+            Serial.println("Stop schedule cancelled");
+        }
+        else
+        {
+            // format: HH:MM
+            int separator = msg.indexOf(':');
+            if (separator != -1)
+            {
+                schedStopHour = msg.substring(0, separator).toInt();
+                schedStopMinute = msg.substring(separator + 1).toInt();
+
+                scheduleStopActive = true;
+                stopTriggered = false; // Reset trigger
+
+                publishStatusSync();
+            }
+            else
+            {
+                client.publish(topic_schedule_status, "FORMAT ERROR");
+            }
+        }
+    }
+
+    // ================= SCHEDULE MODE =================
+    else if (String(topic) == topic_schedule_mode)
+    {
+        // format: "daily" or "onetime"
+        if (msg == "daily")
+        {
+            scheduleDailyMode = true;
+            lastTriggeredDay = 0;
+            publishStatusSync();
+        }
+        else if (msg == "onetime")
+        {
+            scheduleDailyMode = false;
+            lastTriggeredDay = 0;
+            startTriggered = false;
+            stopTriggered = false;
+            publishStatusSync();
+        }
+        else
+        {
+            client.publish(topic_schedule_status, "MODE ERROR");
+        }
+    }
+
+    // ================= DATETIME SET (DISABLED - USING NTP) =================
+    // RTC sekarang diset dari NTP, bukan dari MQTT
+    else if (String(topic) == topic_datetime_set)
+    {
+        client.publish(topic_datetime_status, "INFO: RTC set from NTP, manual sync disabled");
+        Serial.println("Manual datetime sync disabled - using NTP");
     }
 }
 
@@ -217,7 +402,7 @@ void reconnect()
         Serial.print("Connecting MQTT...");
 
         if (client.connect(client_id, mqtt_user, mqtt_pass,
-                           topic_device_status, 0, true, "OFFLINE"))
+                           topic_device_status, 0, false, "OFFLINE"))
         {
             Serial.println("connected");
 
@@ -227,7 +412,13 @@ void reconnect()
             // 🔥 SUBSCRIBE
             client.subscribe(topic_control);
             client.subscribe(topic_timer);
-            client.subscribe(topic_schedule);
+            client.subscribe(topic_schedule_start);
+            client.subscribe(topic_schedule_stop);
+            client.subscribe(topic_schedule_mode);
+            // datetime_set tidak dipakai lagi (NTP sync)
+
+            // 🔥 PUBLISH STATUS SAAT CONNECT (untuk sync GUI)
+            publishStatusSync();
         }
         else
         {
@@ -257,27 +448,177 @@ void handleTimer()
 
 void handleSchedule()
 {
-    if (scheduleActive)
+    // Check if any schedule is active
+    if (!scheduleStartActive && !scheduleStopActive)
     {
-        Time timeRTC = rtc.time();
+        return;
+    }
 
-        if (timeRTC.hr == schedHour && timeRTC.min == schedMinute)
+    Time timeRTC = rtc.time();
+    int currentDay = timeRTC.date;
+
+    // ================= RESET FOR NEW DAY (ONETIME MODE) =================
+    if (!scheduleDailyMode && currentDay != lastTriggeredDay)
+    {
+        lastTriggeredDay = currentDay;
+        startTriggered = false;
+        stopTriggered = false;
+    }
+
+    // ================= SCHEDULE START (TURN ON) =================
+    if (scheduleStartActive)
+    {
+        if (timeRTC.hr == schedStartHour && timeRTC.min == schedStartMinute)
         {
-            if (!scheduleTriggered)
+            // Check if already triggered this minute
+            if (!startTriggered)
             {
-                scheduleTriggered = true;
+                startTriggered = true;
 
-                relayState = !relayState;
-                digitalWrite(RELAY_PIN, relayState);
+                digitalWrite(RELAY_PIN, HIGH);
+                relayState = true;
 
-                client.publish(topic_schedule_status, "SCHEDULE_TRIGGER");
+                client.publish(topic_statusrelay, "ON");
+                client.publish(topic_schedule_status, "START_TRIGGER");
+
+                Serial.println("Schedule START triggered!");
             }
         }
-        else
+    }
+
+    // ================= SCHEDULE STOP (TURN OFF) =================
+    if (scheduleStopActive)
+    {
+        if (timeRTC.hr == schedStopHour && timeRTC.min == schedStopMinute)
         {
-            scheduleTriggered = false;
+            // Check if already triggered this minute
+            if (!stopTriggered)
+            {
+                stopTriggered = true;
+
+                digitalWrite(RELAY_PIN, LOW);
+                relayState = false;
+
+                client.publish(topic_statusrelay, "OFF");
+                client.publish(topic_schedule_status, "STOP_TRIGGER");
+
+                Serial.println("Schedule STOP triggered!");
+            }
         }
     }
+
+    // ================= RESET TRIGGERS (DAILY MODE) =================
+    // For daily mode: reset triggers when time passes to next minute
+    // This ensures it can trigger again at the same time tomorrow
+    if (scheduleDailyMode)
+    {
+        // Track last checked minute
+        static int lastCheckedMinute = -1;
+
+        // When minute changes, reset triggers if we're past the scheduled time
+        if (timeRTC.min != lastCheckedMinute)
+        {
+            lastCheckedMinute = timeRTC.min;
+
+            // Reset start trigger if we're past the start time (different minute)
+            if (timeRTC.hr != schedStartHour || timeRTC.min != schedStartMinute)
+            {
+                // Only reset if we already triggered it before
+                if (startTriggered)
+                {
+                    startTriggered = false;
+                    Serial.println("Start trigger reset (daily mode)");
+                }
+            }
+
+            // Reset stop trigger if we're past the stop time (different minute)
+            if (timeRTC.hr != schedStopHour || timeRTC.min != schedStopMinute)
+            {
+                // Only reset if we already triggered it before
+                if (stopTriggered)
+                {
+                    stopTriggered = false;
+                    Serial.println("Stop trigger reset (daily mode)");
+                }
+            }
+        }
+    }
+}
+
+// ================= STATUS SYNC (untuk multi-GUI) =================
+void publishStatusSync()
+{
+    // Publish relay status
+    if (relayState)
+    {
+        client.publish(topic_statusrelay, "ON", true);  // retain = true
+    }
+    else
+    {
+        client.publish(topic_statusrelay, "OFF", true); // retain = true
+    }
+
+    // Publish timer status
+    if (timerActive)
+    {
+        unsigned long elapsed = millis() - timerStartMillis;
+        unsigned long remaining = timerDuration - elapsed;
+        int remainingSec = remaining / 1000;
+
+        String timerPayload = "ACTIVE:" + String(remainingSec) + "s";
+        client.publish(topic_timer_status, timerPayload.c_str(), true);
+    }
+    else
+    {
+        client.publish(topic_timer_status, "INACTIVE", true);
+    }
+
+    // Publish schedule status (JSON format)
+    String schedulePayload = "{";
+
+    // Start schedule
+    if (scheduleStartActive)
+    {
+        char timeStr[6];
+        sprintf(timeStr, "%02d:%02d", schedStartHour, schedStartMinute);
+        schedulePayload += "\"start\":\"" + String(timeStr) + "\",";
+    }
+    else
+    {
+        schedulePayload += "\"start\":null,";
+    }
+
+    // Stop schedule
+    if (scheduleStopActive)
+    {
+        char timeStr[6];
+        sprintf(timeStr, "%02d:%02d", schedStopHour, schedStopMinute);
+        schedulePayload += "\"stop\":\"" + String(timeStr) + "\",";
+    }
+    else
+    {
+        schedulePayload += "\"stop\":null,";
+    }
+
+    // Mode
+    schedulePayload += "\"mode\":\"" + String(scheduleDailyMode ? "daily" : "onetime") + "\"";
+
+    schedulePayload += "}";
+
+    client.publish(topic_schedule_status, schedulePayload.c_str(), true);
+
+    // ================= PUBLISH DATETIME (FROM NTP) =================
+    Time currentRTC = rtc.time();
+
+    char datetimeStr[30];
+    sprintf(datetimeStr, "%04d-%02d-%02d %02d:%02d:%02d %d",
+            currentRTC.yr, currentRTC.mon, currentRTC.date,
+            currentRTC.hr, currentRTC.min, currentRTC.sec,
+            currentRTC.day);
+
+    // Kirim status RTC (selalu OK karena diset dari NTP)
+    String status = "OK:NTP_SYNCED:" + String(datetimeStr);
+    client.publish(topic_datetime_status, status.c_str(), true);
 }
 
 // ================= SETUP =================
@@ -301,16 +642,14 @@ void setup()
 
     client.setServer(mqtt_server, mqtt_port);
     client.setCallback(callback);
-    client.setKeepAlive(60);
-    client.setKeepAlive(60);
+    client.setKeepAlive(10);  // 10 detik keepalive (lebih cepat deteksi offline)
 
+    // ===== RTC INIT =====
+    // RTC akan diset dari NTP setelah WiFi connect (di start_wifi())
     rtc.writeProtect(false);
     rtc.halt(false);
 
-    // ===== SET WAKTU SEKALI SAJA =====
-    Time timeRTC(2026, 2, 6, 10, 30, 0, Time::kFriday);
-    rtc.time(timeRTC);
-
+    // ===== PZEM INIT =====
     PZEMSerial.begin(9600, SERIAL_8N1, PZEM_RX_PIN, PZEM_TX_PIN);
 }
 
@@ -324,39 +663,108 @@ void loop()
 
     client.loop();
 
+    // ================= ENERGY PUBLISH (every 2 sec) =================
     if (millis() - lastEnergy > 2000)
     {
         lastEnergy = millis();
 
-        float voltage = pzem.voltage();
-        float current = pzem.current();
-        float power = pzem.power();
-        float energy = pzem.energy();
-        float frequency = pzem.frequency();
-        float pf = pzem.pf();
+        float voltage, current, power, energy, frequency, pf;
 
-        if (!isnan(voltage))
+        // 🔥 CEK RELAY STATE
+        if (relayState)
         {
-            String payload = "{";
+            // Relay ON → Baca data PZEM asli
+            voltage = pzem.voltage();
+            current = pzem.current();
+            power = pzem.power();
+            energy = pzem.energy();
+            frequency = pzem.frequency();
+            pf = pzem.pf();
 
-            payload += "\"voltage\":" + String(voltage, 2) + ",";
-            payload += "\"current\":" + String(current, 3) + ",";
-            payload += "\"power\":" + String(power, 2) + ",";
-            payload += "\"energy\":" + String(energy, 3) + ",";
-            payload += "\"frequency\":" + String(frequency, 1) + ",";
-            payload += "\"pf\":" + String(pf, 2);
-
-            payload += "}";
-
-            client.publish(topic_energy, payload.c_str());
-
-            Serial.print("Energy: ");
-            Serial.println(payload);
+            // Kalau PZEM error, kirim 0
+            if (isnan(voltage))
+            {
+                voltage = 0;
+                current = 0;
+                power = 0;
+                energy = 0;
+                frequency = 0;
+                pf = 0;
+                Serial.println("PZEM not responding, sending 0");
+            }
         }
         else
         {
-            Serial.println("PZEM not responding");
+            // Relay OFF → Kirim semua 0
+            voltage = 0;
+            current = 0;
+            power = 0;
+            energy = 0;
+            frequency = 0;
+            pf = 0;
+            Serial.println("Relay OFF, sending 0 data");
         }
+
+        // Kirim payload JSON
+        String payload = "{";
+        payload += "\"voltage\":" + String(voltage, 2) + ",";
+        payload += "\"current\":" + String(current, 3) + ",";
+        payload += "\"power\":" + String(power, 2) + ",";
+        payload += "\"energy\":" + String(energy, 3) + ",";
+        payload += "\"frequency\":" + String(frequency, 1) + ",";
+        payload += "\"pf\":" + String(pf, 2);
+        payload += "}";
+
+        client.publish(topic_energy, payload.c_str());
+
+        Serial.print("Energy: ");
+        Serial.println(payload);
+    }
+
+    // ================= STATUS SYNC (every 2 sec for multi-GUI) =================
+    if (millis() - lastStatusSync > 2000)
+    {
+        lastStatusSync = millis();
+        publishStatusSync();
+    }
+
+    // ================= DEBUG PRINT (every 10 sec) =================
+    if (millis() - lastDebugPrint > 10000)
+    {
+        lastDebugPrint = millis();
+
+        Time timeRTC = rtc.time();
+
+        Serial.print("RTC: ");
+        Serial.print(timeRTC.yr);
+        Serial.print("-");
+        Serial.print(timeRTC.mon);
+        Serial.print("-");
+        Serial.print(timeRTC.date);
+        Serial.print(" ");
+        Serial.print(timeRTC.hr);
+        Serial.print(":");
+        Serial.print(timeRTC.min);
+        Serial.print(":");
+        Serial.println(timeRTC.sec);
+
+        Serial.print("Schedule: ");
+        if (scheduleStartActive)
+        {
+            Serial.print("Start=");
+            Serial.print(schedStartHour);
+            Serial.print(":");
+            Serial.print(schedStartMinute);
+        }
+        if (scheduleStopActive)
+        {
+            Serial.print(" Stop=");
+            Serial.print(schedStopHour);
+            Serial.print(":");
+            Serial.print(schedStopMinute);
+        }
+        Serial.print(" Mode=");
+        Serial.println(scheduleDailyMode ? "Daily" : "Onetime");
     }
 
     handleTimer();

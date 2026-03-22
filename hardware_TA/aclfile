@@ -1,0 +1,173 @@
+# DASHBOARD (FULL ACCESS)
+user dashboard
+topic readwrite ecolab/#
+
+# AI ASISTEN (FULL ACCESS)
+user aiasisten
+topic readwrite ecolab/#
+
+# MCU A (Relay Lampu)
+user mcua
+# ESP32 → GUI: Device status (ONLINE/OFFLINE)
+topic write ecolab/mcuA/status
+# ESP32 → GUI: Suhu dari DHT sensor
+topic write ecolab/mcuA/dht/temperature
+# ESP32 → GUI: Kelembaban dari DHT sensor
+topic write ecolab/mcuA/dht/humidity
+# ESP32 → GUI: Status lampu (ON/OFF)
+topic write ecolab/mcuA/lamp/status
+# GUI → ESP32: Kontrol lampu (ON/OFF)
+topic read ecolab/mcuA/lamp/control
+
+# MCU B (AC Controller)
+user mcub
+# ESP32 → GUI: Device status (ONLINE/OFFLINE)
+topic write ecolab/mcuB/status
+# ESP32 → GUI: Suhu dari DHT sensor
+topic write ecolab/mcuB/dht/temperature
+# ESP32 → GUI: Kelembaban dari DHT sensor
+topic write ecolab/mcuB/dht/humidity
+# ESP32 → GUI: Status AC (ON/OFF)
+topic write ecolab/mcuB/ac/status
+# GUI → ESP32: Kontrol AC (ON/OFF)
+topic read ecolab/mcuB/ac/control
+
+# SMART SOCKET 1
+user smartsocket1
+# GUI → ESP32: ON/OFF relay
+topic read ecolab/socket/1/control
+# ESP32 → GUI: Status relay (ON/OFF)
+topic write ecolab/socket/1/relaystatus
+# GUI → ESP32: Set jam ON (HH:MM)
+topic read ecolab/socket/1/schedule/start
+# GUI → ESP32: Set jam OFF (HH:MM)
+topic read ecolab/socket/1/schedule/stop
+# ESP32 → GUI: Status schedule (JSON)
+topic write ecolab/socket/1/schedule/status
+# ESP32 → GUI: Konfirmasi mode (daily/onetime)
+topic write ecolab/socket/1/schedule/mode
+# GUI → ESP32: Set durasi timer (detik)
+topic read ecolab/socket/1/timer
+# ESP32 → GUI: Countdown timer (ACTIVE:XXs)
+topic write ecolab/socket/1/timer/status
+# ESP32 → Broker: LWT (ONLINE/OFFLINE)
+topic write ecolab/socket/1/devicestatus
+# ESP32 → GUI: Data PZEM (voltage, current, power, etc)
+topic write ecolab/socket/1/energy
+# ESP32 → GUI: Waktu RTC (NTP synced)
+topic write ecolab/socket/1/datetime/status
+
+# SMART SOCKET 2
+user smartsocket2
+# GUI → ESP32: ON/OFF relay
+topic read ecolab/socket/2/control
+# ESP32 → GUI: Status relay (ON/OFF)
+topic write ecolab/socket/2/relaystatus
+# GUI → ESP32: Set jam ON (HH:MM)
+topic read ecolab/socket/2/schedule/start
+# GUI → ESP32: Set jam OFF (HH:MM)
+topic read ecolab/socket/2/schedule/stop
+# ESP32 → GUI: Status schedule (JSON)
+topic write ecolab/socket/2/schedule/status
+# ESP32 → GUI: Konfirmasi mode (daily/onetime)
+topic write ecolab/socket/2/schedule/mode
+# GUI → ESP32: Set durasi timer (detik)
+topic read ecolab/socket/2/timer
+# ESP32 → GUI: Countdown timer (ACTIVE:XXs)
+topic write ecolab/socket/2/timer/status
+# ESP32 → Broker: LWT (ONLINE/OFFLINE)
+topic write ecolab/socket/2/devicestatus
+# ESP32 → GUI: Data PZEM (voltage, current, power, etc)
+topic write ecolab/socket/2/energy
+# ESP32 → GUI: Waktu RTC (NTP synced)
+topic write ecolab/socket/2/datetime/status
+
+# SMART SOCKET 3
+user smartsocket3
+# GUI → ESP32: ON/OFF relay
+topic read ecolab/socket/3/control
+# ESP32 → GUI: Status relay (ON/OFF)
+topic write ecolab/socket/3/relaystatus
+# GUI → ESP32: Set jam ON (HH:MM)
+topic read ecolab/socket/3/schedule/start
+# GUI → ESP32: Set jam OFF (HH:MM)
+topic read ecolab/socket/3/schedule/stop
+# ESP32 → GUI: Status schedule (JSON)
+topic write ecolab/socket/3/schedule/status
+# ESP32 → GUI: Konfirmasi mode (daily/onetime)
+topic write ecolab/socket/3/schedule/mode
+# GUI → ESP32: Set durasi timer (detik)
+topic read ecolab/socket/3/timer
+# ESP32 → GUI: Countdown timer (ACTIVE:XXs)
+topic write ecolab/socket/3/timer/status
+# ESP32 → Broker: LWT (ONLINE/OFFLINE)
+topic write ecolab/socket/3/devicestatus
+# ESP32 → GUI: Data PZEM (voltage, current, power, etc)
+topic write ecolab/socket/3/energy
+# ESP32 → GUI: Waktu RTC (NTP synced)
+topic write ecolab/socket/3/datetime/status
+
+# SMART SOCKET 4
+user smartsocket4
+# GUI → ESP32: ON/OFF relay
+topic read ecolab/socket/4/control
+# ESP32 → GUI: Status relay (ON/OFF)
+topic write ecolab/socket/4/relaystatus
+# GUI → ESP32: Set jam ON (HH:MM)
+topic read ecolab/socket/4/schedule/start
+# GUI → ESP32: Set jam OFF (HH:MM)
+topic read ecolab/socket/4/schedule/stop
+# ESP32 → GUI: Status schedule (JSON)
+topic write ecolab/socket/4/schedule/status
+# ESP32 → GUI: Konfirmasi mode (daily/onetime)
+topic write ecolab/socket/4/schedule/mode
+# GUI → ESP32: Set durasi timer (detik)
+topic read ecolab/socket/4/timer
+# ESP32 → GUI: Countdown timer (ACTIVE:XXs)
+topic write ecolab/socket/4/timer/status
+# ESP32 → Broker: LWT (ONLINE/OFFLINE)
+topic write ecolab/socket/4/devicestatus
+# ESP32 → GUI: Data PZEM (voltage, current, power, etc)
+topic write ecolab/socket/4/energy
+# ESP32 → GUI: Waktu RTC (NTP synced)
+topic write ecolab/socket/4/datetime/status
+
+# SMART SOCKET 5
+user smartsocket5
+# GUI → ESP32: ON/OFF relay
+topic read ecolab/socket/5/control
+# ESP32 → GUI: Status relay (ON/OFF)
+topic write ecolab/socket/5/relaystatus
+# GUI → ESP32: Set jam ON (HH:MM)
+topic read ecolab/socket/5/schedule/start
+# GUI → ESP32: Set jam OFF (HH:MM)
+topic read ecolab/socket/5/schedule/stop
+# ESP32 → GUI: Status schedule (JSON)
+topic write ecolab/socket/5/schedule/status
+# ESP32 → GUI: Konfirmasi mode (daily/onetime)
+topic write ecolab/socket/5/schedule/mode
+# GUI → ESP32: Set durasi timer (detik)
+topic read ecolab/socket/5/timer
+# ESP32 → GUI: Countdown timer (ACTIVE:XXs)
+topic write ecolab/socket/5/timer/status
+# ESP32 → Broker: LWT (ONLINE/OFFLINE)
+topic write ecolab/socket/5/devicestatus
+# ESP32 → GUI: Data PZEM (voltage, current, power, etc)
+topic write ecolab/socket/5/energy
+# ESP32 → GUI: Waktu RTC (NTP synced)
+topic write ecolab/socket/5/datetime/status
+
+# PORTABLE RASPBERRY (LIMITED ACCESS)
+user portableraspberry
+# Raspberry → ESP32: Kontrol lampu MCU A
+topic write ecolab/mcuA/lamp/control
+# ESP32 → Raspberry: Status lampu MCU A
+topic read ecolab/mcuA/lamp/status
+# ESP32 → Raspberry: Status device MCU A
+topic read ecolab/mcuA/status
+# Raspberry → ESP32: Kontrol AC MCU B
+topic write ecolab/mcuB/ac/control
+# ESP32 → Raspberry: Status AC MCU B
+topic read ecolab/mcuB/ac/status
+# ESP32 → Raspberry: Status device MCU B
+topic read ecolab/mcuB/status
