@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabiLjALG.ui'
+## Form generated from reading UI file 'ecolabjKOtyi.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -4574,9 +4574,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_44.addWidget(self.frame_3)
 
         self.stackedWidget.addWidget(self.page3_monitoringSensor)
-        self.page4_growattGraph = QWidget()
-        self.page4_growattGraph.setObjectName(u"page4_growattGraph")
-        self.stackedWidget.addWidget(self.page4_growattGraph)
+        self.page4_smartsocket = QWidget()
+        self.page4_smartsocket.setObjectName(u"page4_smartsocket")
+        self.stackedWidget.addWidget(self.page4_smartsocket)
         self.page5_settings = QWidget()
         self.page5_settings.setObjectName(u"page5_settings")
         self.verticalLayout_21 = QVBoxLayout(self.page5_settings)

@@ -687,7 +687,7 @@ Button */
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="btn_growattgraph">
+                 <widget class="QPushButton" name="btn_smartsocket">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -9392,7 +9392,7 @@ qproperty-alignment: AlignCenter;
                        </item>
                       </layout>
                      </widget>
-                     <widget class="QWidget" name="page4_growattGraph"/>
+                     <widget class="QWidget" name="page4_smartsocket"/>
                      <widget class="QWidget" name="page5_settings">
                       <layout class="QVBoxLayout" name="verticalLayout_21">
                        <property name="spacing">
