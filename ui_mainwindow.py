@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabhieLfQ.ui'
+## Form generated from reading UI file 'ecolabsvNSfq.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -25,7 +25,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1920, 1081)
+        MainWindow.resize(1920, 1080)
         self.styleSheet = QWidget(MainWindow)
         self.styleSheet.setObjectName(u"styleSheet")
         self.styleSheet.setEnabled(True)
@@ -291,12 +291,10 @@ class Ui_MainWindow(object):
 "	border: 2px solid #003F7D;\n"
 "}\n"
 "\n"
-"\n"
-"\n"
 "")
-        self.horizontalLayout_54 = QHBoxLayout(self.styleSheet)
-        self.horizontalLayout_54.setObjectName(u"horizontalLayout_54")
-        self.horizontalLayout_54.setContentsMargins(-1, -1, 9, -1)
+        self.verticalLayout_76 = QVBoxLayout(self.styleSheet)
+        self.verticalLayout_76.setObjectName(u"verticalLayout_76")
+        self.verticalLayout_76.setContentsMargins(-1, -1, 9, -1)
         self.bgApp = QFrame(self.styleSheet)
         self.bgApp.setObjectName(u"bgApp")
         self.bgApp.setFrameShape(QFrame.Shape.StyledPanel)
@@ -4546,6 +4544,2273 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.page3_monitoringSensor)
         self.page4_smartsocket = QWidget()
         self.page4_smartsocket.setObjectName(u"page4_smartsocket")
+        self.verticalLayout_77 = QVBoxLayout(self.page4_smartsocket)
+        self.verticalLayout_77.setObjectName(u"verticalLayout_77")
+        self.frameSmartsocket = QFrame(self.page4_smartsocket)
+        self.frameSmartsocket.setObjectName(u"frameSmartsocket")
+        self.frameSmartsocket.setMaximumSize(QSize(16777215, 65))
+        self.frameSmartsocket.setFrameShape(QFrame.Shape.NoFrame)
+        self.frameSmartsocket.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_87 = QHBoxLayout(self.frameSmartsocket)
+        self.horizontalLayout_87.setObjectName(u"horizontalLayout_87")
+        self.titleSmartsocket = QLabel(self.frameSmartsocket)
+        self.titleSmartsocket.setObjectName(u"titleSmartsocket")
+        sizePolicy2.setHeightForWidth(self.titleSmartsocket.sizePolicy().hasHeightForWidth())
+        self.titleSmartsocket.setSizePolicy(sizePolicy2)
+        self.titleSmartsocket.setMaximumSize(QSize(422, 45))
+        self.titleSmartsocket.setFont(font6)
+        self.titleSmartsocket.setStyleSheet(u"#titleSmartsocket {\n"
+"    font: bold 14pt \"Segoe UI\";\n"
+"    color: white;\n"
+"    background-color: #5775dc;\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #5775dc;\n"
+"    \n"
+"    /* Tambahan pengaturan ukuran */\n"
+"    min-width: 500px;    /* lebar minimum */\n"
+"    max-width: 400px;    /* lebar maksimum */\n"
+"    qproperty-alignment: AlignCenter; /* biar teks di tengah */\n"
+"}\n"
+"")
+        self.titleSmartsocket.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_87.addWidget(self.titleSmartsocket)
+
+
+        self.verticalLayout_77.addWidget(self.frameSmartsocket)
+
+        self.framecontentSmartsocket = QFrame(self.page4_smartsocket)
+        self.framecontentSmartsocket.setObjectName(u"framecontentSmartsocket")
+        self.framecontentSmartsocket.setFrameShape(QFrame.Shape.NoFrame)
+        self.framecontentSmartsocket.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_111 = QHBoxLayout(self.framecontentSmartsocket)
+        self.horizontalLayout_111.setSpacing(70)
+        self.horizontalLayout_111.setObjectName(u"horizontalLayout_111")
+        self.horizontalLayout_111.setContentsMargins(20, -1, 20, -1)
+        self.framesocket1 = QFrame(self.framecontentSmartsocket)
+        self.framesocket1.setObjectName(u"framesocket1")
+        self.framesocket1.setMinimumSize(QSize(0, 700))
+        self.framesocket1.setMaximumSize(QSize(16777215, 700))
+        self.framesocket1.setStyleSheet(u"#framesocket1{\n"
+"	background-color: #eee3fa;   /* ungu lembut banget */\n"
+"	border: 2px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.framesocket1.setFrameShape(QFrame.Shape.NoFrame)
+        self.framesocket1.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_72 = QVBoxLayout(self.framesocket1)
+        self.verticalLayout_72.setObjectName(u"verticalLayout_72")
+        self.frametitlesocket1 = QFrame(self.framesocket1)
+        self.frametitlesocket1.setObjectName(u"frametitlesocket1")
+        self.frametitlesocket1.setMinimumSize(QSize(0, 0))
+        self.frametitlesocket1.setMaximumSize(QSize(16777215, 50))
+        self.frametitlesocket1.setFrameShape(QFrame.Shape.NoFrame)
+        self.frametitlesocket1.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_54 = QHBoxLayout(self.frametitlesocket1)
+        self.horizontalLayout_54.setSpacing(0)
+        self.horizontalLayout_54.setObjectName(u"horizontalLayout_54")
+        self.horizontalLayout_54.setContentsMargins(0, 0, 0, 0)
+        self.frame_61 = QFrame(self.frametitlesocket1)
+        self.frame_61.setObjectName(u"frame_61")
+        self.frame_61.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_61.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_54.addWidget(self.frame_61)
+
+        self.titlesmart1 = QLabel(self.frametitlesocket1)
+        self.titlesmart1.setObjectName(u"titlesmart1")
+        sizePolicy2.setHeightForWidth(self.titlesmart1.sizePolicy().hasHeightForWidth())
+        self.titlesmart1.setSizePolicy(sizePolicy2)
+        self.titlesmart1.setMinimumSize(QSize(96, 40))
+        self.titlesmart1.setMaximumSize(QSize(136, 45))
+        self.titlesmart1.setFont(font4)
+        self.titlesmart1.setStyleSheet(u"#titlesmart1{\n"
+"font: bold 12pt \"Segoe UI\";\n"
+"color: white;\n"
+"background-color: #8E7AB5;   /* ungu battery */\n"
+"    border: 1px solid #6E8E8B;\n"
+"\n"
+"\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 26px;\n"
+"    line-height: 18px;\n"
+"\n"
+"    min-width: 70px;\n"
+"    max-width: 110px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+        self.titlesmart1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_54.addWidget(self.titlesmart1)
+
+        self.frame_67 = QFrame(self.frametitlesocket1)
+        self.frame_67.setObjectName(u"frame_67")
+        self.frame_67.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_67.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_54.addWidget(self.frame_67)
+
+
+        self.verticalLayout_72.addWidget(self.frametitlesocket1)
+
+        self.framestatussocket1 = QFrame(self.framesocket1)
+        self.framestatussocket1.setObjectName(u"framestatussocket1")
+        self.framestatussocket1.setMinimumSize(QSize(0, 40))
+        self.framestatussocket1.setMaximumSize(QSize(16777215, 23))
+        self.framestatussocket1.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatussocket1.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_88 = QHBoxLayout(self.framestatussocket1)
+        self.horizontalLayout_88.setSpacing(0)
+        self.horizontalLayout_88.setObjectName(u"horizontalLayout_88")
+        self.horizontalLayout_88.setContentsMargins(0, 0, 0, 0)
+        self.frame_68 = QFrame(self.framestatussocket1)
+        self.frame_68.setObjectName(u"frame_68")
+        self.frame_68.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_68.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_88.addWidget(self.frame_68)
+
+        self.statussocket1 = QLabel(self.framestatussocket1)
+        self.statussocket1.setObjectName(u"statussocket1")
+        sizePolicy2.setHeightForWidth(self.statussocket1.sizePolicy().hasHeightForWidth())
+        self.statussocket1.setSizePolicy(sizePolicy2)
+        self.statussocket1.setMinimumSize(QSize(155, 23))
+        self.statussocket1.setMaximumSize(QSize(114, 23))
+        self.statussocket1.setFont(font2)
+        self.statussocket1.setStyleSheet(u"QLabel#statussocket1{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"\n"
+"    background-color: #CBD5E1;   /* default (abu netral) */\n"
+"    border: 1px solid #94A3B8;\n"
+"    border-radius: 4px;\n"
+"\n"
+"    padding: 2px 6px;\n"
+"    min-height: 17px;\n"
+"    max-width: 100px;\n"
+"\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"/* ===== AC ON ===== */\n"
+"QLabel#statussocket1[state=\"on\"] {\n"
+"    background-color: #6FCF97;   /* hijau pastel tapi jelas */\n"
+"    border-color: #27AE60;\n"
+"}\n"
+"\n"
+"/* ===== AC OFF ===== */\n"
+"QLabel#statussocket1[state=\"off\"] {\n"
+"    background-color: #EB5757;   /* merah pastel tegas */\n"
+"    border-color: #C0392B;\n"
+"}\n"
+"")
+        self.statussocket1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_88.addWidget(self.statussocket1)
+
+        self.frame_69 = QFrame(self.framestatussocket1)
+        self.frame_69.setObjectName(u"frame_69")
+        self.frame_69.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_69.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_88.addWidget(self.frame_69)
+
+
+        self.verticalLayout_72.addWidget(self.framestatussocket1)
+
+        self.framesensor1value = QFrame(self.framesocket1)
+        self.framesensor1value.setObjectName(u"framesensor1value")
+        self.framesensor1value.setStyleSheet(u"QFrame#framesensor1value {\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}\n"
+"\n"
+"QFrame#framesensor1value QLabel {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"}")
+        self.framesensor1value.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framesensor1value.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_sensor1 = QVBoxLayout(self.framesensor1value)
+        self.verticalLayout_sensor1.setSpacing(4)
+        self.verticalLayout_sensor1.setObjectName(u"verticalLayout_sensor1")
+        self.verticalLayout_sensor1.setContentsMargins(10, 8, 10, 8)
+        self.label_energy_monitoring_title = QLabel(self.framesensor1value)
+        self.label_energy_monitoring_title.setObjectName(u"label_energy_monitoring_title")
+        self.label_energy_monitoring_title.setMaximumSize(QSize(16777215, 30))
+        self.label_energy_monitoring_title.setFont(font2)
+        self.label_energy_monitoring_title.setStyleSheet(u"#label_energy_monitoring_title {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"    background-color: #bd95f0;        /* ungu soft */\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #9B7BCB;       /* border ungu gelap tapi harmonis */\n"
+"    min-height: 9px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}")
+        self.label_energy_monitoring_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_sensor1.addWidget(self.label_energy_monitoring_title)
+
+        self.verticalLayout_sensor_values = QVBoxLayout()
+        self.verticalLayout_sensor_values.setSpacing(2)
+        self.verticalLayout_sensor_values.setObjectName(u"verticalLayout_sensor_values")
+        self.label_voltage1 = QLabel(self.framesensor1value)
+        self.label_voltage1.setObjectName(u"label_voltage1")
+        self.label_voltage1.setFont(font2)
+        self.label_voltage1.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values.addWidget(self.label_voltage1)
+
+        self.label_current1 = QLabel(self.framesensor1value)
+        self.label_current1.setObjectName(u"label_current1")
+        self.label_current1.setFont(font2)
+        self.label_current1.setStyleSheet(u"")
+        self.label_current1.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout_sensor_values.addWidget(self.label_current1)
+
+        self.label_power1 = QLabel(self.framesensor1value)
+        self.label_power1.setObjectName(u"label_power1")
+        self.label_power1.setFont(font2)
+        self.label_power1.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values.addWidget(self.label_power1)
+
+        self.label_energy1 = QLabel(self.framesensor1value)
+        self.label_energy1.setObjectName(u"label_energy1")
+        self.label_energy1.setFont(font2)
+        self.label_energy1.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values.addWidget(self.label_energy1)
+
+        self.label_frequency1 = QLabel(self.framesensor1value)
+        self.label_frequency1.setObjectName(u"label_frequency1")
+        self.label_frequency1.setFont(font2)
+        self.label_frequency1.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values.addWidget(self.label_frequency1)
+
+        self.label_powerfactor1 = QLabel(self.framesensor1value)
+        self.label_powerfactor1.setObjectName(u"label_powerfactor1")
+        self.label_powerfactor1.setFont(font2)
+        self.label_powerfactor1.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values.addWidget(self.label_powerfactor1)
+
+
+        self.verticalLayout_sensor1.addLayout(self.verticalLayout_sensor_values)
+
+
+        self.verticalLayout_72.addWidget(self.framesensor1value)
+
+        self.frameswitch1 = QFrame(self.framesocket1)
+        self.frameswitch1.setObjectName(u"frameswitch1")
+        self.frameswitch1.setStyleSheet(u"#frameswitch1{\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.frameswitch1.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameswitch1.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_61 = QVBoxLayout(self.frameswitch1)
+        self.verticalLayout_61.setSpacing(6)
+        self.verticalLayout_61.setObjectName(u"verticalLayout_61")
+        self.verticalLayout_61.setContentsMargins(8, 8, 8, 8)
+        self.frame_73 = QFrame(self.frameswitch1)
+        self.frame_73.setObjectName(u"frame_73")
+        self.frame_73.setMinimumSize(QSize(0, 20))
+        self.frame_73.setMaximumSize(QSize(16777215, 30))
+        self.frame_73.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_73.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_89 = QHBoxLayout(self.frame_73)
+        self.horizontalLayout_89.setSpacing(0)
+        self.horizontalLayout_89.setObjectName(u"horizontalLayout_89")
+        self.horizontalLayout_89.setContentsMargins(0, 0, 0, 0)
+        self.frame_74 = QFrame(self.frame_73)
+        self.frame_74.setObjectName(u"frame_74")
+        self.frame_74.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_74.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_89.addWidget(self.frame_74)
+
+        self.label_switch_status_title = QLabel(self.frame_73)
+        self.label_switch_status_title.setObjectName(u"label_switch_status_title")
+        self.label_switch_status_title.setFont(font2)
+        self.label_switch_status_title.setStyleSheet(u"QLabel#label_switch_status_title{\n"
+"	font: bold 10pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #bd95f0;    /* ungu battery */\n"
+"	border: 1px solid #9B7BCB; \n"
+"\n"
+"\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 10px;\n"
+"    line-height: 5px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_89.addWidget(self.label_switch_status_title)
+
+        self.frame_75 = QFrame(self.frame_73)
+        self.frame_75.setObjectName(u"frame_75")
+        self.frame_75.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_75.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_89.addWidget(self.frame_75)
+
+
+        self.verticalLayout_61.addWidget(self.frame_73)
+
+        self.frame_70 = QFrame(self.frameswitch1)
+        self.frame_70.setObjectName(u"frame_70")
+        self.frame_70.setMinimumSize(QSize(0, 0))
+        self.frame_70.setMaximumSize(QSize(16777215, 30))
+        self.frame_70.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_70.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_90 = QHBoxLayout(self.frame_70)
+        self.horizontalLayout_90.setSpacing(0)
+        self.horizontalLayout_90.setObjectName(u"horizontalLayout_90")
+        self.horizontalLayout_90.setContentsMargins(0, 0, 0, 0)
+        self.frame_71 = QFrame(self.frame_70)
+        self.frame_71.setObjectName(u"frame_71")
+        self.frame_71.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_71.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_90.addWidget(self.frame_71)
+
+        self.label_switch_status_value1 = QLabel(self.frame_70)
+        self.label_switch_status_value1.setObjectName(u"label_switch_status_value1")
+        self.label_switch_status_value1.setMinimumSize(QSize(0, 30))
+        self.label_switch_status_value1.setMaximumSize(QSize(100, 30))
+        font11 = QFont()
+        font11.setFamilies([u"Segoe UI"])
+        font11.setPointSize(9)
+        font11.setBold(True)
+        font11.setItalic(False)
+        self.label_switch_status_value1.setFont(font11)
+        self.label_switch_status_value1.setStyleSheet(u"QLabel#label_switch_status_value1{\n"
+"    color: white;\n"
+"    background-color: #EB5757;\n"
+"    border: 1px solid #C0392B;\n"
+"    border-radius: 4px;\n"
+"    padding: 4px 8px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"font: bold 9pt \"Segoe UI\";\n"
+"}\n"
+"QLabel#label_switch_status_value1[state=\"on\"] {\n"
+"    background-color: #6FCF97;\n"
+"    border-color: #27AE60;\n"
+"}")
+        self.label_switch_status_value1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_90.addWidget(self.label_switch_status_value1)
+
+        self.frame_72 = QFrame(self.frame_70)
+        self.frame_72.setObjectName(u"frame_72")
+        self.frame_72.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_72.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_90.addWidget(self.frame_72)
+
+
+        self.verticalLayout_61.addWidget(self.frame_70)
+
+        self.frame_switch_button_container = QFrame(self.frameswitch1)
+        self.frame_switch_button_container.setObjectName(u"frame_switch_button_container")
+        self.frame_switch_button_container.setMinimumSize(QSize(0, 35))
+        self.frame_switch_button_container.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.verticalLayout_61.addWidget(self.frame_switch_button_container)
+
+
+        self.verticalLayout_72.addWidget(self.frameswitch1)
+
+        self.framestatustimer1 = QFrame(self.framesocket1)
+        self.framestatustimer1.setObjectName(u"framestatustimer1")
+        self.framestatustimer1.setMinimumSize(QSize(0, 24))
+        self.framestatustimer1.setMaximumSize(QSize(16777215, 24))
+        self.framestatustimer1.setStyleSheet(u"")
+        self.framestatustimer1.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatustimer1.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_timer1 = QHBoxLayout(self.framestatustimer1)
+        self.horizontalLayout_timer1.setObjectName(u"horizontalLayout_timer1")
+        self.horizontalLayout_timer1.setContentsMargins(0, 0, 0, 0)
+        self.label_timer_title = QLabel(self.framestatustimer1)
+        self.label_timer_title.setObjectName(u"label_timer_title")
+        self.label_timer_title.setFont(font2)
+        self.label_timer_title.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer1.addWidget(self.label_timer_title)
+
+        self.label_timer_status1 = QLabel(self.framestatustimer1)
+        self.label_timer_status1.setObjectName(u"label_timer_status1")
+        self.label_timer_status1.setFont(font2)
+        self.label_timer_status1.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer1.addWidget(self.label_timer_status1)
+
+
+        self.verticalLayout_72.addWidget(self.framestatustimer1)
+
+        self.framestatusscheduling1 = QFrame(self.framesocket1)
+        self.framestatusscheduling1.setObjectName(u"framestatusscheduling1")
+        self.framestatusscheduling1.setMinimumSize(QSize(0, 24))
+        self.framestatusscheduling1.setMaximumSize(QSize(16777215, 24))
+        self.framestatusscheduling1.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatusscheduling1.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_scheduling1 = QHBoxLayout(self.framestatusscheduling1)
+        self.horizontalLayout_scheduling1.setObjectName(u"horizontalLayout_scheduling1")
+        self.horizontalLayout_scheduling1.setContentsMargins(0, 0, 0, 0)
+        self.label_scheduling_title = QLabel(self.framestatusscheduling1)
+        self.label_scheduling_title.setObjectName(u"label_scheduling_title")
+        self.label_scheduling_title.setFont(font2)
+        self.label_scheduling_title.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling1.addWidget(self.label_scheduling_title)
+
+        self.label_scheduling_status1 = QLabel(self.framestatusscheduling1)
+        self.label_scheduling_status1.setObjectName(u"label_scheduling_status1")
+        self.label_scheduling_status1.setFont(font2)
+        self.label_scheduling_status1.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling1.addWidget(self.label_scheduling_status1)
+
+
+        self.verticalLayout_72.addWidget(self.framestatusscheduling1)
+
+        self.framebuttonaction1 = QFrame(self.framesocket1)
+        self.framebuttonaction1.setObjectName(u"framebuttonaction1")
+        self.framebuttonaction1.setMinimumSize(QSize(0, 35))
+        self.framebuttonaction1.setMaximumSize(QSize(16777215, 35))
+        self.framebuttonaction1.setFrameShape(QFrame.Shape.NoFrame)
+        self.framebuttonaction1.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_action1 = QHBoxLayout(self.framebuttonaction1)
+        self.horizontalLayout_action1.setObjectName(u"horizontalLayout_action1")
+        self.horizontalLayout_action1.setContentsMargins(0, 0, 0, 0)
+        self.btn_action_socket1 = QPushButton(self.framebuttonaction1)
+        self.btn_action_socket1.setObjectName(u"btn_action_socket1")
+        self.btn_action_socket1.setMinimumSize(QSize(0, 35))
+        self.btn_action_socket1.setFont(font2)
+        self.btn_action_socket1.setStyleSheet(u"QPushButton#btn_action_socket1 {\n"
+"    background-color: #ab6dfc;      /* warna utama */\n"
+"    color: white;\n"
+"    font: bold 10pt \"Segoe UI\";     /* teks bold */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* Hover: sedikit lebih terang */\n"
+"QPushButton#btn_action_socket1:hover {\n"
+"    background-color: #c085fc;      /* ungu terang lebih soft */\n"
+"}\n"
+"\n"
+"/* Pressed: sedikit lebih gelap */\n"
+"QPushButton#btn_action_socket1:pressed {\n"
+"    background-color: #914de6;      /* ungu gelap */\n"
+"}")
+
+        self.horizontalLayout_action1.addWidget(self.btn_action_socket1)
+
+
+        self.verticalLayout_72.addWidget(self.framebuttonaction1)
+
+
+        self.horizontalLayout_111.addWidget(self.framesocket1)
+
+        self.framesocket2 = QFrame(self.framecontentSmartsocket)
+        self.framesocket2.setObjectName(u"framesocket2")
+        self.framesocket2.setMinimumSize(QSize(0, 700))
+        self.framesocket2.setMaximumSize(QSize(16777215, 700))
+        self.framesocket2.setStyleSheet(u"#framesocket2{\n"
+"	background-color: #ECF5FB;   /* biru pucat */\n"
+"	border: 2px solid #DDEBF7;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.framesocket2.setFrameShape(QFrame.Shape.NoFrame)
+        self.framesocket2.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_75 = QVBoxLayout(self.framesocket2)
+        self.verticalLayout_75.setObjectName(u"verticalLayout_75")
+        self.frametitlesocket2 = QFrame(self.framesocket2)
+        self.frametitlesocket2.setObjectName(u"frametitlesocket2")
+        self.frametitlesocket2.setMinimumSize(QSize(0, 0))
+        self.frametitlesocket2.setMaximumSize(QSize(16777215, 50))
+        self.frametitlesocket2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frametitlesocket2.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_95 = QHBoxLayout(self.frametitlesocket2)
+        self.horizontalLayout_95.setSpacing(0)
+        self.horizontalLayout_95.setObjectName(u"horizontalLayout_95")
+        self.horizontalLayout_95.setContentsMargins(0, 0, 0, 0)
+        self.frame_86 = QFrame(self.frametitlesocket2)
+        self.frame_86.setObjectName(u"frame_86")
+        self.frame_86.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_86.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_95.addWidget(self.frame_86)
+
+        self.titlesmart2 = QLabel(self.frametitlesocket2)
+        self.titlesmart2.setObjectName(u"titlesmart2")
+        sizePolicy2.setHeightForWidth(self.titlesmart2.sizePolicy().hasHeightForWidth())
+        self.titlesmart2.setSizePolicy(sizePolicy2)
+        self.titlesmart2.setMinimumSize(QSize(96, 40))
+        self.titlesmart2.setMaximumSize(QSize(136, 45))
+        self.titlesmart2.setFont(font4)
+        self.titlesmart2.setStyleSheet(u"#titlesmart2{\n"
+"    font: bold 12pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #64B5F6;    /* biru medium */\n"
+"	border: 1px solid #42A5F5;\n"
+"\n"
+"\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 26px;\n"
+"    line-height: 18px;\n"
+"\n"
+"    min-width: 70px;\n"
+"    max-width: 110px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+        self.titlesmart2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_95.addWidget(self.titlesmart2)
+
+        self.frame_87 = QFrame(self.frametitlesocket2)
+        self.frame_87.setObjectName(u"frame_87")
+        self.frame_87.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_87.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_95.addWidget(self.frame_87)
+
+
+        self.verticalLayout_75.addWidget(self.frametitlesocket2)
+
+        self.framestatussocket2 = QFrame(self.framesocket2)
+        self.framestatussocket2.setObjectName(u"framestatussocket2")
+        self.framestatussocket2.setMinimumSize(QSize(0, 40))
+        self.framestatussocket2.setMaximumSize(QSize(16777215, 23))
+        self.framestatussocket2.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatussocket2.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_96 = QHBoxLayout(self.framestatussocket2)
+        self.horizontalLayout_96.setSpacing(0)
+        self.horizontalLayout_96.setObjectName(u"horizontalLayout_96")
+        self.horizontalLayout_96.setContentsMargins(0, 0, 0, 0)
+        self.frame_88 = QFrame(self.framestatussocket2)
+        self.frame_88.setObjectName(u"frame_88")
+        self.frame_88.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_88.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_96.addWidget(self.frame_88)
+
+        self.statussocket2 = QLabel(self.framestatussocket2)
+        self.statussocket2.setObjectName(u"statussocket2")
+        sizePolicy2.setHeightForWidth(self.statussocket2.sizePolicy().hasHeightForWidth())
+        self.statussocket2.setSizePolicy(sizePolicy2)
+        self.statussocket2.setMinimumSize(QSize(155, 23))
+        self.statussocket2.setMaximumSize(QSize(114, 23))
+        self.statussocket2.setFont(font2)
+        self.statussocket2.setStyleSheet(u"QLabel#statussocket2{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"\n"
+"    background-color: #CBD5E1;   /* default (abu netral) */\n"
+"    border: 1px solid #94A3B8;\n"
+"    border-radius: 4px;\n"
+"\n"
+"    padding: 2px 6px;\n"
+"    min-height: 17px;\n"
+"    max-width: 100px;\n"
+"\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"/* ===== AC ON ===== */\n"
+"QLabel#statussocket2[state=\"on\"] {\n"
+"    background-color: #6FCF97;   /* hijau pastel tapi jelas */\n"
+"    border-color: #27AE60;\n"
+"}\n"
+"\n"
+"/* ===== AC OFF ===== */\n"
+"QLabel#statussocket2[state=\"off\"] {\n"
+"    background-color: #EB5757;   /* merah pastel tegas */\n"
+"    border-color: #C0392B;\n"
+"}\n"
+"")
+        self.statussocket2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_96.addWidget(self.statussocket2)
+
+        self.frame_89 = QFrame(self.framestatussocket2)
+        self.frame_89.setObjectName(u"frame_89")
+        self.frame_89.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_89.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_96.addWidget(self.frame_89)
+
+
+        self.verticalLayout_75.addWidget(self.framestatussocket2)
+
+        self.framesensor2value = QFrame(self.framesocket2)
+        self.framesensor2value.setObjectName(u"framesensor2value")
+        self.framesensor2value.setStyleSheet(u"QFrame#framesensor2value {\n"
+"	background-color: #F0F7FC;   /* biru sangat pucat */\n"
+"	border: 1px solid #E1EEF9;\n"
+"	border-radius: 10px;\n"
+"}\n"
+"\n"
+"QFrame#framesensor2value QLabel {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"}")
+        self.framesensor2value.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framesensor2value.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_sensor2 = QVBoxLayout(self.framesensor2value)
+        self.verticalLayout_sensor2.setSpacing(4)
+        self.verticalLayout_sensor2.setObjectName(u"verticalLayout_sensor2")
+        self.verticalLayout_sensor2.setContentsMargins(10, 8, 10, 8)
+        self.label_energy_monitoring_title_2 = QLabel(self.framesensor2value)
+        self.label_energy_monitoring_title_2.setObjectName(u"label_energy_monitoring_title_2")
+        self.label_energy_monitoring_title_2.setMaximumSize(QSize(16777215, 30))
+        self.label_energy_monitoring_title_2.setFont(font2)
+        self.label_energy_monitoring_title_2.setStyleSheet(u"#label_energy_monitoring_title_2 {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"   background-color: #64B5F6;   /* biru medium */\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #42A5F5;       /* border biru */\n"
+"    min-height: 9px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}")
+        self.label_energy_monitoring_title_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_sensor2.addWidget(self.label_energy_monitoring_title_2)
+
+        self.verticalLayout_sensor_values_2 = QVBoxLayout()
+        self.verticalLayout_sensor_values_2.setSpacing(2)
+        self.verticalLayout_sensor_values_2.setObjectName(u"verticalLayout_sensor_values_2")
+        self.label_voltage2 = QLabel(self.framesensor2value)
+        self.label_voltage2.setObjectName(u"label_voltage2")
+        self.label_voltage2.setFont(font2)
+        self.label_voltage2.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_voltage2)
+
+        self.label_current2 = QLabel(self.framesensor2value)
+        self.label_current2.setObjectName(u"label_current2")
+        self.label_current2.setFont(font2)
+        self.label_current2.setStyleSheet(u"")
+        self.label_current2.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_current2)
+
+        self.label_power2 = QLabel(self.framesensor2value)
+        self.label_power2.setObjectName(u"label_power2")
+        self.label_power2.setFont(font2)
+        self.label_power2.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_power2)
+
+        self.label_energy2 = QLabel(self.framesensor2value)
+        self.label_energy2.setObjectName(u"label_energy2")
+        self.label_energy2.setFont(font2)
+        self.label_energy2.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_energy2)
+
+        self.label_frequency2 = QLabel(self.framesensor2value)
+        self.label_frequency2.setObjectName(u"label_frequency2")
+        self.label_frequency2.setFont(font2)
+        self.label_frequency2.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_frequency2)
+
+        self.label_powerfactor2 = QLabel(self.framesensor2value)
+        self.label_powerfactor2.setObjectName(u"label_powerfactor2")
+        self.label_powerfactor2.setFont(font2)
+        self.label_powerfactor2.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_2.addWidget(self.label_powerfactor2)
+
+
+        self.verticalLayout_sensor2.addLayout(self.verticalLayout_sensor_values_2)
+
+
+        self.verticalLayout_75.addWidget(self.framesensor2value)
+
+        self.frameswitch2 = QFrame(self.framesocket2)
+        self.frameswitch2.setObjectName(u"frameswitch2")
+        self.frameswitch2.setStyleSheet(u"#frameswitch2{\n"
+"	background-color: #F0F7FC;   /* biru sangat pucat */\n"
+"	border: 1px solid #E1EEF9;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.frameswitch2.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameswitch2.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_78 = QVBoxLayout(self.frameswitch2)
+        self.verticalLayout_78.setSpacing(6)
+        self.verticalLayout_78.setObjectName(u"verticalLayout_78")
+        self.verticalLayout_78.setContentsMargins(8, 8, 8, 8)
+        self.frame_90 = QFrame(self.frameswitch2)
+        self.frame_90.setObjectName(u"frame_90")
+        self.frame_90.setMinimumSize(QSize(0, 20))
+        self.frame_90.setMaximumSize(QSize(16777215, 30))
+        self.frame_90.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_90.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_97 = QHBoxLayout(self.frame_90)
+        self.horizontalLayout_97.setSpacing(0)
+        self.horizontalLayout_97.setObjectName(u"horizontalLayout_97")
+        self.horizontalLayout_97.setContentsMargins(0, 0, 0, 0)
+        self.frame_91 = QFrame(self.frame_90)
+        self.frame_91.setObjectName(u"frame_91")
+        self.frame_91.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_91.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_97.addWidget(self.frame_91)
+
+        self.label_switch_status_title_2 = QLabel(self.frame_90)
+        self.label_switch_status_title_2.setObjectName(u"label_switch_status_title_2")
+        self.label_switch_status_title_2.setFont(font2)
+        self.label_switch_status_title_2.setStyleSheet(u"QLabel#label_switch_status_title_2{\n"
+"	font: bold 10pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #64B5F6;    /* biru medium */\n"
+"	border: 1px solid #42A5F5;\n"
+"\n"
+"\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 10px;\n"
+"    line-height: 5px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_97.addWidget(self.label_switch_status_title_2)
+
+        self.frame_92 = QFrame(self.frame_90)
+        self.frame_92.setObjectName(u"frame_92")
+        self.frame_92.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_92.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_97.addWidget(self.frame_92)
+
+
+        self.verticalLayout_78.addWidget(self.frame_90)
+
+        self.frame_93 = QFrame(self.frameswitch2)
+        self.frame_93.setObjectName(u"frame_93")
+        self.frame_93.setMinimumSize(QSize(0, 0))
+        self.frame_93.setMaximumSize(QSize(16777215, 30))
+        self.frame_93.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_93.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_98 = QHBoxLayout(self.frame_93)
+        self.horizontalLayout_98.setSpacing(0)
+        self.horizontalLayout_98.setObjectName(u"horizontalLayout_98")
+        self.horizontalLayout_98.setContentsMargins(0, 0, 0, 0)
+        self.frame_94 = QFrame(self.frame_93)
+        self.frame_94.setObjectName(u"frame_94")
+        self.frame_94.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_94.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_98.addWidget(self.frame_94)
+
+        self.label_switch_status_value2 = QLabel(self.frame_93)
+        self.label_switch_status_value2.setObjectName(u"label_switch_status_value2")
+        self.label_switch_status_value2.setMinimumSize(QSize(0, 30))
+        self.label_switch_status_value2.setMaximumSize(QSize(100, 30))
+        self.label_switch_status_value2.setFont(font11)
+        self.label_switch_status_value2.setStyleSheet(u"QLabel#label_switch_status_value2{\n"
+"    color: white;\n"
+"    background-color: #EB5757;\n"
+"    border: 1px solid #C0392B;\n"
+"    border-radius: 4px;\n"
+"    padding: 4px 8px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"font: bold 9pt \"Segoe UI\";\n"
+"}\n"
+"QLabel#label_switch_status_value2[state=\"on\"] {\n"
+"    background-color: #6FCF97;\n"
+"    border-color: #27AE60;\n"
+"}")
+        self.label_switch_status_value2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_98.addWidget(self.label_switch_status_value2)
+
+        self.frame_95 = QFrame(self.frame_93)
+        self.frame_95.setObjectName(u"frame_95")
+        self.frame_95.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_95.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_98.addWidget(self.frame_95)
+
+
+        self.verticalLayout_78.addWidget(self.frame_93)
+
+        self.frame_switch_button_container_2 = QFrame(self.frameswitch2)
+        self.frame_switch_button_container_2.setObjectName(u"frame_switch_button_container_2")
+        self.frame_switch_button_container_2.setMinimumSize(QSize(0, 35))
+        self.frame_switch_button_container_2.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.verticalLayout_78.addWidget(self.frame_switch_button_container_2)
+
+
+        self.verticalLayout_75.addWidget(self.frameswitch2)
+
+        self.framestatustimer2 = QFrame(self.framesocket2)
+        self.framestatustimer2.setObjectName(u"framestatustimer2")
+        self.framestatustimer2.setMinimumSize(QSize(0, 24))
+        self.framestatustimer2.setMaximumSize(QSize(16777215, 24))
+        self.framestatustimer2.setStyleSheet(u"")
+        self.framestatustimer2.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatustimer2.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_timer2 = QHBoxLayout(self.framestatustimer2)
+        self.horizontalLayout_timer2.setObjectName(u"horizontalLayout_timer2")
+        self.horizontalLayout_timer2.setContentsMargins(0, 0, 0, 0)
+        self.label_timer_title_2 = QLabel(self.framestatustimer2)
+        self.label_timer_title_2.setObjectName(u"label_timer_title_2")
+        self.label_timer_title_2.setFont(font2)
+        self.label_timer_title_2.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_timer2.addWidget(self.label_timer_title_2)
+
+        self.label_timer_status2 = QLabel(self.framestatustimer2)
+        self.label_timer_status2.setObjectName(u"label_timer_status2")
+        self.label_timer_status2.setFont(font2)
+        self.label_timer_status2.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_timer2.addWidget(self.label_timer_status2)
+
+
+        self.verticalLayout_75.addWidget(self.framestatustimer2)
+
+        self.framestatusscheduling2 = QFrame(self.framesocket2)
+        self.framestatusscheduling2.setObjectName(u"framestatusscheduling2")
+        self.framestatusscheduling2.setMinimumSize(QSize(0, 24))
+        self.framestatusscheduling2.setMaximumSize(QSize(16777215, 24))
+        self.framestatusscheduling2.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatusscheduling2.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_scheduling2 = QHBoxLayout(self.framestatusscheduling2)
+        self.horizontalLayout_scheduling2.setObjectName(u"horizontalLayout_scheduling2")
+        self.horizontalLayout_scheduling2.setContentsMargins(0, 0, 0, 0)
+        self.label_scheduling_title_2 = QLabel(self.framestatusscheduling2)
+        self.label_scheduling_title_2.setObjectName(u"label_scheduling_title_2")
+        self.label_scheduling_title_2.setFont(font2)
+        self.label_scheduling_title_2.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_scheduling2.addWidget(self.label_scheduling_title_2)
+
+        self.label_scheduling_status2 = QLabel(self.framestatusscheduling2)
+        self.label_scheduling_status2.setObjectName(u"label_scheduling_status2")
+        self.label_scheduling_status2.setFont(font2)
+        self.label_scheduling_status2.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_scheduling2.addWidget(self.label_scheduling_status2)
+
+
+        self.verticalLayout_75.addWidget(self.framestatusscheduling2)
+
+        self.framebuttonaction2 = QFrame(self.framesocket2)
+        self.framebuttonaction2.setObjectName(u"framebuttonaction2")
+        self.framebuttonaction2.setMinimumSize(QSize(0, 35))
+        self.framebuttonaction2.setMaximumSize(QSize(16777215, 35))
+        self.framebuttonaction2.setFrameShape(QFrame.Shape.NoFrame)
+        self.framebuttonaction2.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_action2 = QHBoxLayout(self.framebuttonaction2)
+        self.horizontalLayout_action2.setObjectName(u"horizontalLayout_action2")
+        self.horizontalLayout_action2.setContentsMargins(0, 0, 0, 0)
+        self.btn_action_socket2 = QPushButton(self.framebuttonaction2)
+        self.btn_action_socket2.setObjectName(u"btn_action_socket2")
+        self.btn_action_socket2.setMinimumSize(QSize(0, 35))
+        self.btn_action_socket2.setFont(font2)
+        self.btn_action_socket2.setStyleSheet(u"QPushButton#btn_action_socket2 {\n"
+"    background-color: #42A5F5;      /* biru medium */\n"
+"    color: white;\n"
+"    font: bold 10pt \"Segoe UI\";     /* teks bold */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* Hover: sedikit lebih terang */\n"
+"QPushButton#btn_action_socket2:hover {\n"
+"    background-color: #64B5F6;      /* biru terang */\n"
+"}\n"
+"\n"
+"/* Pressed: sedikit lebih gelap */\n"
+"QPushButton#btn_action_socket2:pressed {\n"
+"    background-color: #1976D2;      /* biru gelap */\n"
+"}")
+
+        self.horizontalLayout_action2.addWidget(self.btn_action_socket2)
+
+
+        self.verticalLayout_75.addWidget(self.framebuttonaction2)
+
+
+        self.horizontalLayout_111.addWidget(self.framesocket2)
+
+        self.framesocket3 = QFrame(self.framecontentSmartsocket)
+        self.framesocket3.setObjectName(u"framesocket3")
+        self.framesocket3.setMinimumSize(QSize(0, 700))
+        self.framesocket3.setMaximumSize(QSize(16777215, 700))
+        self.framesocket3.setStyleSheet(u"#framesocket3{\n"
+"	background-color: #eee3fa;   /* ungu lembut banget */\n"
+"	border: 2px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.framesocket3.setFrameShape(QFrame.Shape.NoFrame)
+        self.framesocket3.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_79 = QVBoxLayout(self.framesocket3)
+        self.verticalLayout_79.setObjectName(u"verticalLayout_79")
+        self.frametitlesocket3 = QFrame(self.framesocket3)
+        self.frametitlesocket3.setObjectName(u"frametitlesocket3")
+        self.frametitlesocket3.setMinimumSize(QSize(0, 0))
+        self.frametitlesocket3.setMaximumSize(QSize(16777215, 50))
+        self.frametitlesocket3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frametitlesocket3.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_99 = QHBoxLayout(self.frametitlesocket3)
+        self.horizontalLayout_99.setSpacing(0)
+        self.horizontalLayout_99.setObjectName(u"horizontalLayout_99")
+        self.horizontalLayout_99.setContentsMargins(0, 0, 0, 0)
+        self.frame_96 = QFrame(self.frametitlesocket3)
+        self.frame_96.setObjectName(u"frame_96")
+        self.frame_96.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_96.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_99.addWidget(self.frame_96)
+
+        self.titlesmart3 = QLabel(self.frametitlesocket3)
+        self.titlesmart3.setObjectName(u"titlesmart3")
+        sizePolicy2.setHeightForWidth(self.titlesmart3.sizePolicy().hasHeightForWidth())
+        self.titlesmart3.setSizePolicy(sizePolicy2)
+        self.titlesmart3.setMinimumSize(QSize(96, 40))
+        self.titlesmart3.setMaximumSize(QSize(136, 45))
+        self.titlesmart3.setFont(font4)
+        self.titlesmart3.setStyleSheet(u"#titlesmart3{\n"
+"font: bold 12pt \"Segoe UI\";\n"
+"color: white;\n"
+"background-color: #8E7AB5;   /* ungu battery */\n"
+"    border: 1px solid #6E8E8B;\n"
+"\n"
+"\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 26px;\n"
+"    line-height: 18px;\n"
+"\n"
+"    min-width: 70px;\n"
+"    max-width: 110px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+        self.titlesmart3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_99.addWidget(self.titlesmart3)
+
+        self.frame_97 = QFrame(self.frametitlesocket3)
+        self.frame_97.setObjectName(u"frame_97")
+        self.frame_97.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_97.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_99.addWidget(self.frame_97)
+
+
+        self.verticalLayout_79.addWidget(self.frametitlesocket3)
+
+        self.framestatussocket3 = QFrame(self.framesocket3)
+        self.framestatussocket3.setObjectName(u"framestatussocket3")
+        self.framestatussocket3.setMinimumSize(QSize(0, 40))
+        self.framestatussocket3.setMaximumSize(QSize(16777215, 23))
+        self.framestatussocket3.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatussocket3.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_100 = QHBoxLayout(self.framestatussocket3)
+        self.horizontalLayout_100.setSpacing(0)
+        self.horizontalLayout_100.setObjectName(u"horizontalLayout_100")
+        self.horizontalLayout_100.setContentsMargins(0, 0, 0, 0)
+        self.frame_98 = QFrame(self.framestatussocket3)
+        self.frame_98.setObjectName(u"frame_98")
+        self.frame_98.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_98.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_100.addWidget(self.frame_98)
+
+        self.statussocket3 = QLabel(self.framestatussocket3)
+        self.statussocket3.setObjectName(u"statussocket3")
+        sizePolicy2.setHeightForWidth(self.statussocket3.sizePolicy().hasHeightForWidth())
+        self.statussocket3.setSizePolicy(sizePolicy2)
+        self.statussocket3.setMinimumSize(QSize(155, 23))
+        self.statussocket3.setMaximumSize(QSize(114, 23))
+        self.statussocket3.setFont(font2)
+        self.statussocket3.setStyleSheet(u"QLabel#statussocket3{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"\n"
+"    background-color: #CBD5E1;   /* default (abu netral) */\n"
+"    border: 1px solid #94A3B8;\n"
+"    border-radius: 4px;\n"
+"\n"
+"    padding: 2px 6px;\n"
+"    min-height: 17px;\n"
+"    max-width: 100px;\n"
+"\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"/* ===== AC ON ===== */\n"
+"QLabel#statussocket3[state=\"on\"] {\n"
+"    background-color: #6FCF97;   /* hijau pastel tapi jelas */\n"
+"    border-color: #27AE60;\n"
+"}\n"
+"\n"
+"/* ===== AC OFF ===== */\n"
+"QLabel#statussocket3[state=\"off\"] {\n"
+"    background-color: #EB5757;   /* merah pastel tegas */\n"
+"    border-color: #C0392B;\n"
+"}\n"
+"")
+        self.statussocket3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_100.addWidget(self.statussocket3)
+
+        self.frame_99 = QFrame(self.framestatussocket3)
+        self.frame_99.setObjectName(u"frame_99")
+        self.frame_99.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_99.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_100.addWidget(self.frame_99)
+
+
+        self.verticalLayout_79.addWidget(self.framestatussocket3)
+
+        self.framesensor3value = QFrame(self.framesocket3)
+        self.framesensor3value.setObjectName(u"framesensor3value")
+        self.framesensor3value.setStyleSheet(u"QFrame#framesensor3value {\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}\n"
+"\n"
+"QFrame#framesensor3value QLabel {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"}")
+        self.framesensor3value.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framesensor3value.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_sensor3 = QVBoxLayout(self.framesensor3value)
+        self.verticalLayout_sensor3.setSpacing(4)
+        self.verticalLayout_sensor3.setObjectName(u"verticalLayout_sensor3")
+        self.verticalLayout_sensor3.setContentsMargins(10, 8, 10, 8)
+        self.label_energy_monitoring_title_3 = QLabel(self.framesensor3value)
+        self.label_energy_monitoring_title_3.setObjectName(u"label_energy_monitoring_title_3")
+        self.label_energy_monitoring_title_3.setMaximumSize(QSize(16777215, 30))
+        self.label_energy_monitoring_title_3.setFont(font2)
+        self.label_energy_monitoring_title_3.setStyleSheet(u"#label_energy_monitoring_title_3{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"    background-color: #bd95f0;        /* ungu soft */\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #9B7BCB;       /* border ungu gelap tapi harmonis */\n"
+"    min-height: 9px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}")
+        self.label_energy_monitoring_title_3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_sensor3.addWidget(self.label_energy_monitoring_title_3)
+
+        self.verticalLayout_sensor_values_3 = QVBoxLayout()
+        self.verticalLayout_sensor_values_3.setSpacing(2)
+        self.verticalLayout_sensor_values_3.setObjectName(u"verticalLayout_sensor_values_3")
+        self.label_voltage3 = QLabel(self.framesensor3value)
+        self.label_voltage3.setObjectName(u"label_voltage3")
+        self.label_voltage3.setFont(font2)
+        self.label_voltage3.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_voltage3)
+
+        self.label_current3 = QLabel(self.framesensor3value)
+        self.label_current3.setObjectName(u"label_current3")
+        self.label_current3.setFont(font2)
+        self.label_current3.setStyleSheet(u"")
+        self.label_current3.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_current3)
+
+        self.label_power3 = QLabel(self.framesensor3value)
+        self.label_power3.setObjectName(u"label_power3")
+        self.label_power3.setFont(font2)
+        self.label_power3.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_power3)
+
+        self.label_energy3 = QLabel(self.framesensor3value)
+        self.label_energy3.setObjectName(u"label_energy3")
+        self.label_energy3.setFont(font2)
+        self.label_energy3.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_energy3)
+
+        self.label_frequency3 = QLabel(self.framesensor3value)
+        self.label_frequency3.setObjectName(u"label_frequency3")
+        self.label_frequency3.setFont(font2)
+        self.label_frequency3.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_frequency3)
+
+        self.label_powerfactor3 = QLabel(self.framesensor3value)
+        self.label_powerfactor3.setObjectName(u"label_powerfactor3")
+        self.label_powerfactor3.setFont(font2)
+        self.label_powerfactor3.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_3.addWidget(self.label_powerfactor3)
+
+
+        self.verticalLayout_sensor3.addLayout(self.verticalLayout_sensor_values_3)
+
+
+        self.verticalLayout_79.addWidget(self.framesensor3value)
+
+        self.frameswitch3 = QFrame(self.framesocket3)
+        self.frameswitch3.setObjectName(u"frameswitch3")
+        self.frameswitch3.setStyleSheet(u"#frameswitch3{\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.frameswitch3.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameswitch3.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_80 = QVBoxLayout(self.frameswitch3)
+        self.verticalLayout_80.setSpacing(6)
+        self.verticalLayout_80.setObjectName(u"verticalLayout_80")
+        self.verticalLayout_80.setContentsMargins(8, 8, 8, 8)
+        self.frame_100 = QFrame(self.frameswitch3)
+        self.frame_100.setObjectName(u"frame_100")
+        self.frame_100.setMinimumSize(QSize(0, 20))
+        self.frame_100.setMaximumSize(QSize(16777215, 30))
+        self.frame_100.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_100.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_101 = QHBoxLayout(self.frame_100)
+        self.horizontalLayout_101.setSpacing(0)
+        self.horizontalLayout_101.setObjectName(u"horizontalLayout_101")
+        self.horizontalLayout_101.setContentsMargins(0, 0, 0, 0)
+        self.frame_101 = QFrame(self.frame_100)
+        self.frame_101.setObjectName(u"frame_101")
+        self.frame_101.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_101.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_101.addWidget(self.frame_101)
+
+        self.label_switch_status_title_3 = QLabel(self.frame_100)
+        self.label_switch_status_title_3.setObjectName(u"label_switch_status_title_3")
+        self.label_switch_status_title_3.setFont(font2)
+        self.label_switch_status_title_3.setStyleSheet(u"QLabel#label_switch_status_title_3{\n"
+"	font: bold 10pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #bd95f0;    /* ungu battery */\n"
+"	border: 1px solid #9B7BCB; \n"
+"\n"
+"\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 10px;\n"
+"    line-height: 5px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_101.addWidget(self.label_switch_status_title_3)
+
+        self.frame_102 = QFrame(self.frame_100)
+        self.frame_102.setObjectName(u"frame_102")
+        self.frame_102.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_102.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_101.addWidget(self.frame_102)
+
+
+        self.verticalLayout_80.addWidget(self.frame_100)
+
+        self.frame_103 = QFrame(self.frameswitch3)
+        self.frame_103.setObjectName(u"frame_103")
+        self.frame_103.setMinimumSize(QSize(0, 0))
+        self.frame_103.setMaximumSize(QSize(16777215, 30))
+        self.frame_103.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_103.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_102 = QHBoxLayout(self.frame_103)
+        self.horizontalLayout_102.setSpacing(0)
+        self.horizontalLayout_102.setObjectName(u"horizontalLayout_102")
+        self.horizontalLayout_102.setContentsMargins(0, 0, 0, 0)
+        self.frame_104 = QFrame(self.frame_103)
+        self.frame_104.setObjectName(u"frame_104")
+        self.frame_104.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_104.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_102.addWidget(self.frame_104)
+
+        self.label_switch_status_value3 = QLabel(self.frame_103)
+        self.label_switch_status_value3.setObjectName(u"label_switch_status_value3")
+        self.label_switch_status_value3.setMinimumSize(QSize(0, 30))
+        self.label_switch_status_value3.setMaximumSize(QSize(100, 30))
+        self.label_switch_status_value3.setFont(font11)
+        self.label_switch_status_value3.setStyleSheet(u"QLabel#label_switch_status_value3{\n"
+"    color: white;\n"
+"    background-color: #EB5757;\n"
+"    border: 1px solid #C0392B;\n"
+"    border-radius: 4px;\n"
+"    padding: 4px 8px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"font: bold 9pt \"Segoe UI\";\n"
+"}\n"
+"QLabel#label_switch_status_value3[state=\"on\"] {\n"
+"    background-color: #6FCF97;\n"
+"    border-color: #27AE60;\n"
+"}")
+        self.label_switch_status_value3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_102.addWidget(self.label_switch_status_value3)
+
+        self.frame_105 = QFrame(self.frame_103)
+        self.frame_105.setObjectName(u"frame_105")
+        self.frame_105.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_105.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_102.addWidget(self.frame_105)
+
+
+        self.verticalLayout_80.addWidget(self.frame_103)
+
+        self.frame_switch_button_container_3 = QFrame(self.frameswitch3)
+        self.frame_switch_button_container_3.setObjectName(u"frame_switch_button_container_3")
+        self.frame_switch_button_container_3.setMinimumSize(QSize(0, 35))
+        self.frame_switch_button_container_3.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.verticalLayout_80.addWidget(self.frame_switch_button_container_3)
+
+
+        self.verticalLayout_79.addWidget(self.frameswitch3)
+
+        self.framestatustimer3 = QFrame(self.framesocket3)
+        self.framestatustimer3.setObjectName(u"framestatustimer3")
+        self.framestatustimer3.setMinimumSize(QSize(0, 24))
+        self.framestatustimer3.setMaximumSize(QSize(16777215, 24))
+        self.framestatustimer3.setStyleSheet(u"")
+        self.framestatustimer3.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatustimer3.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_timer3 = QHBoxLayout(self.framestatustimer3)
+        self.horizontalLayout_timer3.setObjectName(u"horizontalLayout_timer3")
+        self.horizontalLayout_timer3.setContentsMargins(0, 0, 0, 0)
+        self.label_timer_title_3 = QLabel(self.framestatustimer3)
+        self.label_timer_title_3.setObjectName(u"label_timer_title_3")
+        self.label_timer_title_3.setFont(font2)
+        self.label_timer_title_3.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer3.addWidget(self.label_timer_title_3)
+
+        self.label_timer_status3 = QLabel(self.framestatustimer3)
+        self.label_timer_status3.setObjectName(u"label_timer_status3")
+        self.label_timer_status3.setFont(font2)
+        self.label_timer_status3.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer3.addWidget(self.label_timer_status3)
+
+
+        self.verticalLayout_79.addWidget(self.framestatustimer3)
+
+        self.framestatusscheduling3 = QFrame(self.framesocket3)
+        self.framestatusscheduling3.setObjectName(u"framestatusscheduling3")
+        self.framestatusscheduling3.setMinimumSize(QSize(0, 24))
+        self.framestatusscheduling3.setMaximumSize(QSize(16777215, 24))
+        self.framestatusscheduling3.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatusscheduling3.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_scheduling3 = QHBoxLayout(self.framestatusscheduling3)
+        self.horizontalLayout_scheduling3.setObjectName(u"horizontalLayout_scheduling3")
+        self.horizontalLayout_scheduling3.setContentsMargins(0, 0, 0, 0)
+        self.label_scheduling_title_3 = QLabel(self.framestatusscheduling3)
+        self.label_scheduling_title_3.setObjectName(u"label_scheduling_title_3")
+        self.label_scheduling_title_3.setFont(font2)
+        self.label_scheduling_title_3.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling3.addWidget(self.label_scheduling_title_3)
+
+        self.label_scheduling_status3 = QLabel(self.framestatusscheduling3)
+        self.label_scheduling_status3.setObjectName(u"label_scheduling_status3")
+        self.label_scheduling_status3.setFont(font2)
+        self.label_scheduling_status3.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling3.addWidget(self.label_scheduling_status3)
+
+
+        self.verticalLayout_79.addWidget(self.framestatusscheduling3)
+
+        self.framebuttonaction3 = QFrame(self.framesocket3)
+        self.framebuttonaction3.setObjectName(u"framebuttonaction3")
+        self.framebuttonaction3.setMinimumSize(QSize(0, 35))
+        self.framebuttonaction3.setMaximumSize(QSize(16777215, 35))
+        self.framebuttonaction3.setFrameShape(QFrame.Shape.NoFrame)
+        self.framebuttonaction3.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_action3 = QHBoxLayout(self.framebuttonaction3)
+        self.horizontalLayout_action3.setObjectName(u"horizontalLayout_action3")
+        self.horizontalLayout_action3.setContentsMargins(0, 0, 0, 0)
+        self.btn_action_socket3 = QPushButton(self.framebuttonaction3)
+        self.btn_action_socket3.setObjectName(u"btn_action_socket3")
+        self.btn_action_socket3.setMinimumSize(QSize(0, 35))
+        self.btn_action_socket3.setFont(font2)
+        self.btn_action_socket3.setStyleSheet(u"QPushButton#btn_action_socket3 {\n"
+"    background-color: #ab6dfc;      /* warna utama */\n"
+"    color: white;\n"
+"    font: bold 10pt \"Segoe UI\";     /* teks bold */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* Hover: sedikit lebih terang */\n"
+"QPushButton#btn_action_socket3:hover {\n"
+"    background-color: #c085fc;      /* ungu terang lebih soft */\n"
+"}\n"
+"\n"
+"/* Pressed: sedikit lebih gelap */\n"
+"QPushButton#btn_action_socket3:pressed {\n"
+"    background-color: #914de6;      /* ungu gelap */\n"
+"}")
+
+        self.horizontalLayout_action3.addWidget(self.btn_action_socket3)
+
+
+        self.verticalLayout_79.addWidget(self.framebuttonaction3)
+
+
+        self.horizontalLayout_111.addWidget(self.framesocket3)
+
+        self.framesocket4 = QFrame(self.framecontentSmartsocket)
+        self.framesocket4.setObjectName(u"framesocket4")
+        self.framesocket4.setMinimumSize(QSize(0, 700))
+        self.framesocket4.setMaximumSize(QSize(16777215, 700))
+        self.framesocket4.setStyleSheet(u"#framesocket4{\n"
+"	background-color: #ECF5FB;   /* biru pucat */\n"
+"	border: 2px solid #DDEBF7;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.framesocket4.setFrameShape(QFrame.Shape.NoFrame)
+        self.framesocket4.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_81 = QVBoxLayout(self.framesocket4)
+        self.verticalLayout_81.setObjectName(u"verticalLayout_81")
+        self.frametitlesocket4 = QFrame(self.framesocket4)
+        self.frametitlesocket4.setObjectName(u"frametitlesocket4")
+        self.frametitlesocket4.setMinimumSize(QSize(0, 0))
+        self.frametitlesocket4.setMaximumSize(QSize(16777215, 50))
+        self.frametitlesocket4.setFrameShape(QFrame.Shape.NoFrame)
+        self.frametitlesocket4.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_103 = QHBoxLayout(self.frametitlesocket4)
+        self.horizontalLayout_103.setSpacing(0)
+        self.horizontalLayout_103.setObjectName(u"horizontalLayout_103")
+        self.horizontalLayout_103.setContentsMargins(0, 0, 0, 0)
+        self.frame_106 = QFrame(self.frametitlesocket4)
+        self.frame_106.setObjectName(u"frame_106")
+        self.frame_106.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_106.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_103.addWidget(self.frame_106)
+
+        self.titlesmart4 = QLabel(self.frametitlesocket4)
+        self.titlesmart4.setObjectName(u"titlesmart4")
+        sizePolicy2.setHeightForWidth(self.titlesmart4.sizePolicy().hasHeightForWidth())
+        self.titlesmart4.setSizePolicy(sizePolicy2)
+        self.titlesmart4.setMinimumSize(QSize(96, 40))
+        self.titlesmart4.setMaximumSize(QSize(136, 45))
+        self.titlesmart4.setFont(font4)
+        self.titlesmart4.setStyleSheet(u"#titlesmart4{\n"
+"font: bold 12pt \"Segoe UI\";\n"
+"color: white;\n"
+"background-color: #64B5F6;   /* biru medium */\n"
+"    border: 1px solid #42A5F5;\n"
+"\n"
+"\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 26px;\n"
+"    line-height: 18px;\n"
+"\n"
+"    min-width: 70px;\n"
+"    max-width: 110px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+        self.titlesmart4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_103.addWidget(self.titlesmart4)
+
+        self.frame_107 = QFrame(self.frametitlesocket4)
+        self.frame_107.setObjectName(u"frame_107")
+        self.frame_107.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_107.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_103.addWidget(self.frame_107)
+
+
+        self.verticalLayout_81.addWidget(self.frametitlesocket4)
+
+        self.framestatussocket4 = QFrame(self.framesocket4)
+        self.framestatussocket4.setObjectName(u"framestatussocket4")
+        self.framestatussocket4.setMinimumSize(QSize(0, 40))
+        self.framestatussocket4.setMaximumSize(QSize(16777215, 23))
+        self.framestatussocket4.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatussocket4.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_104 = QHBoxLayout(self.framestatussocket4)
+        self.horizontalLayout_104.setSpacing(0)
+        self.horizontalLayout_104.setObjectName(u"horizontalLayout_104")
+        self.horizontalLayout_104.setContentsMargins(0, 0, 0, 0)
+        self.frame_108 = QFrame(self.framestatussocket4)
+        self.frame_108.setObjectName(u"frame_108")
+        self.frame_108.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_108.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_104.addWidget(self.frame_108)
+
+        self.statussocket4 = QLabel(self.framestatussocket4)
+        self.statussocket4.setObjectName(u"statussocket4")
+        sizePolicy2.setHeightForWidth(self.statussocket4.sizePolicy().hasHeightForWidth())
+        self.statussocket4.setSizePolicy(sizePolicy2)
+        self.statussocket4.setMinimumSize(QSize(155, 23))
+        self.statussocket4.setMaximumSize(QSize(114, 23))
+        self.statussocket4.setFont(font2)
+        self.statussocket4.setStyleSheet(u"QLabel#statussocket4{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"\n"
+"    background-color: #CBD5E1;   /* default (abu netral) */\n"
+"    border: 1px solid #94A3B8;\n"
+"    border-radius: 4px;\n"
+"\n"
+"    padding: 2px 6px;\n"
+"    min-height: 17px;\n"
+"    max-width: 100px;\n"
+"\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"/* ===== AC ON ===== */\n"
+"QLabel#statussocket4[state=\"on\"] {\n"
+"    background-color: #6FCF97;   /* hijau pastel tapi jelas */\n"
+"    border-color: #27AE60;\n"
+"}\n"
+"\n"
+"/* ===== AC OFF ===== */\n"
+"QLabel#statussocket4[state=\"off\"] {\n"
+"    background-color: #EB5757;   /* merah pastel tegas */\n"
+"    border-color: #C0392B;\n"
+"}\n"
+"")
+        self.statussocket4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_104.addWidget(self.statussocket4)
+
+        self.frame_109 = QFrame(self.framestatussocket4)
+        self.frame_109.setObjectName(u"frame_109")
+        self.frame_109.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_109.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_104.addWidget(self.frame_109)
+
+
+        self.verticalLayout_81.addWidget(self.framestatussocket4)
+
+        self.framesensor4value = QFrame(self.framesocket4)
+        self.framesensor4value.setObjectName(u"framesensor4value")
+        self.framesensor4value.setStyleSheet(u"QFrame#framesensor4value {\n"
+"	background-color: #F0F7FC;   /* biru sangat pucat */\n"
+"	border: 1px solid #E1EEF9;\n"
+"	border-radius: 10px;\n"
+"}\n"
+"\n"
+"QFrame#framesensor4value QLabel {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"}")
+        self.framesensor4value.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framesensor4value.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_sensor4 = QVBoxLayout(self.framesensor4value)
+        self.verticalLayout_sensor4.setSpacing(4)
+        self.verticalLayout_sensor4.setObjectName(u"verticalLayout_sensor4")
+        self.verticalLayout_sensor4.setContentsMargins(10, 8, 10, 8)
+        self.label_energy_monitoring_title_4 = QLabel(self.framesensor4value)
+        self.label_energy_monitoring_title_4.setObjectName(u"label_energy_monitoring_title_4")
+        self.label_energy_monitoring_title_4.setMaximumSize(QSize(16777215, 30))
+        self.label_energy_monitoring_title_4.setFont(font2)
+        self.label_energy_monitoring_title_4.setStyleSheet(u"#label_energy_monitoring_title_4 {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"   background-color: #64B5F6;   /* biru medium */\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #42A5F5;       /* border biru */\n"
+"    min-height: 9px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}")
+        self.label_energy_monitoring_title_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_sensor4.addWidget(self.label_energy_monitoring_title_4)
+
+        self.verticalLayout_sensor_values_4 = QVBoxLayout()
+        self.verticalLayout_sensor_values_4.setSpacing(2)
+        self.verticalLayout_sensor_values_4.setObjectName(u"verticalLayout_sensor_values_4")
+        self.label_voltage4 = QLabel(self.framesensor4value)
+        self.label_voltage4.setObjectName(u"label_voltage4")
+        self.label_voltage4.setFont(font2)
+        self.label_voltage4.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_voltage4)
+
+        self.label_current4 = QLabel(self.framesensor4value)
+        self.label_current4.setObjectName(u"label_current4")
+        self.label_current4.setFont(font2)
+        self.label_current4.setStyleSheet(u"")
+        self.label_current4.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_current4)
+
+        self.label_power4 = QLabel(self.framesensor4value)
+        self.label_power4.setObjectName(u"label_power4")
+        self.label_power4.setFont(font2)
+        self.label_power4.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_power4)
+
+        self.label_energy4 = QLabel(self.framesensor4value)
+        self.label_energy4.setObjectName(u"label_energy4")
+        self.label_energy4.setFont(font2)
+        self.label_energy4.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_energy4)
+
+        self.label_frequency4 = QLabel(self.framesensor4value)
+        self.label_frequency4.setObjectName(u"label_frequency4")
+        self.label_frequency4.setFont(font2)
+        self.label_frequency4.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_frequency4)
+
+        self.label_powerfactor4 = QLabel(self.framesensor4value)
+        self.label_powerfactor4.setObjectName(u"label_powerfactor4")
+        self.label_powerfactor4.setFont(font2)
+        self.label_powerfactor4.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_4.addWidget(self.label_powerfactor4)
+
+
+        self.verticalLayout_sensor4.addLayout(self.verticalLayout_sensor_values_4)
+
+
+        self.verticalLayout_81.addWidget(self.framesensor4value)
+
+        self.frameswitch4 = QFrame(self.framesocket4)
+        self.frameswitch4.setObjectName(u"frameswitch4")
+        self.frameswitch4.setStyleSheet(u"#frameswitch4{\n"
+"	background-color: #F0F7FC;   /* biru sangat pucat */\n"
+"	border: 1px solid #E1EEF9;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.frameswitch4.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameswitch4.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_82 = QVBoxLayout(self.frameswitch4)
+        self.verticalLayout_82.setSpacing(6)
+        self.verticalLayout_82.setObjectName(u"verticalLayout_82")
+        self.verticalLayout_82.setContentsMargins(8, 8, 8, 8)
+        self.frame_110 = QFrame(self.frameswitch4)
+        self.frame_110.setObjectName(u"frame_110")
+        self.frame_110.setMinimumSize(QSize(0, 20))
+        self.frame_110.setMaximumSize(QSize(16777215, 30))
+        self.frame_110.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_110.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_105 = QHBoxLayout(self.frame_110)
+        self.horizontalLayout_105.setSpacing(0)
+        self.horizontalLayout_105.setObjectName(u"horizontalLayout_105")
+        self.horizontalLayout_105.setContentsMargins(0, 0, 0, 0)
+        self.frame_111 = QFrame(self.frame_110)
+        self.frame_111.setObjectName(u"frame_111")
+        self.frame_111.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_111.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_105.addWidget(self.frame_111)
+
+        self.label_switch_status_title_4 = QLabel(self.frame_110)
+        self.label_switch_status_title_4.setObjectName(u"label_switch_status_title_4")
+        self.label_switch_status_title_4.setFont(font2)
+        self.label_switch_status_title_4.setStyleSheet(u"QLabel#label_switch_status_title_4{\n"
+"	font: bold 10pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #64B5F6;    /* biru medium */\n"
+"	border: 1px solid #42A5F5;\n"
+"\n"
+"\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 10px;\n"
+"    line-height: 5px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_105.addWidget(self.label_switch_status_title_4)
+
+        self.frame_112 = QFrame(self.frame_110)
+        self.frame_112.setObjectName(u"frame_112")
+        self.frame_112.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_112.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_105.addWidget(self.frame_112)
+
+
+        self.verticalLayout_82.addWidget(self.frame_110)
+
+        self.frame_113 = QFrame(self.frameswitch4)
+        self.frame_113.setObjectName(u"frame_113")
+        self.frame_113.setMinimumSize(QSize(0, 0))
+        self.frame_113.setMaximumSize(QSize(16777215, 30))
+        self.frame_113.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_113.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_106 = QHBoxLayout(self.frame_113)
+        self.horizontalLayout_106.setSpacing(0)
+        self.horizontalLayout_106.setObjectName(u"horizontalLayout_106")
+        self.horizontalLayout_106.setContentsMargins(0, 0, 0, 0)
+        self.frame_114 = QFrame(self.frame_113)
+        self.frame_114.setObjectName(u"frame_114")
+        self.frame_114.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_114.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_106.addWidget(self.frame_114)
+
+        self.label_switch_status_value4 = QLabel(self.frame_113)
+        self.label_switch_status_value4.setObjectName(u"label_switch_status_value4")
+        self.label_switch_status_value4.setMinimumSize(QSize(0, 30))
+        self.label_switch_status_value4.setMaximumSize(QSize(100, 30))
+        self.label_switch_status_value4.setFont(font11)
+        self.label_switch_status_value4.setStyleSheet(u"QLabel#label_switch_status_value4{\n"
+"    color: white;\n"
+"    background-color: #EB5757;\n"
+"    border: 1px solid #C0392B;\n"
+"    border-radius: 4px;\n"
+"    padding: 4px 8px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"font: bold 9pt \"Segoe UI\";\n"
+"}\n"
+"QLabel#label_switch_status_value4[state=\"on\"] {\n"
+"    background-color: #6FCF97;\n"
+"    border-color: #27AE60;\n"
+"}")
+        self.label_switch_status_value4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_106.addWidget(self.label_switch_status_value4)
+
+        self.frame_115 = QFrame(self.frame_113)
+        self.frame_115.setObjectName(u"frame_115")
+        self.frame_115.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_115.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_106.addWidget(self.frame_115)
+
+
+        self.verticalLayout_82.addWidget(self.frame_113)
+
+        self.frame_switch_button_container_4 = QFrame(self.frameswitch4)
+        self.frame_switch_button_container_4.setObjectName(u"frame_switch_button_container_4")
+        self.frame_switch_button_container_4.setMinimumSize(QSize(0, 35))
+        self.frame_switch_button_container_4.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.verticalLayout_82.addWidget(self.frame_switch_button_container_4)
+
+
+        self.verticalLayout_81.addWidget(self.frameswitch4)
+
+        self.framestatustimer4 = QFrame(self.framesocket4)
+        self.framestatustimer4.setObjectName(u"framestatustimer4")
+        self.framestatustimer4.setMinimumSize(QSize(0, 24))
+        self.framestatustimer4.setMaximumSize(QSize(16777215, 24))
+        self.framestatustimer4.setStyleSheet(u"")
+        self.framestatustimer4.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatustimer4.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_timer4 = QHBoxLayout(self.framestatustimer4)
+        self.horizontalLayout_timer4.setObjectName(u"horizontalLayout_timer4")
+        self.horizontalLayout_timer4.setContentsMargins(0, 0, 0, 0)
+        self.label_timer_title_4 = QLabel(self.framestatustimer4)
+        self.label_timer_title_4.setObjectName(u"label_timer_title_4")
+        self.label_timer_title_4.setFont(font2)
+        self.label_timer_title_4.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_timer4.addWidget(self.label_timer_title_4)
+
+        self.label_timer_status4 = QLabel(self.framestatustimer4)
+        self.label_timer_status4.setObjectName(u"label_timer_status4")
+        self.label_timer_status4.setFont(font2)
+        self.label_timer_status4.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_timer4.addWidget(self.label_timer_status4)
+
+
+        self.verticalLayout_81.addWidget(self.framestatustimer4)
+
+        self.framestatusscheduling4 = QFrame(self.framesocket4)
+        self.framestatusscheduling4.setObjectName(u"framestatusscheduling4")
+        self.framestatusscheduling4.setMinimumSize(QSize(0, 24))
+        self.framestatusscheduling4.setMaximumSize(QSize(16777215, 24))
+        self.framestatusscheduling4.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatusscheduling4.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_scheduling4 = QHBoxLayout(self.framestatusscheduling4)
+        self.horizontalLayout_scheduling4.setObjectName(u"horizontalLayout_scheduling4")
+        self.horizontalLayout_scheduling4.setContentsMargins(0, 0, 0, 0)
+        self.label_scheduling_title_4 = QLabel(self.framestatusscheduling4)
+        self.label_scheduling_title_4.setObjectName(u"label_scheduling_title_4")
+        self.label_scheduling_title_4.setFont(font2)
+        self.label_scheduling_title_4.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_scheduling4.addWidget(self.label_scheduling_title_4)
+
+        self.label_scheduling_status4 = QLabel(self.framestatusscheduling4)
+        self.label_scheduling_status4.setObjectName(u"label_scheduling_status4")
+        self.label_scheduling_status4.setFont(font2)
+        self.label_scheduling_status4.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #1565C0;\n"
+"")
+
+        self.horizontalLayout_scheduling4.addWidget(self.label_scheduling_status4)
+
+
+        self.verticalLayout_81.addWidget(self.framestatusscheduling4)
+
+        self.framebuttonaction4 = QFrame(self.framesocket4)
+        self.framebuttonaction4.setObjectName(u"framebuttonaction4")
+        self.framebuttonaction4.setMinimumSize(QSize(0, 35))
+        self.framebuttonaction4.setMaximumSize(QSize(16777215, 35))
+        self.framebuttonaction4.setFrameShape(QFrame.Shape.NoFrame)
+        self.framebuttonaction4.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_action4 = QHBoxLayout(self.framebuttonaction4)
+        self.horizontalLayout_action4.setObjectName(u"horizontalLayout_action4")
+        self.horizontalLayout_action4.setContentsMargins(0, 0, 0, 0)
+        self.btn_action_socket4 = QPushButton(self.framebuttonaction4)
+        self.btn_action_socket4.setObjectName(u"btn_action_socket4")
+        self.btn_action_socket4.setMinimumSize(QSize(0, 35))
+        self.btn_action_socket4.setFont(font2)
+        self.btn_action_socket4.setStyleSheet(u"QPushButton#btn_action_socket4 {\n"
+"    background-color: #42A5F5;      /* biru medium */\n"
+"    color: white;\n"
+"    font: bold 10pt \"Segoe UI\";     /* teks bold */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* Hover: sedikit lebih terang */\n"
+"QPushButton#btn_action_socket4:hover {\n"
+"    background-color: #64B5F6;      /* biru terang */\n"
+"}\n"
+"\n"
+"/* Pressed: sedikit lebih gelap */\n"
+"QPushButton#btn_action_socket4:pressed {\n"
+"    background-color: #1976D2;      /* biru gelap */\n"
+"}")
+
+        self.horizontalLayout_action4.addWidget(self.btn_action_socket4)
+
+
+        self.verticalLayout_81.addWidget(self.framebuttonaction4)
+
+
+        self.horizontalLayout_111.addWidget(self.framesocket4)
+
+        self.framesocket5 = QFrame(self.framecontentSmartsocket)
+        self.framesocket5.setObjectName(u"framesocket5")
+        self.framesocket5.setMinimumSize(QSize(0, 700))
+        self.framesocket5.setMaximumSize(QSize(16777215, 700))
+        self.framesocket5.setStyleSheet(u"#framesocket5{\n"
+"	background-color: #eee3fa;   /* ungu lembut banget */\n"
+"	border: 2px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.framesocket5.setFrameShape(QFrame.Shape.NoFrame)
+        self.framesocket5.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_83 = QVBoxLayout(self.framesocket5)
+        self.verticalLayout_83.setObjectName(u"verticalLayout_83")
+        self.frametitlesocket5 = QFrame(self.framesocket5)
+        self.frametitlesocket5.setObjectName(u"frametitlesocket5")
+        self.frametitlesocket5.setMinimumSize(QSize(0, 0))
+        self.frametitlesocket5.setMaximumSize(QSize(16777215, 50))
+        self.frametitlesocket5.setFrameShape(QFrame.Shape.NoFrame)
+        self.frametitlesocket5.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_107 = QHBoxLayout(self.frametitlesocket5)
+        self.horizontalLayout_107.setSpacing(0)
+        self.horizontalLayout_107.setObjectName(u"horizontalLayout_107")
+        self.horizontalLayout_107.setContentsMargins(0, 0, 0, 0)
+        self.frame_116 = QFrame(self.frametitlesocket5)
+        self.frame_116.setObjectName(u"frame_116")
+        self.frame_116.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_116.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_107.addWidget(self.frame_116)
+
+        self.titlesmart5 = QLabel(self.frametitlesocket5)
+        self.titlesmart5.setObjectName(u"titlesmart5")
+        sizePolicy2.setHeightForWidth(self.titlesmart5.sizePolicy().hasHeightForWidth())
+        self.titlesmart5.setSizePolicy(sizePolicy2)
+        self.titlesmart5.setMinimumSize(QSize(96, 40))
+        self.titlesmart5.setMaximumSize(QSize(136, 45))
+        self.titlesmart5.setFont(font4)
+        self.titlesmart5.setStyleSheet(u"#titlesmart5{\n"
+"font: bold 12pt \"Segoe UI\";\n"
+"color: white;\n"
+"background-color: #8E7AB5;   /* ungu battery */\n"
+"    border: 1px solid #6E8E8B;\n"
+"\n"
+"\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 26px;\n"
+"    line-height: 18px;\n"
+"\n"
+"    min-width: 70px;\n"
+"    max-width: 110px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+        self.titlesmart5.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_107.addWidget(self.titlesmart5)
+
+        self.frame_117 = QFrame(self.frametitlesocket5)
+        self.frame_117.setObjectName(u"frame_117")
+        self.frame_117.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_117.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_107.addWidget(self.frame_117)
+
+
+        self.verticalLayout_83.addWidget(self.frametitlesocket5)
+
+        self.framestatussocket5 = QFrame(self.framesocket5)
+        self.framestatussocket5.setObjectName(u"framestatussocket5")
+        self.framestatussocket5.setMinimumSize(QSize(0, 40))
+        self.framestatussocket5.setMaximumSize(QSize(16777215, 23))
+        self.framestatussocket5.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatussocket5.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_108 = QHBoxLayout(self.framestatussocket5)
+        self.horizontalLayout_108.setSpacing(0)
+        self.horizontalLayout_108.setObjectName(u"horizontalLayout_108")
+        self.horizontalLayout_108.setContentsMargins(0, 0, 0, 0)
+        self.frame_118 = QFrame(self.framestatussocket5)
+        self.frame_118.setObjectName(u"frame_118")
+        self.frame_118.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_118.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_108.addWidget(self.frame_118)
+
+        self.statussocket5 = QLabel(self.framestatussocket5)
+        self.statussocket5.setObjectName(u"statussocket5")
+        sizePolicy2.setHeightForWidth(self.statussocket5.sizePolicy().hasHeightForWidth())
+        self.statussocket5.setSizePolicy(sizePolicy2)
+        self.statussocket5.setMinimumSize(QSize(155, 23))
+        self.statussocket5.setMaximumSize(QSize(114, 23))
+        self.statussocket5.setFont(font2)
+        self.statussocket5.setStyleSheet(u"QLabel#statussocket5{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"\n"
+"    background-color: #CBD5E1;   /* default (abu netral) */\n"
+"    border: 1px solid #94A3B8;\n"
+"    border-radius: 4px;\n"
+"\n"
+"    padding: 2px 6px;\n"
+"    min-height: 17px;\n"
+"    max-width: 100px;\n"
+"\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"/* ===== AC ON ===== */\n"
+"QLabel#statussocket5[state=\"on\"] {\n"
+"    background-color: #6FCF97;   /* hijau pastel tapi jelas */\n"
+"    border-color: #27AE60;\n"
+"}\n"
+"\n"
+"/* ===== AC OFF ===== */\n"
+"QLabel#statussocket5[state=\"off\"] {\n"
+"    background-color: #EB5757;   /* merah pastel tegas */\n"
+"    border-color: #C0392B;\n"
+"}\n"
+"")
+        self.statussocket5.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_108.addWidget(self.statussocket5)
+
+        self.frame_119 = QFrame(self.framestatussocket5)
+        self.frame_119.setObjectName(u"frame_119")
+        self.frame_119.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_119.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_108.addWidget(self.frame_119)
+
+
+        self.verticalLayout_83.addWidget(self.framestatussocket5)
+
+        self.framesensor5value = QFrame(self.framesocket5)
+        self.framesensor5value.setObjectName(u"framesensor5value")
+        self.framesensor5value.setStyleSheet(u"QFrame#framesensor5value {\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}\n"
+"\n"
+"QFrame#framesensor5value QLabel {\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"}")
+        self.framesensor5value.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framesensor5value.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_sensor5 = QVBoxLayout(self.framesensor5value)
+        self.verticalLayout_sensor5.setSpacing(4)
+        self.verticalLayout_sensor5.setObjectName(u"verticalLayout_sensor5")
+        self.verticalLayout_sensor5.setContentsMargins(10, 8, 10, 8)
+        self.label_energy_monitoring_title_5 = QLabel(self.framesensor5value)
+        self.label_energy_monitoring_title_5.setObjectName(u"label_energy_monitoring_title_5")
+        self.label_energy_monitoring_title_5.setMaximumSize(QSize(16777215, 30))
+        self.label_energy_monitoring_title_5.setFont(font2)
+        self.label_energy_monitoring_title_5.setStyleSheet(u"#label_energy_monitoring_title_5{\n"
+"    font: bold 10pt \"Segoe UI\";\n"
+"    color: white;\n"
+"    background-color: #bd95f0;        /* ungu soft */\n"
+"    border-radius: 8px;\n"
+"    padding: 6px 10px;\n"
+"    border: 1px solid #9B7BCB;       /* border ungu gelap tapi harmonis */\n"
+"    min-height: 9px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}")
+        self.label_energy_monitoring_title_5.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_sensor5.addWidget(self.label_energy_monitoring_title_5)
+
+        self.verticalLayout_sensor_values_5 = QVBoxLayout()
+        self.verticalLayout_sensor_values_5.setSpacing(2)
+        self.verticalLayout_sensor_values_5.setObjectName(u"verticalLayout_sensor_values_5")
+        self.label_voltage5 = QLabel(self.framesensor5value)
+        self.label_voltage5.setObjectName(u"label_voltage5")
+        self.label_voltage5.setFont(font2)
+        self.label_voltage5.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_voltage5)
+
+        self.label_current5 = QLabel(self.framesensor5value)
+        self.label_current5.setObjectName(u"label_current5")
+        self.label_current5.setFont(font2)
+        self.label_current5.setStyleSheet(u"")
+        self.label_current5.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_current5)
+
+        self.label_power5 = QLabel(self.framesensor5value)
+        self.label_power5.setObjectName(u"label_power5")
+        self.label_power5.setFont(font2)
+        self.label_power5.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_power5)
+
+        self.label_energy5 = QLabel(self.framesensor5value)
+        self.label_energy5.setObjectName(u"label_energy5")
+        self.label_energy5.setFont(font2)
+        self.label_energy5.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_energy5)
+
+        self.label_frequency5 = QLabel(self.framesensor5value)
+        self.label_frequency5.setObjectName(u"label_frequency5")
+        self.label_frequency5.setFont(font2)
+        self.label_frequency5.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_frequency5)
+
+        self.label_powerfactor5 = QLabel(self.framesensor5value)
+        self.label_powerfactor5.setObjectName(u"label_powerfactor5")
+        self.label_powerfactor5.setFont(font2)
+        self.label_powerfactor5.setStyleSheet(u"")
+
+        self.verticalLayout_sensor_values_5.addWidget(self.label_powerfactor5)
+
+
+        self.verticalLayout_sensor5.addLayout(self.verticalLayout_sensor_values_5)
+
+
+        self.verticalLayout_83.addWidget(self.framesensor5value)
+
+        self.frameswitch5 = QFrame(self.framesocket5)
+        self.frameswitch5.setObjectName(u"frameswitch5")
+        self.frameswitch5.setStyleSheet(u"#frameswitch5{\n"
+"	background-color: #F2ECF9;   /* ungu lembut banget */\n"
+"	border: 1px solid #E3DAF1;\n"
+"	border-radius: 10px;\n"
+"}")
+        self.frameswitch5.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameswitch5.setFrameShadow(QFrame.Shadow.Raised)
+        self.verticalLayout_84 = QVBoxLayout(self.frameswitch5)
+        self.verticalLayout_84.setSpacing(6)
+        self.verticalLayout_84.setObjectName(u"verticalLayout_84")
+        self.verticalLayout_84.setContentsMargins(8, 8, 8, 8)
+        self.frame_120 = QFrame(self.frameswitch5)
+        self.frame_120.setObjectName(u"frame_120")
+        self.frame_120.setMinimumSize(QSize(0, 20))
+        self.frame_120.setMaximumSize(QSize(16777215, 30))
+        self.frame_120.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_120.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_109 = QHBoxLayout(self.frame_120)
+        self.horizontalLayout_109.setSpacing(0)
+        self.horizontalLayout_109.setObjectName(u"horizontalLayout_109")
+        self.horizontalLayout_109.setContentsMargins(0, 0, 0, 0)
+        self.frame_121 = QFrame(self.frame_120)
+        self.frame_121.setObjectName(u"frame_121")
+        self.frame_121.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_121.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_109.addWidget(self.frame_121)
+
+        self.label_switch_status_title_5 = QLabel(self.frame_120)
+        self.label_switch_status_title_5.setObjectName(u"label_switch_status_title_5")
+        self.label_switch_status_title_5.setFont(font2)
+        self.label_switch_status_title_5.setStyleSheet(u"QLabel#label_switch_status_title_5{\n"
+"	font: bold 10pt \"Segoe UI\";\n"
+"	color: white;\n"
+"	background-color: #bd95f0;    /* ungu battery */\n"
+"	border: 1px solid #9B7BCB; \n"
+"\n"
+"\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"    min-height: 10px;\n"
+"    line-height: 5px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"}\n"
+"\n"
+"")
+
+        self.horizontalLayout_109.addWidget(self.label_switch_status_title_5)
+
+        self.frame_122 = QFrame(self.frame_120)
+        self.frame_122.setObjectName(u"frame_122")
+        self.frame_122.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_122.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_109.addWidget(self.frame_122)
+
+
+        self.verticalLayout_84.addWidget(self.frame_120)
+
+        self.frame_123 = QFrame(self.frameswitch5)
+        self.frame_123.setObjectName(u"frame_123")
+        self.frame_123.setMinimumSize(QSize(0, 0))
+        self.frame_123.setMaximumSize(QSize(16777215, 30))
+        self.frame_123.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_123.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_110 = QHBoxLayout(self.frame_123)
+        self.horizontalLayout_110.setSpacing(0)
+        self.horizontalLayout_110.setObjectName(u"horizontalLayout_110")
+        self.horizontalLayout_110.setContentsMargins(0, 0, 0, 0)
+        self.frame_124 = QFrame(self.frame_123)
+        self.frame_124.setObjectName(u"frame_124")
+        self.frame_124.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_124.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_110.addWidget(self.frame_124)
+
+        self.label_switch_status_value5 = QLabel(self.frame_123)
+        self.label_switch_status_value5.setObjectName(u"label_switch_status_value5")
+        self.label_switch_status_value5.setMinimumSize(QSize(0, 30))
+        self.label_switch_status_value5.setMaximumSize(QSize(100, 30))
+        self.label_switch_status_value5.setFont(font11)
+        self.label_switch_status_value5.setStyleSheet(u"QLabel#label_switch_status_value5{\n"
+"    color: white;\n"
+"    background-color: #EB5757;\n"
+"    border: 1px solid #C0392B;\n"
+"    border-radius: 4px;\n"
+"    padding: 4px 8px;\n"
+"    qproperty-alignment: AlignCenter;\n"
+"font: bold 9pt \"Segoe UI\";\n"
+"}\n"
+"QLabel#label_switch_status_value5[state=\"on\"] {\n"
+"    background-color: #6FCF97;\n"
+"    border-color: #27AE60;\n"
+"}")
+        self.label_switch_status_value5.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_110.addWidget(self.label_switch_status_value5)
+
+        self.frame_125 = QFrame(self.frame_123)
+        self.frame_125.setObjectName(u"frame_125")
+        self.frame_125.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_125.setFrameShadow(QFrame.Shadow.Raised)
+
+        self.horizontalLayout_110.addWidget(self.frame_125)
+
+
+        self.verticalLayout_84.addWidget(self.frame_123)
+
+        self.frame_switch_button_container_5 = QFrame(self.frameswitch5)
+        self.frame_switch_button_container_5.setObjectName(u"frame_switch_button_container_5")
+        self.frame_switch_button_container_5.setMinimumSize(QSize(0, 35))
+        self.frame_switch_button_container_5.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.verticalLayout_84.addWidget(self.frame_switch_button_container_5)
+
+
+        self.verticalLayout_83.addWidget(self.frameswitch5)
+
+        self.framestatustimer5 = QFrame(self.framesocket5)
+        self.framestatustimer5.setObjectName(u"framestatustimer5")
+        self.framestatustimer5.setMinimumSize(QSize(0, 24))
+        self.framestatustimer5.setMaximumSize(QSize(16777215, 24))
+        self.framestatustimer5.setStyleSheet(u"")
+        self.framestatustimer5.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatustimer5.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_timer5 = QHBoxLayout(self.framestatustimer5)
+        self.horizontalLayout_timer5.setObjectName(u"horizontalLayout_timer5")
+        self.horizontalLayout_timer5.setContentsMargins(0, 0, 0, 0)
+        self.label_timer_title_5 = QLabel(self.framestatustimer5)
+        self.label_timer_title_5.setObjectName(u"label_timer_title_5")
+        self.label_timer_title_5.setFont(font2)
+        self.label_timer_title_5.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer5.addWidget(self.label_timer_title_5)
+
+        self.label_timer_status5 = QLabel(self.framestatustimer5)
+        self.label_timer_status5.setObjectName(u"label_timer_status5")
+        self.label_timer_status5.setFont(font2)
+        self.label_timer_status5.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_timer5.addWidget(self.label_timer_status5)
+
+
+        self.verticalLayout_83.addWidget(self.framestatustimer5)
+
+        self.framestatusscheduling5 = QFrame(self.framesocket5)
+        self.framestatusscheduling5.setObjectName(u"framestatusscheduling5")
+        self.framestatusscheduling5.setMinimumSize(QSize(0, 24))
+        self.framestatusscheduling5.setMaximumSize(QSize(16777215, 24))
+        self.framestatusscheduling5.setFrameShape(QFrame.Shape.NoFrame)
+        self.framestatusscheduling5.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_scheduling5 = QHBoxLayout(self.framestatusscheduling5)
+        self.horizontalLayout_scheduling5.setObjectName(u"horizontalLayout_scheduling5")
+        self.horizontalLayout_scheduling5.setContentsMargins(0, 0, 0, 0)
+        self.label_scheduling_title_5 = QLabel(self.framestatusscheduling5)
+        self.label_scheduling_title_5.setObjectName(u"label_scheduling_title_5")
+        self.label_scheduling_title_5.setFont(font2)
+        self.label_scheduling_title_5.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling5.addWidget(self.label_scheduling_title_5)
+
+        self.label_scheduling_status5 = QLabel(self.framestatusscheduling5)
+        self.label_scheduling_status5.setObjectName(u"label_scheduling_status5")
+        self.label_scheduling_status5.setFont(font2)
+        self.label_scheduling_status5.setStyleSheet(u"    font: bold 10pt \"Segoe UI\";\n"
+"    color: #380082;\n"
+"")
+
+        self.horizontalLayout_scheduling5.addWidget(self.label_scheduling_status5)
+
+
+        self.verticalLayout_83.addWidget(self.framestatusscheduling5)
+
+        self.framebuttonaction5 = QFrame(self.framesocket5)
+        self.framebuttonaction5.setObjectName(u"framebuttonaction5")
+        self.framebuttonaction5.setMinimumSize(QSize(0, 35))
+        self.framebuttonaction5.setMaximumSize(QSize(16777215, 35))
+        self.framebuttonaction5.setFrameShape(QFrame.Shape.NoFrame)
+        self.framebuttonaction5.setFrameShadow(QFrame.Shadow.Raised)
+        self.horizontalLayout_action5 = QHBoxLayout(self.framebuttonaction5)
+        self.horizontalLayout_action5.setObjectName(u"horizontalLayout_action5")
+        self.horizontalLayout_action5.setContentsMargins(0, 0, 0, 0)
+        self.btn_action_socket5 = QPushButton(self.framebuttonaction5)
+        self.btn_action_socket5.setObjectName(u"btn_action_socket5")
+        self.btn_action_socket5.setMinimumSize(QSize(0, 35))
+        self.btn_action_socket5.setFont(font2)
+        self.btn_action_socket5.setStyleSheet(u"QPushButton#btn_action_socket5 {\n"
+"    background-color: #ab6dfc;      /* warna utama */\n"
+"    color: white;\n"
+"    font: bold 10pt \"Segoe UI\";     /* teks bold */\n"
+"    border: none;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 12px;\n"
+"}\n"
+"\n"
+"/* Hover: sedikit lebih terang */\n"
+"QPushButton#btn_action_socket5:hover {\n"
+"    background-color: #c085fc;      /* ungu terang lebih soft */\n"
+"}\n"
+"\n"
+"/* Pressed: sedikit lebih gelap */\n"
+"QPushButton#btn_action_socket5:pressed {\n"
+"    background-color: #914de6;      /* ungu gelap */\n"
+"}")
+
+        self.horizontalLayout_action5.addWidget(self.btn_action_socket5)
+
+
+        self.verticalLayout_83.addWidget(self.framebuttonaction5)
+
+
+        self.horizontalLayout_111.addWidget(self.framesocket5)
+
+
+        self.verticalLayout_77.addWidget(self.framecontentSmartsocket)
+
         self.stackedWidget.addWidget(self.page4_smartsocket)
         self.page5_settings = QWidget()
         self.page5_settings.setObjectName(u"page5_settings")
@@ -5014,11 +7279,11 @@ class Ui_MainWindow(object):
         self.creditsLabel = QLabel(self.bottomBar)
         self.creditsLabel.setObjectName(u"creditsLabel")
         self.creditsLabel.setMaximumSize(QSize(16777215, 16))
-        font11 = QFont()
-        font11.setFamilies([u"Segoe UI"])
-        font11.setBold(False)
-        font11.setItalic(False)
-        self.creditsLabel.setFont(font11)
+        font12 = QFont()
+        font12.setFamilies([u"Segoe UI"])
+        font12.setBold(False)
+        font12.setItalic(False)
+        self.creditsLabel.setFont(font12)
         self.creditsLabel.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_5.addWidget(self.creditsLabel)
@@ -5048,13 +7313,13 @@ class Ui_MainWindow(object):
         self.appLayout.addWidget(self.contentBox)
 
 
-        self.horizontalLayout_54.addWidget(self.bgApp)
+        self.verticalLayout_76.addWidget(self.bgApp)
 
         MainWindow.setCentralWidget(self.styleSheet)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -5170,6 +7435,87 @@ class Ui_MainWindow(object):
         self.rainrateW_value.setText(QCoreApplication.translate("MainWindow", u"0.0 mm", None))
         self.titleheatindexW.setText(QCoreApplication.translate("MainWindow", u"Heat Index", None))
         self.heatindexW_value.setText(QCoreApplication.translate("MainWindow", u"0.0\u00b0C", None))
+        self.titleSmartsocket.setText(QCoreApplication.translate("MainWindow", u"Smart Socket", None))
+        self.titlesmart1.setText(QCoreApplication.translate("MainWindow", u"Smart Socket 1", None))
+        self.statussocket1.setText(QCoreApplication.translate("MainWindow", u"Status Device: Offline", None))
+        self.label_energy_monitoring_title.setText(QCoreApplication.translate("MainWindow", u"Energy Monitoring", None))
+        self.label_voltage1.setText(QCoreApplication.translate("MainWindow", u"Voltage: -- V", None))
+        self.label_current1.setText(QCoreApplication.translate("MainWindow", u"Current: -- A", None))
+        self.label_power1.setText(QCoreApplication.translate("MainWindow", u"Power: -- W", None))
+        self.label_energy1.setText(QCoreApplication.translate("MainWindow", u"Energy: -- kWh", None))
+        self.label_frequency1.setText(QCoreApplication.translate("MainWindow", u"Frequency: -- Hz", None))
+        self.label_powerfactor1.setText(QCoreApplication.translate("MainWindow", u"Power Factor: --", None))
+        self.label_switch_status_title.setText(QCoreApplication.translate("MainWindow", u"Status Switch", None))
+        self.label_switch_status_value1.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
+        self.label_timer_title.setText(QCoreApplication.translate("MainWindow", u"Timer:", None))
+        self.label_timer_status1.setText(QCoreApplication.translate("MainWindow", u"No Timer", None))
+        self.label_scheduling_title.setText(QCoreApplication.translate("MainWindow", u"Scheduling:", None))
+        self.label_scheduling_status1.setText(QCoreApplication.translate("MainWindow", u"No Schedule", None))
+        self.btn_action_socket1.setText(QCoreApplication.translate("MainWindow", u"Action", None))
+        self.titlesmart2.setText(QCoreApplication.translate("MainWindow", u"Smart Socket 2", None))
+        self.statussocket2.setText(QCoreApplication.translate("MainWindow", u"Status Device: Offline", None))
+        self.label_energy_monitoring_title_2.setText(QCoreApplication.translate("MainWindow", u"Energy Monitoring", None))
+        self.label_voltage2.setText(QCoreApplication.translate("MainWindow", u"Voltage: -- V", None))
+        self.label_current2.setText(QCoreApplication.translate("MainWindow", u"Current: -- A", None))
+        self.label_power2.setText(QCoreApplication.translate("MainWindow", u"Power: -- W", None))
+        self.label_energy2.setText(QCoreApplication.translate("MainWindow", u"Energy: -- kWh", None))
+        self.label_frequency2.setText(QCoreApplication.translate("MainWindow", u"Frequency: -- Hz", None))
+        self.label_powerfactor2.setText(QCoreApplication.translate("MainWindow", u"Power Factor: --", None))
+        self.label_switch_status_title_2.setText(QCoreApplication.translate("MainWindow", u"Status Switch", None))
+        self.label_switch_status_value2.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
+        self.label_timer_title_2.setText(QCoreApplication.translate("MainWindow", u"Timer:", None))
+        self.label_timer_status2.setText(QCoreApplication.translate("MainWindow", u"No Timer", None))
+        self.label_scheduling_title_2.setText(QCoreApplication.translate("MainWindow", u"Scheduling:", None))
+        self.label_scheduling_status2.setText(QCoreApplication.translate("MainWindow", u"No Schedule", None))
+        self.btn_action_socket2.setText(QCoreApplication.translate("MainWindow", u"Action", None))
+        self.titlesmart3.setText(QCoreApplication.translate("MainWindow", u"Smart Socket 3", None))
+        self.statussocket3.setText(QCoreApplication.translate("MainWindow", u"Status Device: Offline", None))
+        self.label_energy_monitoring_title_3.setText(QCoreApplication.translate("MainWindow", u"Energy Monitoring", None))
+        self.label_voltage3.setText(QCoreApplication.translate("MainWindow", u"Voltage: -- V", None))
+        self.label_current3.setText(QCoreApplication.translate("MainWindow", u"Current: -- A", None))
+        self.label_power3.setText(QCoreApplication.translate("MainWindow", u"Power: -- W", None))
+        self.label_energy3.setText(QCoreApplication.translate("MainWindow", u"Energy: -- kWh", None))
+        self.label_frequency3.setText(QCoreApplication.translate("MainWindow", u"Frequency: -- Hz", None))
+        self.label_powerfactor3.setText(QCoreApplication.translate("MainWindow", u"Power Factor: --", None))
+        self.label_switch_status_title_3.setText(QCoreApplication.translate("MainWindow", u"Status Switch", None))
+        self.label_switch_status_value3.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
+        self.label_timer_title_3.setText(QCoreApplication.translate("MainWindow", u"Timer:", None))
+        self.label_timer_status3.setText(QCoreApplication.translate("MainWindow", u"No Timer", None))
+        self.label_scheduling_title_3.setText(QCoreApplication.translate("MainWindow", u"Scheduling:", None))
+        self.label_scheduling_status3.setText(QCoreApplication.translate("MainWindow", u"No Schedule", None))
+        self.btn_action_socket3.setText(QCoreApplication.translate("MainWindow", u"Action", None))
+        self.titlesmart4.setText(QCoreApplication.translate("MainWindow", u"Smart Socket 4", None))
+        self.statussocket4.setText(QCoreApplication.translate("MainWindow", u"Status Device: Offline", None))
+        self.label_energy_monitoring_title_4.setText(QCoreApplication.translate("MainWindow", u"Energy Monitoring", None))
+        self.label_voltage4.setText(QCoreApplication.translate("MainWindow", u"Voltage: -- V", None))
+        self.label_current4.setText(QCoreApplication.translate("MainWindow", u"Current: -- A", None))
+        self.label_power4.setText(QCoreApplication.translate("MainWindow", u"Power: -- W", None))
+        self.label_energy4.setText(QCoreApplication.translate("MainWindow", u"Energy: -- kWh", None))
+        self.label_frequency4.setText(QCoreApplication.translate("MainWindow", u"Frequency: -- Hz", None))
+        self.label_powerfactor4.setText(QCoreApplication.translate("MainWindow", u"Power Factor: --", None))
+        self.label_switch_status_title_4.setText(QCoreApplication.translate("MainWindow", u"Status Switch", None))
+        self.label_switch_status_value4.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
+        self.label_timer_title_4.setText(QCoreApplication.translate("MainWindow", u"Timer:", None))
+        self.label_timer_status4.setText(QCoreApplication.translate("MainWindow", u"No Timer", None))
+        self.label_scheduling_title_4.setText(QCoreApplication.translate("MainWindow", u"Scheduling:", None))
+        self.label_scheduling_status4.setText(QCoreApplication.translate("MainWindow", u"No Schedule", None))
+        self.btn_action_socket4.setText(QCoreApplication.translate("MainWindow", u"Action", None))
+        self.titlesmart5.setText(QCoreApplication.translate("MainWindow", u"Smart Socket 5", None))
+        self.statussocket5.setText(QCoreApplication.translate("MainWindow", u"Status Device: Offline", None))
+        self.label_energy_monitoring_title_5.setText(QCoreApplication.translate("MainWindow", u"Energy Monitoring", None))
+        self.label_voltage5.setText(QCoreApplication.translate("MainWindow", u"Voltage: -- V", None))
+        self.label_current5.setText(QCoreApplication.translate("MainWindow", u"Current: -- A", None))
+        self.label_power5.setText(QCoreApplication.translate("MainWindow", u"Power: -- W", None))
+        self.label_energy5.setText(QCoreApplication.translate("MainWindow", u"Energy: -- kWh", None))
+        self.label_frequency5.setText(QCoreApplication.translate("MainWindow", u"Frequency: -- Hz", None))
+        self.label_powerfactor5.setText(QCoreApplication.translate("MainWindow", u"Power Factor: --", None))
+        self.label_switch_status_title_5.setText(QCoreApplication.translate("MainWindow", u"Status Switch", None))
+        self.label_switch_status_value5.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
+        self.label_timer_title_5.setText(QCoreApplication.translate("MainWindow", u"Timer:", None))
+        self.label_timer_status5.setText(QCoreApplication.translate("MainWindow", u"No Timer", None))
+        self.label_scheduling_title_5.setText(QCoreApplication.translate("MainWindow", u"Scheduling:", None))
+        self.label_scheduling_status5.setText(QCoreApplication.translate("MainWindow", u"No Schedule", None))
+        self.btn_action_socket5.setText(QCoreApplication.translate("MainWindow", u"Action", None))
         self.titleSettings.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.titleProfile.setText(QCoreApplication.translate("MainWindow", u"User Profile", None))
         self.labelUsername.setText(QCoreApplication.translate("MainWindow", u"Username", None))

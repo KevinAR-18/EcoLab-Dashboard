@@ -1,0 +1,574 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SmartSocketPopup</class>
+ <widget class="QDialog" name="SmartSocketPopup">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>550</width>
+    <height>650</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>550</width>
+    <height>650</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Smart Socket Control</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">#SmartSocketPopup{
+    background: qlineargradient(
+        x1:0, y1:0, x2:0, y2:1,
+        stop:0 #E1F2FB,
+        stop:1 #F1F9F9
+    );
+border: 1px solid #B0D6E8;    /* border ungu/soft biru sesuai gradient */
+    border-radius: 10px;       
+}</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="topFrame">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>412</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_close">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>25</width>
+          <height>25</height>
+         </size>
+        </property>
+        <property name="cursor">
+         <cursorShape>PointingHandCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string>Close</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton#btn_close{
+    background-color: #5A8BD8;       /* biru kalem, agak gelap dari background */
+    border: none;
+    border-radius: 12px;             /* rounded corners */
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+QPushButton#btn_close:hover {
+    background-color: #4672C4;       /* biru lebih gelap saat hover */
+}
+QPushButton#btn_close:pressed {
+    background-color: #3B5CA0;       /* biru lebih gelap saat ditekan */
+}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources.qrc">
+          <normaloff>:/icons/images/icons/icon_close.png</normaloff>:/icons/images/icons/icon_close.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_title">
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>55</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>60</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">#label_title{
+    font: bold 18pt &quot;Segoe UI&quot;;
+    color: white;
+    background-color: #005C99;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #005C99;
+    qproperty-alignment: AlignCenter;
+}</string>
+        </property>
+        <property name="text">
+         <string>⚡ Smart Socket # Control</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_3">
+        <property name="frameShape">
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_timer">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+    font: bold 11pt &quot;Segoe UI&quot;;
+    border: 2px solid #005C99;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding-top: 15px;
+}</string>
+     </property>
+     <property name="title">
+      <string>⏱️ Timer</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_timer">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_timer_input">
+        <item>
+         <widget class="QLabel" name="label_timer_duration">
+          <property name="text">
+           <string>Duration (seconds):</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="input_timer_duration">
+          <property name="placeholderText">
+           <string>60</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_timer_buttons">
+        <item>
+         <spacer name="horizontalSpacer_timer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_start_timer">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton#btn_start_timer{
+    background-color: #005C99;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+QPushButton#btn_start_timer:hover {
+    background-color: #004A7A;
+}</string>
+          </property>
+          <property name="text">
+           <string>Start Timer</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_cancel_timer">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton#btn_cancel_timer{
+    background-color: #EB5757;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+QPushButton#btn_cancel_timer:hover {
+    background-color: #c0392B;
+}</string>
+          </property>
+          <property name="text">
+           <string>Cancel Timer</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_timer_status">
+        <property name="styleSheet">
+         <string notr="true">QLabel#label_timer_status{
+    color: gray;
+    font-weight: bold;
+    qproperty-alignment: AlignCenter;
+}</string>
+        </property>
+        <property name="text">
+         <string>Status: INACTIVE</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_schedule">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+    font: bold 11pt &quot;Segoe UI&quot;;
+    border: 2px solid #005C99;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding-top: 15px;
+}</string>
+     </property>
+     <property name="title">
+      <string>📅 Schedule</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_schedule">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_mode">
+        <item>
+         <widget class="QLabel" name="label_mode">
+          <property name="text">
+           <string>Mode:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="combo_schedule_mode">
+          <property name="styleSheet">
+           <string notr="true">QComboBox{
+    padding: 5px;
+    border-radius: 3px;
+}</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Daily</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Onetime</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_start">
+        <item>
+         <widget class="QLabel" name="label_start">
+          <property name="text">
+           <string>Start Time (ON):</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="input_schedule_start">
+          <property name="placeholderText">
+           <string>08:00</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_stop">
+        <item>
+         <widget class="QLabel" name="label_stop">
+          <property name="text">
+           <string>Stop Time (OFF):</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="input_schedule_stop">
+          <property name="placeholderText">
+           <string>17:00</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_schedule_buttons">
+        <item>
+         <spacer name="horizontalSpacer_schedule">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_set_schedule">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton#btn_set_schedule{
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+QPushButton#btn_set_schedule:hover {
+    background-color: #e68900;
+}</string>
+          </property>
+          <property name="text">
+           <string>Set Schedule</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_clear_schedule">
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>35</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton#btn_clear_schedule{
+    background-color: #EB5757;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: bold;
+}
+
+QPushButton#btn_clear_schedule:hover {
+    background-color: #c0392B;
+}</string>
+          </property>
+          <property name="text">
+           <string>Clear Schedule</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_schedule_status">
+        <property name="styleSheet">
+         <string notr="true">QLabel#label_schedule_status{
+    color: gray;
+    font-weight: bold;
+}</string>
+        </property>
+        <property name="text">
+         <string>Status: Not Set</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupbox_datetime">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{
+    font: bold 11pt &quot;Segoe UI&quot;;
+    border: 2px solid #005C99;
+    border-radius: 10px;
+    margin-top: 10px;
+    padding-top: 15px;
+}</string>
+     </property>
+     <property name="title">
+      <string>🕐 RTC DateTime (NTP Sync)</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_datetime">
+      <item>
+       <widget class="QLabel" name="label_datetime_status">
+        <property name="styleSheet">
+         <string notr="true">QLabel#label_datetime_status{
+    color: green;
+    font-size: 10pt;
+}</string>
+        </property>
+        <property name="text">
+         <string>🟢 RTC: Syncing from NTP...</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_datetime_info">
+        <property name="styleSheet">
+         <string notr="true">QLabel#label_datetime_info{
+    color: blue;
+    font-size: 9pt;
+    font-style: italic;
+    qproperty-alignment: AlignCenter;
+}</string>
+        </property>
+        <property name="text">
+         <string>ℹ️ RTC auto-synced from NTP time server</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

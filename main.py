@@ -24,6 +24,7 @@ from auth_service import TrialLoginService
 from lamp_setup import LampSetup
 from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
+from smartsocket_popup import SmartSocketPopup
 
 from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
@@ -163,10 +164,23 @@ class MainWindow(QMainWindow):
                 self.ui.page4_smartsocket
             )
         )
-        
-        self.ui.btn_smartsocket.setEnabled(False)
-        self.ui.btn_smartsocket.setToolTip("  Fitur belum tersedia")
 
+        # Smart Socket Action Buttons - Open Popup Control
+        self.ui.btn_action_socket1.clicked.connect(
+            lambda: self.open_smartsocket_popup(1)
+        )
+        self.ui.btn_action_socket2.clicked.connect(
+            lambda: self.open_smartsocket_popup(2)
+        )
+        self.ui.btn_action_socket3.clicked.connect(
+            lambda: self.open_smartsocket_popup(3)
+        )
+        self.ui.btn_action_socket4.clicked.connect(
+            lambda: self.open_smartsocket_popup(4)
+        )
+        self.ui.btn_action_socket5.clicked.connect(
+            lambda: self.open_smartsocket_popup(5)
+        )
 
         self.ui.btn_setting.clicked.connect(
             lambda: self.ui.stackedWidget.setCurrentWidget(
@@ -931,6 +945,19 @@ class MainWindow(QMainWindow):
                 self,
                 "Error",
                 f"❌ Failed to open Admin Panel:\n{str(e)}"
+            )
+
+    def open_smartsocket_popup(self, socket_number):
+        """Buka popup kontrol Smart Socket"""
+        try:
+            popup = SmartSocketPopup(socket_number, self)
+            popup.exec()  # Modal dialog
+
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Error",
+                f"❌ Failed to open Smart Socket Control:\n{str(e)}"
             )
 
     def setup_admin_features(self):
