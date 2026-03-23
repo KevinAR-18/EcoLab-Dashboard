@@ -158,14 +158,14 @@ class MainWindow(QMainWindow):
             )
         )
 
-        self.ui.btn_growattgraph.clicked.connect(
+        self.ui.btn_smartsocket.clicked.connect(
             lambda: self.ui.stackedWidget.setCurrentWidget(
-                self.ui.page4_growattGraph
+                self.ui.page4_smartsocket
             )
         )
         
-        self.ui.btn_growattgraph.setEnabled(False)
-        self.ui.btn_growattgraph.setToolTip("  Fitur belum tersedia")
+        self.ui.btn_smartsocket.setEnabled(False)
+        self.ui.btn_smartsocket.setToolTip("  Fitur belum tersedia")
 
 
         self.ui.btn_setting.clicked.connect(

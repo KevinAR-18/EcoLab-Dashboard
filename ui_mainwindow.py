@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabjKOtyi.ui'
+## Form generated from reading UI file 'ecolabblfqVX.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -437,17 +437,17 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.btn_monitoringsensor)
 
-        self.btn_growattgraph = QPushButton(self.topMenu)
-        self.btn_growattgraph.setObjectName(u"btn_growattgraph")
-        sizePolicy.setHeightForWidth(self.btn_growattgraph.sizePolicy().hasHeightForWidth())
-        self.btn_growattgraph.setSizePolicy(sizePolicy)
-        self.btn_growattgraph.setMinimumSize(QSize(0, 45))
-        self.btn_growattgraph.setFont(font2)
-        self.btn_growattgraph.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-        self.btn_growattgraph.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.btn_growattgraph.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-chart.png)")
+        self.btn_smartsocket = QPushButton(self.topMenu)
+        self.btn_smartsocket.setObjectName(u"btn_smartsocket")
+        sizePolicy.setHeightForWidth(self.btn_smartsocket.sizePolicy().hasHeightForWidth())
+        self.btn_smartsocket.setSizePolicy(sizePolicy)
+        self.btn_smartsocket.setMinimumSize(QSize(0, 45))
+        self.btn_smartsocket.setFont(font2)
+        self.btn_smartsocket.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        self.btn_smartsocket.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.btn_smartsocket.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-chart.png)")
 
-        self.verticalLayout_2.addWidget(self.btn_growattgraph)
+        self.verticalLayout_2.addWidget(self.btn_smartsocket)
 
         self.btn_setting = QPushButton(self.topMenu)
         self.btn_setting.setObjectName(u"btn_setting")
@@ -670,8 +670,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #5775dc;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -723,8 +722,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -779,8 +777,7 @@ class Ui_MainWindow(object):
 "	background-color: #f8fbff;\n"
 "	border: 1px solid #cddff3;\n"
 "	border-radius: 8px;\n"
-"	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */\n"
-"}\n"
+"	}\n"
 "")
         self.frametopFlow.setFrameShape(QFrame.Shape.NoFrame)
         self.frametopFlow.setFrameShadow(QFrame.Shadow.Raised)
@@ -906,8 +903,7 @@ class Ui_MainWindow(object):
 "	background-color: #f8fbff;\n"
 "	border: 1px solid #cddff3;\n"
 "	border-radius: 8px;\n"
-"	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */\n"
-"}\n"
+"	}\n"
 "")
         self.frameleftFlow.setFrameShape(QFrame.Shape.NoFrame)
         self.frameleftFlow.setFrameShadow(QFrame.Shadow.Raised)
@@ -985,8 +981,7 @@ class Ui_MainWindow(object):
         self.frameGrowatt.setMaximumSize(QSize(80, 80))
         self.frameGrowatt.setStyleSheet(u"	border: 1px solid #cddff3;\n"
 "	border-radius: 8px;\n"
-"	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */\n"
-" border-image: url(:/images/images/images/growatt.png) 0 0 0 0 stretch stretch;")
+"	 border-image: url(:/images/images/images/growatt.png) 0 0 0 0 stretch stretch;")
         self.frameGrowatt.setFrameShape(QFrame.Shape.NoFrame)
         self.frameGrowatt.setFrameShadow(QFrame.Shadow.Raised)
 
@@ -1011,8 +1006,7 @@ class Ui_MainWindow(object):
 "	background-color: #f8fbff;\n"
 "	border: 1px solid #cddff3;\n"
 "	border-radius: 8px;\n"
-"	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */\n"
-"}\n"
+"	}\n"
 "")
         self.framerightFlow.setFrameShape(QFrame.Shape.NoFrame)
         self.framerightFlow.setFrameShadow(QFrame.Shadow.Raised)
@@ -1152,8 +1146,7 @@ class Ui_MainWindow(object):
 "	background-color: #f8fbff;\n"
 "	border: 1px solid #cddff3;\n"
 "	border-radius: 8px;\n"
-"	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */\n"
-"}\n"
+"	}\n"
 "")
         self.framebottomFlow.setFrameShape(QFrame.Shape.NoFrame)
         self.framebottomFlow.setFrameShadow(QFrame.Shadow.Raised)
@@ -1271,8 +1264,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #3D8D7A;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -1367,7 +1359,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #4CAF8E;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 100px;\n"
 "max-width: 160px;\n"
@@ -1610,8 +1601,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #F4A261;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
+"    \n"
 "    min-width: 100px;\n"
 "    max-width: 150px;\n"
 "    qproperty-alignment: AlignCenter;\n"
@@ -1849,7 +1839,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #8E7AB5;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 100px;\n"
 "max-width: 150px;\n"
@@ -2083,7 +2072,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #4A90D9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 100px;\n"
 "max-width: 150px;\n"
@@ -2317,7 +2305,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #9C8F5E;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 100px;\n"
 "max-width: 150px;\n"
@@ -2526,8 +2513,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #5775dc;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -2593,8 +2579,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -3042,8 +3027,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -3416,8 +3400,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #5775dc;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -3493,8 +3476,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -3560,8 +3542,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #F4A261;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
+"    \n"
 "    min-width: 200px;\n"
 "    max-width: 300px;\n"
 "    qproperty-alignment: AlignCenter;\n"
@@ -3646,7 +3627,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5FB3A2;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -3735,8 +3715,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -3800,8 +3779,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #F4A261;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
+"    \n"
 "    min-width: 200px;\n"
 "    max-width: 300px;\n"
 "    qproperty-alignment: AlignCenter;\n"
@@ -3893,7 +3871,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5FB3A2;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -3982,7 +3959,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4075,7 +4051,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5DA9E9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4162,7 +4137,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5DA9E9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4249,7 +4223,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5DA9E9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4342,7 +4315,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5FB3A2;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4430,7 +4402,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #5FB3A2;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 200px;\n"
 "max-width: 300px;\n"
@@ -4517,8 +4488,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #E96A6A;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
+"    \n"
 "    min-width: 200px;\n"
 "    max-width: 300px;\n"
 "    qproperty-alignment: AlignCenter;\n"
@@ -4603,8 +4573,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #5775dc;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"\n"
+"    \n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
 "    max-width: 400px;    /* lebar maksimum */\n"
@@ -4673,7 +4642,6 @@ class Ui_MainWindow(object):
 "border-radius: 8px;\n"
 "padding: 6px 10px;\n"
 "border: 1px solid #4A90D9;\n"
-"box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
 "\n"
 "min-width: 100px;\n"
 "max-width: 150px;\n"
@@ -4717,8 +4685,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"	qproperty-alignment: AlignCenter;\n"
+"    	qproperty-alignment: AlignCenter;\n"
 "}\n"
 "\n"
 "")
@@ -4759,8 +4726,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
-"qproperty-alignment: AlignCenter;\n"
+"    qproperty-alignment: AlignCenter;\n"
 "}\n"
 "")
 
@@ -4928,8 +4894,7 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #9B8EC7;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);\n"
-"\n"
+"    \n"
 "    min-width: 100px;\n"
 "    max-width: 150px;\n"
 "    qproperty-alignment: AlignCenter;\n"
@@ -5103,7 +5068,7 @@ class Ui_MainWindow(object):
         self.btn_growatt.setText(QCoreApplication.translate("MainWindow", u"Growatt", None))
         self.btn_controlroom.setText(QCoreApplication.translate("MainWindow", u"Control Room", None))
         self.btn_monitoringsensor.setText(QCoreApplication.translate("MainWindow", u"Monitoring Data", None))
-        self.btn_growattgraph.setText(QCoreApplication.translate("MainWindow", u"Growatt Graph", None))
+        self.btn_smartsocket.setText(QCoreApplication.translate("MainWindow", u"Growatt Graph", None))
         self.btn_setting.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.clockInfo.setText(QCoreApplication.translate("MainWindow", u"Friday, 22 August 2025 | 18:22:25", None))

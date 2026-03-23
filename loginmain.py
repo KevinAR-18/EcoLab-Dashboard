@@ -134,6 +134,25 @@ class LoginWindow(QMainWindow):
             self.ui.showpasssignupCheck
         )
 
+    def _is_valid_email(self, email):
+        """
+        Validasi format email menggunakan regex
+
+        Args:
+            email: Email string yang akan divalidasi
+
+        Returns:
+            bool: True jika format valid, False jika tidak
+        """
+        import re
+
+        # Pattern regex untuk validasi email
+        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+        if re.match(pattern, email):
+            return True
+        return False
+
     # ===== HANDLERS =====
     def handle_signin(self):
         """Handle tombol sign in diklik"""
@@ -165,6 +184,15 @@ class LoginWindow(QMainWindow):
                 self,
                 "Signup Error",
                 "Please fill all fields!\nUsername, Email, and Password are required."
+            )
+            return
+
+        # Validasi format email
+        if not self._is_valid_email(email):
+            QMessageBox.warning(
+                self,
+                "Signup Error",
+                "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com"
             )
             return
 
@@ -343,11 +371,21 @@ class LoginWindow(QMainWindow):
 
         # ===== ERROR =====
         elif status == "error":
-            QMessageBox.critical(
-                self,
-                f"{operation_type} Error",
-                f"❌ {message}"
-            )
+            # Tampilkan pesan error yang lebih user-friendly
+            if operation_type == "Login":
+                # Untuk login error, tampilkan pesan sederhana
+                QMessageBox.warning(
+                    self,
+                    "Login Gagal",
+                    "Username atau Password salah\n\nSilakan coba lagi."
+                )
+            else:
+                # Untuk signup error, tampilkan pesan yang lebih jelas
+                QMessageBox.warning(
+                    self,
+                    f"{operation_type} Gagal",
+                    f"{message}\n\nSilakan coba lagi."
+                )
 
         # ===== OTHER =====
         else:

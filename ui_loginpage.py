@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'loginpageOLwvTx.ui'
+## Form generated from reading UI file 'loginpage.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -37,9 +37,7 @@ class Ui_MainWindow(object):
 "/* BACKGROUND */\n"
 "\n"
 "QWidget{\n"
-"background-image:url(:/images/images/images/background.png);\n"
-"background-position:center;\n"
-"background-repeat:no-repeat;\n"
+"\n"
 "}\n"
 "\n"
 "\n"
@@ -86,14 +84,14 @@ class Ui_MainWindow(object):
 "\n"
 "/* PRIMARY */\n"
 "\n"
-"#signinButton,#signu"
-                        "pButton{\n"
+"#signinButton,#signupButton{\n"
 "background-color:#2b6cb0;\n"
 "color:white;\n"
 "}\n"
 "\n"
 "#signinButton:hover,#signupButton:hover{\n"
-"background-color:#1e4f8a;\n"
+"backgroun"
+                        "d-color:#1e4f8a;\n"
 "}\n"
 "\n"
 "/* GUEST */\n"
@@ -107,16 +105,16 @@ class Ui_MainWindow(object):
 "background:#3979c7;\n"
 "}\n"
 "\n"
-"/* GOOGLE */\n"
+"/* GOOGLE - IMAGE BUTTONS */\n"
 "\n"
 "#googleSigninButton,#googleSignupButton{\n"
-"background:white;\n"
-"border:1px solid #d0dce5;\n"
-"color:#444;\n"
+"background:transparent;\n"
+"border:none;\n"
 "}\n"
 "\n"
 "#googleSigninButton:hover,#googleSignupButton:hover{\n"
-"background:#f2f5f8;\n"
+"background:transparent;\n"
+"opacity:0.8;\n"
 "}\n"
 "\n"
 "/* OR LABEL */\n"
@@ -369,6 +367,12 @@ class Ui_MainWindow(object):
 
         self.googleSigninButton = QPushButton(self.page_signin)
         self.googleSigninButton.setObjectName(u"googleSigninButton")
+        self.googleSigninButton.setMinimumSize(QSize(0, 35))
+        self.googleSigninButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        icon1 = QIcon()
+        icon1.addFile(u":/images/images/images/signin.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.googleSigninButton.setIcon(icon1)
+        self.googleSigninButton.setIconSize(QSize(300, 35))
 
         self.verticalLayout_3.addWidget(self.googleSigninButton)
 
@@ -454,6 +458,12 @@ class Ui_MainWindow(object):
 
         self.googleSignupButton = QPushButton(self.page_signup)
         self.googleSignupButton.setObjectName(u"googleSignupButton")
+        self.googleSignupButton.setMinimumSize(QSize(0, 35))
+        self.googleSignupButton.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
+        icon2 = QIcon()
+        icon2.addFile(u":/images/images/images/signup.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.googleSignupButton.setIcon(icon2)
+        self.googleSignupButton.setIconSize(QSize(300, 35))
 
         self.verticalLayout_4.addWidget(self.googleSignupButton)
 
@@ -503,7 +513,7 @@ class Ui_MainWindow(object):
         self.rememberCheck.setText(QCoreApplication.translate("MainWindow", u"Remember me", None))
         self.showpasssigninCheck.setText(QCoreApplication.translate("MainWindow", u"Show Password", None))
         self.signinButton.setText(QCoreApplication.translate("MainWindow", u"Sign In", None))
-        self.googleSigninButton.setText(QCoreApplication.translate("MainWindow", u"Sign in with Google", None))
+        self.googleSigninButton.setText("")
         self.donthaveLabel.setText(QCoreApplication.translate("MainWindow", u"Don't have an account?", None))
         self.goto_signuppage.setText(QCoreApplication.translate("MainWindow", u"Create Account", None))
         self.usernameInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Username", None))
@@ -511,7 +521,7 @@ class Ui_MainWindow(object):
         self.signupPasswordInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Password", None))
         self.showpasssignupCheck.setText(QCoreApplication.translate("MainWindow", u"Show Password", None))
         self.signupButton.setText(QCoreApplication.translate("MainWindow", u"Create Account", None))
-        self.googleSignupButton.setText(QCoreApplication.translate("MainWindow", u"Sign up with Google", None))
+        self.googleSignupButton.setText("")
         self.goto_signinpage.setText(QCoreApplication.translate("MainWindow", u"Back to Sign In", None))
     # retranslateUi
 

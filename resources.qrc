@@ -257,6 +257,8 @@
     <file>images/icons/icon_settings.png</file>
   </qresource>
   <qresource prefix="images">
+    <file>images/images/signin.png</file>
+    <file>images/images/signup.png</file>
     <file>images/images/bg7.png</file>
     <file>images/images/bg8.png</file>
     <file>images/images/bg9.png</file>

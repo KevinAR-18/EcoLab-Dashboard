@@ -1251,8 +1251,7 @@ Button */
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #5775dc;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -1362,8 +1361,7 @@ Button */
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -1465,8 +1463,7 @@ Button */
 	background-color: #f8fbff;
 	border: 1px solid #cddff3;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */
-}
+	}
 </string>
                                      </property>
                                      <property name="frameShape">
@@ -1744,8 +1741,7 @@ Button */
 	background-color: #f8fbff;
 	border: 1px solid #cddff3;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */
-}
+	}
 </string>
                                      </property>
                                      <property name="frameShape">
@@ -1943,8 +1939,7 @@ Button */
                                      <property name="styleSheet">
                                       <string notr="true">	border: 1px solid #cddff3;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */
- border-image: url(:/images/images/images/growatt.png) 0 0 0 0 stretch stretch;</string>
+	 border-image: url(:/images/images/images/growatt.png) 0 0 0 0 stretch stretch;</string>
                                      </property>
                                      <property name="frameShape">
                                       <enum>QFrame::Shape::NoFrame</enum>
@@ -1999,8 +1994,7 @@ Button */
 	background-color: #f8fbff;
 	border: 1px solid #cddff3;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */
-}
+	}
 </string>
                                      </property>
                                      <property name="frameShape">
@@ -2314,8 +2308,7 @@ Button */
 	background-color: #f8fbff;
 	border: 1px solid #cddff3;
 	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);  /* bayangan ringan */
-}
+	}
 </string>
                                      </property>
                                      <property name="frameShape">
@@ -2601,8 +2594,7 @@ Button */
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #3D8D7A;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -2809,7 +2801,6 @@ background-color: #4CAF8E;   /* hijau energi */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #4CAF8E;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 100px;
 max-width: 160px;
@@ -3356,8 +3347,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #F4A261;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
+    
     min-width: 100px;
     max-width: 150px;
     qproperty-alignment: AlignCenter;
@@ -3913,7 +3903,6 @@ background-color: #8E7AB5;   /* ungu battery */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #8E7AB5;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 100px;
 max-width: 150px;
@@ -4461,7 +4450,6 @@ background-color: #4A90D9;   /* biru energi */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #4A90D9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 100px;
 max-width: 150px;
@@ -5014,7 +5002,6 @@ background-color: #9C8F5E;   /* kuning olive netral */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #9C8F5E;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 100px;
 max-width: 150px;
@@ -5497,8 +5484,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #5775dc;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -5643,8 +5629,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -6520,8 +6505,7 @@ QLabel#statusmcuA[state=&quot;off&quot;] {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -7145,8 +7129,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #5775dc;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -7316,8 +7299,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -7465,8 +7447,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #F4A261;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
+    
     min-width: 200px;
     max-width: 300px;
     qproperty-alignment: AlignCenter;
@@ -7646,7 +7627,6 @@ background-color: #5FB3A2;   /* hijau soft */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5FB3A2;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -7815,8 +7795,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -7937,8 +7916,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #F4A261;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
+    
     min-width: 200px;
     max-width: 300px;
     qproperty-alignment: AlignCenter;
@@ -8107,7 +8085,6 @@ background-color: #5FB3A2;   /* hijau soft */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5FB3A2;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -8278,7 +8255,6 @@ border: 1px solid #6B7C93;
 border-radius: 8px;
 padding: 6px 10px;
 
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -8452,7 +8428,6 @@ background-color: #5DA9E9;   /* biru utama */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5DA9E9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -8621,7 +8596,6 @@ background-color: #5DA9E9;   /* biru utama */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5DA9E9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -8790,7 +8764,6 @@ background-color: #5DA9E9;   /* biru utama */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5DA9E9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -8964,7 +8937,6 @@ background-color: #5FB3A2;   /* hijau soft */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5FB3A2;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -9134,7 +9106,6 @@ background-color: #5FB3A2;   /* hijau soft */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #5FB3A2;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 200px;
 max-width: 300px;
@@ -9303,8 +9274,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #E96A6A;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
+    
     min-width: 200px;
     max-width: 300px;
     qproperty-alignment: AlignCenter;
@@ -9455,8 +9425,7 @@ qproperty-alignment: AlignCenter;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #5775dc;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-
+    
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
     max-width: 400px;    /* lebar maksimum */
@@ -9592,7 +9561,6 @@ background-color: #4A90D9;   /* biru energi */
 border-radius: 8px;
 padding: 6px 10px;
 border: 1px solid #4A90D9;
-box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
 
 min-width: 100px;
 max-width: 150px;
@@ -9678,8 +9646,7 @@ color: white;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-	qproperty-alignment: AlignCenter;
+    	qproperty-alignment: AlignCenter;
 }
 
 </string>
@@ -9751,8 +9718,7 @@ color: white;
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
-qproperty-alignment: AlignCenter;
+    qproperty-alignment: AlignCenter;
 }
 </string>
                                        </property>
@@ -10031,8 +9997,7 @@ QPushButton#btnLogout:disabled {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #9B8EC7;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.18);
-
+    
     min-width: 100px;
     max-width: 150px;
     qproperty-alignment: AlignCenter;

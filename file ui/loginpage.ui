@@ -32,9 +32,7 @@
 /* BACKGROUND */
 
 QWidget{
-background-image:url(:/images/images/images/background.png);
-background-position:center;
-background-repeat:no-repeat;
+
 }
 
 
@@ -101,16 +99,16 @@ color:white;
 background:#3979c7;
 }
 
-/* GOOGLE */
+/* GOOGLE - IMAGE BUTTONS */
 
 #googleSigninButton,#googleSignupButton{
-background:white;
-border:1px solid #d0dce5;
-color:#444;
+background:transparent;
+border:none;
 }
 
 #googleSigninButton:hover,#googleSignupButton:hover{
-background:#f2f5f8;
+background:transparent;
+opacity:0.8;
 }
 
 /* OR LABEL */
@@ -533,8 +531,27 @@ border:1px solid #cfd8e3;
            </item>
            <item>
             <widget class="QPushButton" name="googleSigninButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="text">
-              <string>Sign in with Google</string>
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources.qrc">
+               <normaloff>:/images/images/images/signin.png</normaloff>:/images/images/images/signin.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>300</width>
+               <height>35</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -644,8 +661,27 @@ border:1px solid #cfd8e3;
            </item>
            <item>
             <widget class="QPushButton" name="googleSignupButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="cursor">
+              <cursorShape>PointingHandCursor</cursorShape>
+             </property>
              <property name="text">
-              <string>Sign up with Google</string>
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../resources.qrc">
+               <normaloff>:/images/images/images/signup.png</normaloff>:/images/images/images/signup.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>300</width>
+               <height>35</height>
+              </size>
              </property>
             </widget>
            </item>
