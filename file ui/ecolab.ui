@@ -287,7 +287,7 @@ Button */
 
 </string>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_54">
+   <layout class="QVBoxLayout" name="verticalLayout_76">
     <property name="rightMargin">
      <number>9</number>
     </property>
@@ -610,7 +610,7 @@ Button */
                    <string notr="true">background-image: url(:/icons/images/icons/cil-home.png);</string>
                   </property>
                   <property name="text">
-                   <string>Growatt</string>
+                   <string>EcoLab Power Monitoring</string>
                   </property>
                  </widget>
                 </item>
@@ -718,7 +718,7 @@ Button */
                    <string notr="true">background-image: url(:/icons/images/icons/cil-chart.png)</string>
                   </property>
                   <property name="text">
-                   <string>Growatt Graph</string>
+                   <string>Smart Socket</string>
                   </property>
                  </widget>
                 </item>
@@ -1188,7 +1188,7 @@ Button */
                       <string notr="true">background: transparent;</string>
                      </property>
                      <property name="currentIndex">
-                      <number>0</number>
+                      <number>3</number>
                      </property>
                      <widget class="QWidget" name="page1_growattMonitoring">
                       <layout class="QHBoxLayout" name="horizontalLayout_7">
@@ -9362,7 +9362,1003 @@ qproperty-alignment: AlignCenter;
                        </item>
                       </layout>
                      </widget>
-                     <widget class="QWidget" name="page4_smartsocket"/>
+                     <widget class="QWidget" name="page4_smartsocket">
+                      <layout class="QVBoxLayout" name="verticalLayout_77">
+                       <item>
+                        <widget class="QFrame" name="frameSmartsocket">
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>65</height>
+                          </size>
+                         </property>
+                         <property name="frameShape">
+                          <enum>QFrame::Shape::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Shadow::Raised</enum>
+                         </property>
+                         <layout class="QHBoxLayout" name="horizontalLayout_87">
+                          <item>
+                           <widget class="QLabel" name="titleSmartsocket">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>422</width>
+                              <height>45</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <family>Segoe UI</family>
+                              <pointsize>14</pointsize>
+                              <italic>false</italic>
+                              <bold>true</bold>
+                             </font>
+                            </property>
+                            <property name="styleSheet">
+                             <string notr="true">#titleSmartsocket {
+    font: bold 14pt &quot;Segoe UI&quot;;
+    color: white;
+    background-color: #5775dc;
+    border-radius: 8px;
+    padding: 6px 10px;
+    border: 1px solid #5775dc;
+    
+    /* Tambahan pengaturan ukuran */
+    min-width: 500px;    /* lebar minimum */
+    max-width: 400px;    /* lebar maksimum */
+    qproperty-alignment: AlignCenter; /* biar teks di tengah */
+}
+</string>
+                            </property>
+                            <property name="text">
+                             <string>Smart Socket</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignmentFlag::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QFrame" name="framecontentSmartsocket">
+                         <property name="frameShape">
+                          <enum>QFrame::Shape::NoFrame</enum>
+                         </property>
+                         <property name="frameShadow">
+                          <enum>QFrame::Shadow::Raised</enum>
+                         </property>
+                         <widget class="QFrame" name="framesocket1">
+                          <property name="geometry">
+                           <rect>
+                            <x>60</x>
+                            <y>70</y>
+                            <width>197</width>
+                            <height>700</height>
+                           </rect>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>700</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>700</height>
+                           </size>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">#framesocket1{
+	background-color: #F2ECF9;   /* ungu lembut banget */
+	border: 2px solid #E3DAF1;
+	border-radius: 10px;
+}</string>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::Shape::NoFrame</enum>
+                          </property>
+                          <property name="frameShadow">
+                           <enum>QFrame::Shadow::Raised</enum>
+                          </property>
+                          <layout class="QVBoxLayout" name="verticalLayout_72">
+                           <item>
+                            <widget class="QFrame" name="frametitlesocket1">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>0</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>50</height>
+                              </size>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::NoFrame</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_54">
+                              <property name="spacing">
+                               <number>0</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QFrame" name="frame_61">
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="titlesmart1">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>96</width>
+                                  <height>40</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>136</width>
+                                  <height>45</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>11</pointsize>
+                                  <italic>false</italic>
+                                  <bold>true</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">#titlesmart1{
+    font: bold 11pt &quot;Segoe UI&quot;;
+    color: white;
+
+    background-color: #7F9E9B;
+    border: 1px solid #6E8E8B;
+
+
+    border-radius: 8px;
+    padding: 6px 12px;
+    min-height: 26px;
+    line-height: 18px;
+
+    min-width: 70px;
+    max-width: 110px;
+    qproperty-alignment: AlignCenter;
+}
+</string>
+                                </property>
+                                <property name="text">
+                                 <string>Smart Socket 1</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QFrame" name="frame_67">
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="framestatussocket1">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>40</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>23</height>
+                              </size>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::NoFrame</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_88">
+                              <property name="spacing">
+                               <number>0</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QFrame" name="frame_68">
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="statussocket1">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>155</width>
+                                  <height>23</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>114</width>
+                                  <height>23</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>true</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#statussocket1{
+    font: bold 10pt &quot;Segoe UI&quot;;
+    color: white;
+
+    background-color: #CBD5E1;   /* default (abu netral) */
+    border: 1px solid #94A3B8;
+    border-radius: 4px;
+
+    padding: 2px 6px;
+    min-height: 17px;
+    max-width: 100px;
+
+    qproperty-alignment: AlignCenter;
+}
+
+/* ===== AC ON ===== */
+QLabel#statussocket1[state=&quot;on&quot;] {
+    background-color: #6FCF97;   /* hijau pastel tapi jelas */
+    border-color: #27AE60;
+}
+
+/* ===== AC OFF ===== */
+QLabel#statussocket1[state=&quot;off&quot;] {
+    background-color: #EB5757;   /* merah pastel tegas */
+    border-color: #C0392B;
+}
+</string>
+                                </property>
+                                <property name="text">
+                                 <string>Status Device: Offline</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QFrame" name="frame_69">
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="framesensor1value">
+                             <property name="styleSheet">
+                              <string notr="true">#framesensor1value{
+    background-color: white;
+    border: 1px solid #E3DAF1;
+    border-radius: 6px;
+}</string>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::StyledPanel</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QVBoxLayout" name="verticalLayout_sensor1">
+                              <property name="spacing">
+                               <number>4</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>10</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>8</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>10</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>8</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="label_energy_monitoring_title">
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>30</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#label_energy_monitoring_title{
+    color: #000000;
+    background-color: transparent;
+    padding: 2px;
+    qproperty-alignment: AlignCenter;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>Energy Monitoring</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <layout class="QVBoxLayout" name="verticalLayout_sensor_values">
+                                <property name="spacing">
+                                 <number>2</number>
+                                </property>
+                                <item>
+                                 <widget class="QLabel" name="label_voltage1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_voltage1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Voltage: -- V</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_current1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_current1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Current: -- A</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_power1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_power1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Power: -- W</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_energy1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_energy1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Energy: -- kWh</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_frequency1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_frequency1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Frequency: -- Hz</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_powerfactor1">
+                                  <property name="font">
+                                   <font>
+                                    <family>Segoe UI</family>
+                                    <pointsize>10</pointsize>
+                                    <italic>false</italic>
+                                    <bold>false</bold>
+                                   </font>
+                                  </property>
+                                  <property name="styleSheet">
+                                   <string notr="true">QLabel#label_powerfactor1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                  </property>
+                                  <property name="text">
+                                   <string>Power Factor: --</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="frameswitch1">
+                             <property name="styleSheet">
+                              <string notr="true">#frameswitch1{
+    background-color: white;
+    border: 1px solid #E3DAF1;
+    border-radius: 6px;
+}</string>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::StyledPanel</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QVBoxLayout" name="verticalLayout_61">
+                              <property name="spacing">
+                               <number>0</number>
+                              </property>
+                              <property name="leftMargin">
+                               <number>8</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>8</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>8</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>8</number>
+                              </property>
+                              <item>
+                               <widget class="QFrame" name="frame_73">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>20</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>40</height>
+                                 </size>
+                                </property>
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                                <layout class="QHBoxLayout" name="horizontalLayout_89">
+                                 <property name="spacing">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="leftMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="topMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="rightMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <property name="bottomMargin">
+                                  <number>0</number>
+                                 </property>
+                                 <item>
+                                  <widget class="QFrame" name="frame_74">
+                                   <property name="frameShape">
+                                    <enum>QFrame::Shape::NoFrame</enum>
+                                   </property>
+                                   <property name="frameShadow">
+                                    <enum>QFrame::Shadow::Raised</enum>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QLabel" name="label_switch_status_title">
+                                   <property name="font">
+                                    <font>
+                                     <family>Segoe UI</family>
+                                     <pointsize>10</pointsize>
+                                     <italic>false</italic>
+                                     <bold>false</bold>
+                                    </font>
+                                   </property>
+                                   <property name="styleSheet">
+                                    <string notr="true">QLabel#label_switch_status_title{
+    color: #000000;
+    background-color: transparent;
+    padding: 1px;
+}</string>
+                                   </property>
+                                   <property name="text">
+                                    <string>Status Switch</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QFrame" name="frame_75">
+                                   <property name="frameShape">
+                                    <enum>QFrame::Shape::NoFrame</enum>
+                                   </property>
+                                   <property name="frameShadow">
+                                    <enum>QFrame::Shadow::Raised</enum>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QFrame" name="frame_70">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>0</height>
+                                 </size>
+                                </property>
+                                <property name="maximumSize">
+                                 <size>
+                                  <width>16777215</width>
+                                  <height>40</height>
+                                 </size>
+                                </property>
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                                <property name="frameShadow">
+                                 <enum>QFrame::Shadow::Raised</enum>
+                                </property>
+                                <layout class="QHBoxLayout" name="horizontalLayout_90">
+                                 <item>
+                                  <widget class="QFrame" name="frame_71">
+                                   <property name="frameShape">
+                                    <enum>QFrame::Shape::NoFrame</enum>
+                                   </property>
+                                   <property name="frameShadow">
+                                    <enum>QFrame::Shadow::Raised</enum>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QLabel" name="label_switch_status_value">
+                                   <property name="minimumSize">
+                                    <size>
+                                     <width>0</width>
+                                     <height>30</height>
+                                    </size>
+                                   </property>
+                                   <property name="maximumSize">
+                                    <size>
+                                     <width>100</width>
+                                     <height>16777215</height>
+                                    </size>
+                                   </property>
+                                   <property name="font">
+                                    <font>
+                                     <family>Segoe UI</family>
+                                     <pointsize>10</pointsize>
+                                     <italic>false</italic>
+                                     <bold>false</bold>
+                                    </font>
+                                   </property>
+                                   <property name="styleSheet">
+                                    <string notr="true">QLabel#label_switch_status_value{
+    color: white;
+    background-color: #EB5757;
+    border: 1px solid #C0392B;
+    border-radius: 4px;
+    padding: 4px 8px;
+    qproperty-alignment: AlignCenter;
+}
+QLabel#label_switch_status_value[state=&quot;on&quot;] {
+    background-color: #6FCF97;
+    border-color: #27AE60;
+}</string>
+                                   </property>
+                                   <property name="text">
+                                    <string>OFF</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignmentFlag::AlignCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QFrame" name="frame_72">
+                                   <property name="frameShape">
+                                    <enum>QFrame::Shape::NoFrame</enum>
+                                   </property>
+                                   <property name="frameShadow">
+                                    <enum>QFrame::Shadow::Raised</enum>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QFrame" name="frame_switch_button_container">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>35</height>
+                                 </size>
+                                </property>
+                                <property name="frameShape">
+                                 <enum>QFrame::Shape::NoFrame</enum>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="framestatustimer1">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::NoFrame</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_timer1">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="label_timer_title">
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#label_timer_title{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>Timer:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_timer_status1">
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#label_timer_status1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>No Timer</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="framestatusscheduling1">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>24</height>
+                              </size>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::NoFrame</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_scheduling1">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QLabel" name="label_scheduling_title">
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#label_scheduling_title{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>Scheduling:</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QLabel" name="label_scheduling_status1">
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QLabel#label_scheduling_status1{
+    color: #000000;
+    background-color: transparent;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>No Schedule</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                           <item>
+                            <widget class="QFrame" name="framebuttonaction1">
+                             <property name="minimumSize">
+                              <size>
+                               <width>0</width>
+                               <height>35</height>
+                              </size>
+                             </property>
+                             <property name="maximumSize">
+                              <size>
+                               <width>16777215</width>
+                               <height>35</height>
+                              </size>
+                             </property>
+                             <property name="frameShape">
+                              <enum>QFrame::Shape::NoFrame</enum>
+                             </property>
+                             <property name="frameShadow">
+                              <enum>QFrame::Shadow::Raised</enum>
+                             </property>
+                             <layout class="QHBoxLayout" name="horizontalLayout_action1">
+                              <property name="leftMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="topMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="rightMargin">
+                               <number>0</number>
+                              </property>
+                              <property name="bottomMargin">
+                               <number>0</number>
+                              </property>
+                              <item>
+                               <widget class="QPushButton" name="btn_action_socket1">
+                                <property name="minimumSize">
+                                 <size>
+                                  <width>0</width>
+                                  <height>35</height>
+                                 </size>
+                                </property>
+                                <property name="font">
+                                 <font>
+                                  <family>Segoe UI</family>
+                                  <pointsize>10</pointsize>
+                                  <italic>false</italic>
+                                  <bold>false</bold>
+                                 </font>
+                                </property>
+                                <property name="styleSheet">
+                                 <string notr="true">QPushButton#btn_action_socket1{
+    background-color: #7F9E9B;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+QPushButton#btn_action_socket1:hover{
+    background-color: #6E8E8B;
+}
+QPushButton#btn_action_socket1:pressed{
+    background-color: #5D7E7B;
+}</string>
+                                </property>
+                                <property name="text">
+                                 <string>Action</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </widget>
+                           </item>
+                          </layout>
+                         </widget>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                      <widget class="QWidget" name="page5_settings">
                       <layout class="QVBoxLayout" name="verticalLayout_21">
                        <property name="spacing">

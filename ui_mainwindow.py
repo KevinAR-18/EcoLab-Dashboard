@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabblfqVX.ui'
+## Form generated from reading UI file 'ecolabhieLfQ.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -5065,10 +5065,10 @@ class Ui_MainWindow(object):
         self.titleLeftApp.setText(QCoreApplication.translate("MainWindow", u"EcoLab", None))
         self.titleLeftDescription.setText(QCoreApplication.translate("MainWindow", u"Dashboard", None))
         self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
-        self.btn_growatt.setText(QCoreApplication.translate("MainWindow", u"Growatt", None))
+        self.btn_growatt.setText(QCoreApplication.translate("MainWindow", u"EcoLab Power Monitoring", None))
         self.btn_controlroom.setText(QCoreApplication.translate("MainWindow", u"Control Room", None))
         self.btn_monitoringsensor.setText(QCoreApplication.translate("MainWindow", u"Monitoring Data", None))
-        self.btn_smartsocket.setText(QCoreApplication.translate("MainWindow", u"Growatt Graph", None))
+        self.btn_smartsocket.setText(QCoreApplication.translate("MainWindow", u"Smart Socket", None))
         self.btn_setting.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.clockInfo.setText(QCoreApplication.translate("MainWindow", u"Friday, 22 August 2025 | 18:22:25", None))
