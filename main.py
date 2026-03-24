@@ -117,7 +117,9 @@ class MainWindow(QMainWindow):
         self.dht.start()
 
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
+        self.lampbutton_backend.status_changed.connect(self._on_lamp_status_changed)
         self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
+        self.acbutton_backend.status_changed.connect(self._on_ac_status_changed)
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
 
 
@@ -279,8 +281,59 @@ class MainWindow(QMainWindow):
             self.lblLoad,
         ):
             layoutPopup.addWidget(lbl)
-            
+
         self.ui.titleFlow.mousePressEvent = self.show_flow_popup
+
+        # ===============================
+        # DHT INFO POPUP (Sensor Info)
+        # ===============================
+        self.dhtInfoPopup = QFrame(self, Qt.Popup)
+        self.dhtInfoPopup.setObjectName("dhtInfoPopup")
+        self.dhtInfoPopup.setStyleSheet("""
+        QFrame#dhtInfoPopup {
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        """)
+
+        layoutDHTPopup = QVBoxLayout(self.dhtInfoPopup)
+        layoutDHTPopup.setContentsMargins(10, 10, 10, 10)
+        layoutDHTPopup.setSpacing(6)
+
+        self.lblDHTTitle = QLabel("Sensor DHT Status")
+        self.lblDHTTitle.setStyleSheet(
+            "font-weight: bold; font-size: 13px; color: #2c2c2c;"
+        )
+        self.lblDHTTitle.setAlignment(Qt.AlignLeft)
+        layoutDHTPopup.addWidget(self.lblDHTTitle)
+
+        # Labels untuk info sensor
+        self.lblDHTSourceTemp = QLabel("Sumber Suhu: --")
+        self.lblDHTSourceHum = QLabel("Sumber Kelembaban: --")
+        self.lblDHTTempA = QLabel("MCU A Suhu: -- °C")
+        self.lblDHTTempB = QLabel("MCU B Suhu: -- °C")
+        self.lblDHTHumA = QLabel("MCU A Kelembaban: -- %")
+        self.lblDHTHumB = QLabel("MCU B Kelembaban: -- %")
+        self.lblDHTAvgTemp = QLabel("Rata-rata Suhu: -- °C")
+        self.lblDHTAvgHum = QLabel("Rata-rata Kelembaban: -- %")
+
+        for lbl in (
+            self.lblDHTSourceTemp,
+            self.lblDHTSourceHum,
+            self.lblDHTTempA,
+            self.lblDHTTempB,
+            self.lblDHTHumA,
+            self.lblDHTHumB,
+            self.lblDHTAvgTemp,
+            self.lblDHTAvgHum,
+        ):
+            lbl.setStyleSheet("font-size: 12px; color: #2c2c2c;")
+            layoutDHTPopup.addWidget(lbl)
+
+        # Set click handler untuk titleIndoor
+        self.ui.titleIndoor.mousePressEvent = self.show_dht_popup
+
 
 
         # Disable input IP & add button (belum digunakan)
@@ -288,9 +341,11 @@ class MainWindow(QMainWindow):
         # self.ui.btn_add.setEnabled(False)
         
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
+        self.lampbutton_backend.status_changed.connect(self._on_lamp_status_changed)
         self.lampbutton_backend.start()
         
         self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
+        self.acbutton_backend.status_changed.connect(self._on_ac_status_changed)
         self.acbutton_backend.start()
 
         # AC CONTROL BUTTONS
@@ -340,6 +395,43 @@ class MainWindow(QMainWindow):
         )
         self.flowInfoPopup.move(pos)
         self.flowInfoPopup.show()
+
+    def show_dht_popup(self, event):
+        """Show DHT popup di bawah titleIndoor"""
+        pos = self.ui.titleIndoor.mapToGlobal(
+            self.ui.titleIndoor.rect().bottomLeft()
+        )
+        self.dhtInfoPopup.move(pos)
+        self.dhtInfoPopup.show()
+
+    def update_dht_popup(self, data):
+        """Update DHT info popup dengan data terbaru"""
+        def fmt(val, unit=""):
+            if val is None:
+                return "--"
+            return f"{val}{unit}"
+
+        # Update source info
+        temp_source = data.get("temp_source", "--")
+        hum_source = data.get("hum_source", "--")
+
+        self.lblDHTSourceTemp.setText(f"Sumber Suhu: {fmt(temp_source)}")
+        self.lblDHTSourceHum.setText(f"Sumber Kelembaban: {fmt(hum_source)}")
+
+        # Update MCU A data
+        self.lblDHTTempA.setText(f"MCU A Suhu: {fmt(data.get('temp_A'), ' °C')}")
+        self.lblDHTHumA.setText(f"MCU A Kelembaban: {fmt(data.get('hum_A'), ' %')}")
+
+        # Update MCU B data
+        self.lblDHTTempB.setText(f"MCU B Suhu: {fmt(data.get('temp_B'), ' °C')}")
+        self.lblDHTHumB.setText(f"MCU B Kelembaban: {fmt(data.get('hum_B'), ' %')}")
+
+        # Update average
+        avg_temp = data.get("avg_temperature")
+        avg_hum = data.get("avg_humidity")
+        self.lblDHTAvgTemp.setText(f"Rata-rata Suhu: {fmt(avg_temp, ' °C')}")
+        self.lblDHTAvgHum.setText(f"Rata-rata Kelembaban: {fmt(avg_hum, ' %')}")
+
 
     def update_flow_popup(self, flow):
         if not flow:
@@ -563,13 +655,16 @@ class MainWindow(QMainWindow):
             avg_temp,
             self.ui.frameTempIndoor,
             self.ui.titleSuhuIndoor
-        )   
-        
+        )
+
         self.update_humidity_style(
             avg_hum,
             self.ui.frameHumidIndoor,
             self.ui.titleHumidIndoor
         )
+
+        # Update DHT info popup
+        self.update_dht_popup(data)
 
 
     def publish_lamp(self, lamp_index: int, state: bool):
@@ -1001,8 +1096,15 @@ class MainWindow(QMainWindow):
         """Setup fitur admin (buka admin panel)"""
         # Tombol Admin Panel sudah di-setup di setup_user_features()
         pass
-    
-    
+    def _on_lamp_status_changed(self, lamp_index: int, state: bool):
+        """Callback saat status lamp berubah dari MQTT"""
+        # Update UI untuk lamp yang berubah saja
+        if 1 <= lamp_index <= len(self.lamps):
+            lamp = self.lamps[lamp_index - 1]
+            lamp.blockSignals(True)
+            lamp.setChecked(state)
+            lamp.blockSignals(False)
+
     def update_lamp_ui_from_state(self):
         for idx, lamp in enumerate(self.lamps, start=1):
             state = self.lampbutton_backend.states.get(idx)
@@ -1010,6 +1112,17 @@ class MainWindow(QMainWindow):
                 lamp.blockSignals(True)
                 lamp.setChecked(state)   # ✅ BENAR
                 lamp.blockSignals(False)
+
+    def _on_ac_status_changed(self, state: bool):
+        """Callback saat status AC berubah dari MQTT"""
+        # Update UI AC button
+        self.ac_button.blockSignals(True)
+        self.ac_button.setChecked(state)
+        self.ac_button.blockSignals(False)
+
+        # Update AC status label jika ada
+        if hasattr(self, "update_ac_status"):
+            self.update_ac_status(state)
 
     def update_ac_ui_from_state(self):
         state = self.acbutton_backend.state

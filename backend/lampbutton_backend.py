@@ -1,4 +1,7 @@
-class LampButtonBackend:
+from PySide6.QtCore import QObject, Signal
+
+
+class LampButtonBackend(QObject):
     """
     Backend MQTT untuk kontrol lampu
     - Tidak tahu UI
@@ -8,7 +11,11 @@ class LampButtonBackend:
 
     BASE_TOPIC = "ecolab/mcuA/lamp"
 
+    # Signal ketika state berubah
+    status_changed = Signal(int, bool)  # lamp_index, state
+
     def __init__(self, mqtt_client, logger=None):
+        super().__init__()
         self.mqtt = mqtt_client
         self.logger = logger
         self.states = {}
@@ -51,5 +58,8 @@ class LampButtonBackend:
         lamp_index = int(msg.topic.split("lamp")[1].split("/")[0])
         state = msg.payload.decode() == "ON"
         self.states[lamp_index] = state
+
+        # Emit signal untuk update UI real-time
+        self.status_changed.emit(lamp_index, state)
 
 

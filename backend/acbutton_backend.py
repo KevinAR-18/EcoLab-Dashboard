@@ -1,4 +1,7 @@
-class ACButtonBackend:
+from PySide6.QtCore import QObject, Signal
+
+
+class ACButtonBackend(QObject):
     """
     Backend MQTT untuk kontrol AC
     - Tidak tahu UI
@@ -9,7 +12,11 @@ class ACButtonBackend:
     TOPIC_AC = "ecolab/mcuB/ac/control"
     STATUS_TOPIC = "ecolab/mcuB/ac/status"
 
+    # Signal ketika state berubah
+    status_changed = Signal(bool)  # AC state (ON/OFF)
+
     def __init__(self, mqtt_client, logger=None):
+        super().__init__()
         self.mqtt = mqtt_client
         self.logger = logger
         self.state = None
@@ -62,3 +69,6 @@ class ACButtonBackend:
         Topic: ecolab/mcuB/ac/status
         """
         self.state = msg.payload.decode() == "ON"
+
+        # Emit signal untuk update UI real-time
+        self.status_changed.emit(self.state)
