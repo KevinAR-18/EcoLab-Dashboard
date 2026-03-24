@@ -51,6 +51,9 @@ class MainWindow(QMainWindow):
     # Signal untuk notify launcher saat logout terjadi
     logout_signal = Signal()
 
+    # APP VERSION
+    APP_VERSION = "v2.0-beta"
+
     def __init__(self, user_session=None):
         super().__init__()
 
@@ -63,6 +66,9 @@ class MainWindow(QMainWindow):
 
         # Method untuk inisialisasi GUI yang saat aplikasi berjalan.
         self.initUI()
+
+        # Set version label
+        self.set_app_version(self.APP_VERSION)
 
         self.ui.logPlainEdit.setReadOnly(True)
         self._weather_initial_fetched = False
@@ -772,11 +778,19 @@ class MainWindow(QMainWindow):
         """Pengaturan Awal GUI"""
         # Mengatur Judul Aplikasi
         self.setWindowTitle("EcoLab Dashboard")
-    
+
         # Mengatur Icon Aplikasi
         pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.setWindowIcon(icon)
+
+    def set_app_version(self, version: str):
+        """Set version label di bottom bar"""
+        self.ui.version.setText(version)
+
+    def get_app_version(self) -> str:
+        """Get current app version"""
+        return self.APP_VERSION
         
     def resource_path(self, relative_path):
         """ Mengonversi path relatif menjadi path absolut.
