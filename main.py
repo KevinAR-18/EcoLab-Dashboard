@@ -22,6 +22,7 @@ from session_manager import SessionManager
 from auth_service import TrialLoginService
 
 from lamp_setup import LampSetup
+from switch_setup import SwitchSetup
 from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
 from smartsocket_popup import SmartSocketPopup
@@ -91,6 +92,9 @@ class MainWindow(QMainWindow):
         LampSetup.setup(self.ui, self)
         ACSetup.setup(self.ui, self)
         ArrowSetup.setup(self.ui, self)
+
+        # SETUP SWITCH BUTTONS
+        SwitchSetup.setup(self.ui, self)
 
         # BACKEND: GROWATT
         self.growatt = GrowattBackend()
@@ -676,7 +680,13 @@ class MainWindow(QMainWindow):
         self.acbutton_backend.power(state)
         print(f"AC Power: {state}")
         self.log(f"AC Power: {state}")
-        
+
+    def on_switch_toggled(self, switch_index: int, state: bool):
+        """Handler saat switch button ditekan"""
+        self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
+        # TODO: Kirim command ke MQTT/relay sesuai kebutuhan
+        # self.relay_backend.publish(switch_index, state)
+
     def ac_temp_up(self):
         self.acbutton_backend.temp_up()
 

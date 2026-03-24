@@ -22,7 +22,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
                           "        stop:0 #E1F2FB,"
                           "        stop:1 #F1F9F9"
                           "    );"
-                          "    border: 1px solid #B0D6E8;"
+                          "    border: 2px solid #005C99;"
                           "    border-radius: 10px;"
                           "}")
 

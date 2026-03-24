@@ -32,8 +32,8 @@
         stop:0 #E1F2FB,
         stop:1 #F1F9F9
     );
-border: 1px solid #B0D6E8;    /* border ungu/soft biru sesuai gradient */
-    border-radius: 10px;       
+border: 2px solid #005C99;    /* border biru tua sesuai popup Dashboard/Admin Panel */
+    border-radius: 10px;
 }</string>
   </property>
   <property name="modal">
