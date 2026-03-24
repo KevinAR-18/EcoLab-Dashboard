@@ -677,10 +677,10 @@ Button */
                    <enum>Qt::LayoutDirection::LeftToRight</enum>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background-image: url(:/icons/images/icons/cil-view-quilt.png);</string>
+                   <string notr="true">background-image: url(:/icons/images/icons/cil-cloudy.png);</string>
                   </property>
                   <property name="text">
-                   <string>Monitoring Data</string>
+                   <string>Environment Monitoring</string>
                   </property>
                  </widget>
                 </item>
@@ -713,7 +713,7 @@ Button */
                    <enum>Qt::LayoutDirection::LeftToRight</enum>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background-image: url(:/icons/images/icons/cil-chart.png)</string>
+                   <string notr="true">background-image: url(:/icons/images/icons/cil-input-power.png);</string>
                   </property>
                   <property name="text">
                    <string>Smart Socket</string>
@@ -7137,7 +7137,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
 </string>
                             </property>
                             <property name="text">
-                             <string>Monitoring Sensor: Indoor Room and Weather Station</string>
+                             <string>Sensor Monitoring: Indoor &amp; Weather Station</string>
                             </property>
                             <property name="alignment">
                              <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -7176,7 +7176,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                             <property name="maximumSize">
                              <size>
                               <width>16777215</width>
-                              <height>550</height>
+                              <height>600</height>
                              </size>
                             </property>
                             <property name="styleSheet">
@@ -7306,7 +7306,7 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
 </string>
                                      </property>
                                      <property name="text">
-                                      <string>Indoor Room</string>
+                                      <string>Indoor Conditions</string>
                                      </property>
                                      <property name="alignment">
                                       <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -7325,6 +7325,22 @@ QLabel#statusmcuB[state=&quot;off&quot;] {
                                    </item>
                                   </layout>
                                  </widget>
+                                </item>
+                                <item>
+                                 <spacer name="verticalSpacer_21">
+                                  <property name="orientation">
+                                   <enum>Qt::Orientation::Vertical</enum>
+                                  </property>
+                                  <property name="sizeType">
+                                   <enum>QSizePolicy::Policy::Fixed</enum>
+                                  </property>
+                                  <property name="sizeHint" stdset="0">
+                                   <size>
+                                    <width>20</width>
+                                    <height>40</height>
+                                   </size>
+                                  </property>
+                                 </spacer>
                                 </item>
                                 <item>
                                  <widget class="QFrame" name="frame_5">
@@ -7802,7 +7818,7 @@ qproperty-alignment: AlignCenter;
 </string>
                                  </property>
                                  <property name="text">
-                                  <string>Outdoor Room</string>
+                                  <string>Outdoor Conditions</string>
                                  </property>
                                  <property name="alignment">
                                   <set>Qt::AlignmentFlag::AlignCenter</set>

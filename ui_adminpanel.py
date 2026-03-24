@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'adminpanelGpksKT.ui'
+## Form generated from reading UI file 'adminpanelEZGgDC.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -445,7 +445,6 @@ class Ui_MainWindow(object):
 "    border-radius: 8px;\n"
 "    padding: 6px 10px;\n"
 "    border: 1px solid #33A1E0;\n"
-"    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);\n"
 "    qproperty-alignment: AlignCenter; /* biar teks di tengah */\n"
 "    /* Tambahan pengaturan ukuran */\n"
 "    min-width: 500px;    /* lebar minimum */\n"
@@ -530,7 +529,7 @@ class Ui_MainWindow(object):
         self.frameAccounts = QFrame(self.infoaccountFrame)
         self.frameAccounts.setObjectName(u"frameAccounts")
         self.frameAccounts.setStyleSheet(u"")
-        self.frameAccounts.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameAccounts.setFrameShape(QFrame.Shape.NoFrame)
         self.verticalLayoutAccounts = QVBoxLayout(self.frameAccounts)
         self.verticalLayoutAccounts.setSpacing(0)
         self.verticalLayoutAccounts.setObjectName(u"verticalLayoutAccounts")
@@ -559,7 +558,7 @@ class Ui_MainWindow(object):
 
         self.framePending = QFrame(self.infoaccountFrame)
         self.framePending.setObjectName(u"framePending")
-        self.framePending.setFrameShape(QFrame.Shape.StyledPanel)
+        self.framePending.setFrameShape(QFrame.Shape.NoFrame)
         self.verticalLayoutPending = QVBoxLayout(self.framePending)
         self.verticalLayoutPending.setSpacing(0)
         self.verticalLayoutPending.setObjectName(u"verticalLayoutPending")
@@ -586,7 +585,7 @@ class Ui_MainWindow(object):
 
         self.frameActive = QFrame(self.infoaccountFrame)
         self.frameActive.setObjectName(u"frameActive")
-        self.frameActive.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameActive.setFrameShape(QFrame.Shape.NoFrame)
         self.verticalLayoutActive = QVBoxLayout(self.frameActive)
         self.verticalLayoutActive.setSpacing(0)
         self.verticalLayoutActive.setObjectName(u"verticalLayoutActive")
@@ -613,7 +612,7 @@ class Ui_MainWindow(object):
 
         self.frameBlocked = QFrame(self.infoaccountFrame)
         self.frameBlocked.setObjectName(u"frameBlocked")
-        self.frameBlocked.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameBlocked.setFrameShape(QFrame.Shape.NoFrame)
         self.verticalLayoutBlocked = QVBoxLayout(self.frameBlocked)
         self.verticalLayoutBlocked.setSpacing(0)
         self.verticalLayoutBlocked.setObjectName(u"verticalLayoutBlocked")
@@ -640,7 +639,7 @@ class Ui_MainWindow(object):
 
         self.frameAdmins = QFrame(self.infoaccountFrame)
         self.frameAdmins.setObjectName(u"frameAdmins")
-        self.frameAdmins.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameAdmins.setFrameShape(QFrame.Shape.NoFrame)
         self.verticalLayoutAdmins = QVBoxLayout(self.frameAdmins)
         self.verticalLayoutAdmins.setSpacing(0)
         self.verticalLayoutAdmins.setObjectName(u"verticalLayoutAdmins")
@@ -672,7 +671,7 @@ class Ui_MainWindow(object):
         self.table_frame.setObjectName(u"table_frame")
         self.table_frame.setMinimumSize(QSize(1366, 596))
         self.table_frame.setMaximumSize(QSize(16777215, 16777215))
-        self.table_frame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.table_frame.setFrameShape(QFrame.Shape.NoFrame)
         self.table_frame.setFrameShadow(QFrame.Shadow.Raised)
         self.horizontalLayout_6 = QHBoxLayout(self.table_frame)
         self.horizontalLayout_6.setSpacing(0)

@@ -135,6 +135,11 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
+        # SEMENTARA: DRAG BG APP (seluruh background)
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+
         # TOGGLE LEFT MENU
         self.ui.toggleButton.clicked.connect(
             lambda: self.ui_functions.toggle_left_menu(self.ui.leftMenuBg)

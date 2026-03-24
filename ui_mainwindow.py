@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'ecolabsvNSfq.ui'
+## Form generated from reading UI file 'ecolabWqPhDw.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -431,7 +431,7 @@ class Ui_MainWindow(object):
         self.btn_monitoringsensor.setFont(font2)
         self.btn_monitoringsensor.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_monitoringsensor.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.btn_monitoringsensor.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-view-quilt.png);")
+        self.btn_monitoringsensor.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-cloudy.png);")
 
         self.verticalLayout_2.addWidget(self.btn_monitoringsensor)
 
@@ -443,7 +443,7 @@ class Ui_MainWindow(object):
         self.btn_smartsocket.setFont(font2)
         self.btn_smartsocket.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.btn_smartsocket.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.btn_smartsocket.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-chart.png)")
+        self.btn_smartsocket.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-input-power.png);")
 
         self.verticalLayout_2.addWidget(self.btn_smartsocket)
 
@@ -3423,7 +3423,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_32.setContentsMargins(0, 0, 0, 0)
         self.frameIndoor = QFrame(self.frame_3)
         self.frameIndoor.setObjectName(u"frameIndoor")
-        self.frameIndoor.setMaximumSize(QSize(16777215, 550))
+        self.frameIndoor.setMaximumSize(QSize(16777215, 600))
         self.frameIndoor.setStyleSheet(u"#frameIndoor {\n"
 "    background-color: #EDF6FC;   /* biru sangat pucat */\n"
 "\n"
@@ -3494,6 +3494,10 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_51.addWidget(self.IndoorTitleFrame)
+
+        self.verticalSpacer_21 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+
+        self.verticalLayout_51.addItem(self.verticalSpacer_21)
 
         self.frame_5 = QFrame(self.frame_7)
         self.frame_5.setObjectName(u"frame_5")
@@ -7319,7 +7323,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -7332,7 +7336,7 @@ class Ui_MainWindow(object):
         self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
         self.btn_growatt.setText(QCoreApplication.translate("MainWindow", u"EcoLab Power Monitoring", None))
         self.btn_controlroom.setText(QCoreApplication.translate("MainWindow", u"Control Room", None))
-        self.btn_monitoringsensor.setText(QCoreApplication.translate("MainWindow", u"Monitoring Data", None))
+        self.btn_monitoringsensor.setText(QCoreApplication.translate("MainWindow", u"Environment Monitoring", None))
         self.btn_smartsocket.setText(QCoreApplication.translate("MainWindow", u"Smart Socket", None))
         self.btn_setting.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
@@ -7410,13 +7414,13 @@ class Ui_MainWindow(object):
         self.btn_cool_ac.setText(QCoreApplication.translate("MainWindow", u"COOL", None))
         self.btn_fan_ac.setText(QCoreApplication.translate("MainWindow", u"FAN", None))
         self.statusmcuB.setText(QCoreApplication.translate("MainWindow", u"MCU B: Online", None))
-        self.titlemonitoring.setText(QCoreApplication.translate("MainWindow", u"Monitoring Sensor: Indoor Room and Weather Station", None))
-        self.titleIndoor.setText(QCoreApplication.translate("MainWindow", u"Indoor Room", None))
+        self.titlemonitoring.setText(QCoreApplication.translate("MainWindow", u"Sensor Monitoring: Indoor & Weather Station", None))
+        self.titleIndoor.setText(QCoreApplication.translate("MainWindow", u"Indoor Conditions", None))
         self.titleSuhuIndoor.setText(QCoreApplication.translate("MainWindow", u"Temperature", None))
         self.tempIndoor_value.setText(QCoreApplication.translate("MainWindow", u"0.0\u00b0C", None))
         self.titleHumidIndoor.setText(QCoreApplication.translate("MainWindow", u"Humidity", None))
         self.humidIndoor_value.setText(QCoreApplication.translate("MainWindow", u"0%", None))
-        self.titleOutdoor.setText(QCoreApplication.translate("MainWindow", u"Outdoor Room", None))
+        self.titleOutdoor.setText(QCoreApplication.translate("MainWindow", u"Outdoor Conditions", None))
         self.titletempW.setText(QCoreApplication.translate("MainWindow", u"Temperature", None))
         self.tempW_value.setText(QCoreApplication.translate("MainWindow", u"0.0\u00b0C", None))
         self.titlehumidw.setText(QCoreApplication.translate("MainWindow", u"Humidity", None))

@@ -708,7 +708,6 @@ QScrollBar::sub-line:horizontal {
     border-radius: 8px;
     padding: 6px 10px;
     border: 1px solid #33A1E0;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
     qproperty-alignment: AlignCenter; /* biar teks di tengah */
     /* Tambahan pengaturan ukuran */
     min-width: 500px;    /* lebar minimum */
@@ -850,7 +849,7 @@ QPushButton:hover {
                 <string notr="true"/>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutAccounts">
                 <property name="spacing">
@@ -906,7 +905,7 @@ QPushButton:hover {
              <item>
               <widget class="QFrame" name="framePending">
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutPending">
                 <property name="spacing">
@@ -962,7 +961,7 @@ QPushButton:hover {
              <item>
               <widget class="QFrame" name="frameActive">
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutActive">
                 <property name="spacing">
@@ -1018,7 +1017,7 @@ QPushButton:hover {
              <item>
               <widget class="QFrame" name="frameBlocked">
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutBlocked">
                 <property name="spacing">
@@ -1074,7 +1073,7 @@ QPushButton:hover {
              <item>
               <widget class="QFrame" name="frameAdmins">
                <property name="frameShape">
-                <enum>QFrame::Shape::StyledPanel</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayoutAdmins">
                 <property name="spacing">
@@ -1145,7 +1144,7 @@ QPushButton:hover {
              </size>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Shape::StyledPanel</enum>
+             <enum>QFrame::Shape::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Shadow::Raised</enum>
