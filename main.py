@@ -36,6 +36,16 @@ from backend.acbutton_backend import ACButtonBackend
 from backend.growatt_worker import GrowattWorker
 from backend.mcu_status_backend import MCUStatusBackend
 
+# ============================================================
+# MQTT TLS CONFIGURATION
+# ============================================================
+MQTT_BROKER = "DESKTOP-CVPE153"
+MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
+MQTT_USERNAME = "dashboard"
+MQTT_PASSWORD = "ecolab123"
+MQTT_CA_CERT = r"C:\Program Files\Mosquitto\certs\ca.crt"
+MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
+
 # Class untuk mengatur Hari dan Waktu
 class Date:
     def update_time(self, label: QLabel):
@@ -91,8 +101,16 @@ class MainWindow(QMainWindow):
         # BACKEND: WEATHER CLOUD
         self.weather = WeatherCloudBackend("5476957392")
 
-        # MQTT CORE & BACKENDS
-        self.mqtt = MqttClient()
+        # MQTT CORE & BACKEND (with TLS support)
+        self.mqtt = MqttClient(
+            broker=MQTT_BROKER,
+            port=MQTT_PORT,
+            username=MQTT_USERNAME,
+            password=MQTT_PASSWORD,
+            ca_cert_path=MQTT_CA_CERT,
+            use_tls=MQTT_USE_TLS,
+            logger=self.log
+        )
         self.mqtt.start()
 
         self.dht = DHT22MQTTBackend(self.mqtt)

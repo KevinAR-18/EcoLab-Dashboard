@@ -6,14 +6,14 @@ class ACButtonBackend:
     - Hanya publish command AC
     """
 
-    TOPIC_AC = "mcuB/ac"
-    STATE_TOPIC = "ui/mcuB/ac/state"
+    TOPIC_AC = "ecolab/mcuB/ac/control"
+    STATUS_TOPIC = "ecolab/mcuB/ac/status"
 
     def __init__(self, mqtt_client, logger=None):
         self.mqtt = mqtt_client
         self.logger = logger
-        self.state = {}
-        
+        self.state = None
+
     def temp_up(self):
         self.mqtt.publish(self.TOPIC_AC, "TEMP_UP")
         print(f"[MQTT] {self.TOPIC_AC} -> TEMP_UP")
@@ -39,21 +39,26 @@ class ACButtonBackend:
             self.logger(f"[MQTT] {self.TOPIC_AC} -> MODE_FAN")
 
     def start(self):
-        self.mqtt.subscribe("ui/mcuB/ac/state", self._on_state)
+        # Subscribe ke status AC dari MCU (Opsi 1: MCU Source of Truth)
+        self.mqtt.subscribe(self.STATUS_TOPIC, self._on_status)
 
     def power(self, state: bool):
+        """
+        Publish command ke MCU
+        Topic: ecolab/mcuB/ac/control
+        Payload: ON/OFF
+        """
         payload = "ON" if state else "OFF"
-
-        # command ke MCU
-        self.mqtt.publish("mcuB/ac", payload)
-
-        # 🔥 STATE UI (retain)
-        self.mqtt.publish("ui/mcuB/ac/state", payload, retain=True)
+        self.mqtt.publish(self.TOPIC_AC, payload)
 
         self.state = state
 
         if self.logger:
-            self.logger(f"[AC STATE] {state}")
+            self.logger(f"[AC] {self.TOPIC_AC} -> {payload}")
 
-    def _on_state(self, client, userdata, msg):
+    def _on_status(self, client, userdata, msg):
+        """
+        Terima status dari MCU
+        Topic: ecolab/mcuB/ac/status
+        """
         self.state = msg.payload.decode() == "ON"

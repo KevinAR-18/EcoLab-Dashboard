@@ -11,10 +11,10 @@ class DHT22MQTTBackend:
     - Data diambil lewat fetch()
     """
 
-    TOPIC_TEMP_A = "mcuA/dht/temperature"
-    TOPIC_HUM_A  = "mcuA/dht/humidity"
-    TOPIC_TEMP_B = "mcuB/dht/temperature"
-    TOPIC_HUM_B  = "mcuB/dht/humidity"
+    TOPIC_TEMP_A = "ecolab/mcuA/dht/temperature"
+    TOPIC_HUM_A  = "ecolab/mcuA/dht/humidity"
+    TOPIC_TEMP_B = "ecolab/mcuB/dht/temperature"
+    TOPIC_HUM_B  = "ecolab/mcuB/dht/humidity"
 
     def __init__(self, mqtt_client):
         # MQTT core (shared)

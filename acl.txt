@@ -1,0 +1,172 @@
+# ============================================================
+# EcoLab MQTT ACL Configuration
+# Broker: Mosquitto
+# ============================================================
+
+# ------------------------------------------------------------
+# FULL ACCESS USERS
+# ------------------------------------------------------------
+user dashboard
+topic readwrite ecolab/#
+
+user aiasisten
+topic readwrite ecolab/#
+
+# ------------------------------------------------------------
+# MCU A - Relay Lampu
+# ------------------------------------------------------------
+user mcua
+
+# ESP32 → GUI
+topic write ecolab/mcuA/status
+topic write ecolab/mcuA/dht/temperature
+topic write ecolab/mcuA/dht/humidity
+topic write ecolab/mcuA/lamp1/status
+topic write ecolab/mcuA/lamp2/status
+topic write ecolab/mcuA/lamp3/status
+topic write ecolab/mcuA/lamp4/status
+topic write ecolab/mcuA/lamp5/status
+
+# GUI → ESP32
+topic read ecolab/mcuA/lamp1/control
+topic read ecolab/mcuA/lamp2/control
+topic read ecolab/mcuA/lamp3/control
+topic read ecolab/mcuA/lamp4/control
+topic read ecolab/mcuA/lamp5/control
+
+# ------------------------------------------------------------
+# MCU B - AC Controller
+# ------------------------------------------------------------
+user mcub
+
+# ESP32 → GUI
+topic write ecolab/mcuB/status
+topic write ecolab/mcuB/dht/temperature
+topic write ecolab/mcuB/dht/humidity
+topic write ecolab/mcuB/ac/status
+
+# GUI → ESP32
+topic read ecolab/mcuB/ac/control
+
+# ------------------------------------------------------------
+# SMART SOCKET 1
+# ------------------------------------------------------------
+user smartsocket1
+
+# GUI → ESP32
+topic read ecolab/socket/1/control
+topic read ecolab/socket/1/schedule/start
+topic read ecolab/socket/1/schedule/stop
+topic read ecolab/socket/1/timer
+
+# ESP32 → GUI
+topic write ecolab/socket/1/relaystatus
+topic write ecolab/socket/1/schedule/status
+topic write ecolab/socket/1/schedule/mode
+topic write ecolab/socket/1/timer/status
+topic write ecolab/socket/1/devicestatus
+topic write ecolab/socket/1/energy
+topic write ecolab/socket/1/datetime/status
+
+# ------------------------------------------------------------
+# SMART SOCKET 2
+# ------------------------------------------------------------
+user smartsocket2
+
+# GUI → ESP32
+topic read ecolab/socket/2/control
+topic read ecolab/socket/2/schedule/start
+topic read ecolab/socket/2/schedule/stop
+topic read ecolab/socket/2/timer
+
+# ESP32 → GUI
+topic write ecolab/socket/2/relaystatus
+topic write ecolab/socket/2/schedule/status
+topic write ecolab/socket/2/schedule/mode
+topic write ecolab/socket/2/timer/status
+topic write ecolab/socket/2/devicestatus
+topic write ecolab/socket/2/energy
+topic write ecolab/socket/2/datetime/status
+
+# ------------------------------------------------------------
+# SMART SOCKET 3
+# ------------------------------------------------------------
+user smartsocket3
+
+# GUI → ESP32
+topic read ecolab/socket/3/control
+topic read ecolab/socket/3/schedule/start
+topic read ecolab/socket/3/schedule/stop
+topic read ecolab/socket/3/timer
+
+# ESP32 → GUI
+topic write ecolab/socket/3/relaystatus
+topic write ecolab/socket/3/schedule/status
+topic write ecolab/socket/3/schedule/mode
+topic write ecolab/socket/3/timer/status
+topic write ecolab/socket/3/devicestatus
+topic write ecolab/socket/3/energy
+topic write ecolab/socket/3/datetime/status
+
+# ------------------------------------------------------------
+# SMART SOCKET 4
+# ------------------------------------------------------------
+user smartsocket4
+
+# GUI → ESP32
+topic read ecolab/socket/4/control
+topic read ecolab/socket/4/schedule/start
+topic read ecolab/socket/4/schedule/stop
+topic read ecolab/socket/4/timer
+
+# ESP32 → GUI
+topic write ecolab/socket/4/relaystatus
+topic write ecolab/socket/4/schedule/status
+topic write ecolab/socket/4/schedule/mode
+topic write ecolab/socket/4/timer/status
+topic write ecolab/socket/4/devicestatus
+topic write ecolab/socket/4/energy
+topic write ecolab/socket/4/datetime/status
+
+# ------------------------------------------------------------
+# SMART SOCKET 5
+# ------------------------------------------------------------
+user smartsocket5
+
+# GUI → ESP32
+topic read ecolab/socket/5/control
+topic read ecolab/socket/5/schedule/start
+topic read ecolab/socket/5/schedule/stop
+topic read ecolab/socket/5/timer
+
+# ESP32 → GUI
+topic write ecolab/socket/5/relaystatus
+topic write ecolab/socket/5/schedule/status
+topic write ecolab/socket/5/schedule/mode
+topic write ecolab/socket/5/timer/status
+topic write ecolab/socket/5/devicestatus
+topic write ecolab/socket/5/energy
+topic write ecolab/socket/5/datetime/status
+
+# ------------------------------------------------------------
+# PORTABLE RASPBERRY (Limited Access)
+# ------------------------------------------------------------
+user portableraspberry
+
+# Raspberry → ESP32 (Lamp Control)
+topic write ecolab/mcuA/lamp1/control
+topic write ecolab/mcuA/lamp2/control
+topic write ecolab/mcuA/lamp3/control
+topic write ecolab/mcuA/lamp4/control
+topic write ecolab/mcuA/lamp5/control
+topic write ecolab/mcuB/ac/control
+
+# ESP32 → Raspberry (Status)
+topic read ecolab/mcuA/lamp1/status
+topic read ecolab/mcuA/lamp2/status
+topic read ecolab/mcuA/lamp3/status
+topic read ecolab/mcuA/lamp4/status
+topic read ecolab/mcuA/lamp5/status
+topic read ecolab/mcuA/status
+topic read ecolab/mcuB/ac/status
+topic read ecolab/mcuB/status

@@ -1,6 +1,6 @@
 class MCUStatusBackend:
-    TOPIC_MCU_A = "mcuA/status"
-    TOPIC_MCU_B = "mcuB/status"
+    TOPIC_MCU_A = "ecolab/mcuA/status"
+    TOPIC_MCU_B = "ecolab/mcuB/status"
 
     def __init__(self, mqtt):
         self.mqtt = mqtt
