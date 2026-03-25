@@ -26,6 +26,7 @@ from switch_setup import SwitchSetup
 from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
 from smartsocket_popup import SmartSocketPopup
+from smartsocket_setup import SmartSocketSetup
 
 from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
@@ -36,6 +37,7 @@ from backend.lampbutton_backend import LampButtonBackend
 from backend.acbutton_backend import ACButtonBackend
 from backend.growatt_worker import GrowattWorker
 from backend.mcu_status_backend import MCUStatusBackend
+from backend.smartsocket_backend import SmartSocketManager
 
 # ============================================================
 # MQTT TLS CONFIGURATION
@@ -96,6 +98,9 @@ class MainWindow(QMainWindow):
         # SETUP SWITCH BUTTONS
         SwitchSetup.setup(self.ui, self)
 
+        # SETUP SMART SOCKET (Backend akan di-connect setelah MQTT start)
+        QTimer.singleShot(1000, lambda: SmartSocketSetup.setup(self))
+
         # BACKEND: GROWATT
         self.growatt = GrowattBackend()
         self.growatt_worker = None
@@ -124,6 +129,13 @@ class MainWindow(QMainWindow):
         self.lampbutton_backend.status_changed.connect(self._on_lamp_status_changed)
         self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
         self.acbutton_backend.status_changed.connect(self._on_ac_status_changed)
+
+        # BACKEND: SMART SOCKET
+        self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
+        self.smartsocket_manager.start()
+
+        # Setup SmartSocket langsung (tanpa delay)
+        SmartSocketSetup.setup(self)
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
 
 
@@ -683,9 +695,36 @@ class MainWindow(QMainWindow):
 
     def on_switch_toggled(self, switch_index: int, state: bool):
         """Handler saat switch button ditekan"""
+        print(f"[DEBUG] Switch {switch_index} toggled: {state}")  # Debug print
         self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
-        # TODO: Kirim command ke MQTT/relay sesuai kebutuhan
-        # self.relay_backend.publish(switch_index, state)
+
+        # Debug: Cek apakah socket_backends ada
+        print(f"[DEBUG] hasattr(self, 'socket_backends'): {hasattr(self, 'socket_backends')}")
+        if hasattr(self, 'socket_backends'):
+            print(f"[DEBUG] socket_backends: {self.socket_backends}")
+            print(f"[DEBUG] switch_index {switch_index} in socket_backends: {switch_index in self.socket_backends}")
+
+        # Kirim command ke SmartSocket backend
+        if hasattr(self, 'socket_backends') and switch_index in self.socket_backends:
+            backend = self.socket_backends[switch_index]
+            print(f"[DEBUG] Backend found: {backend}")  # Debug print
+            backend.set_relay(state)
+            self.log(f"[Socket {switch_index}] Relay command sent: {state}")
+        else:
+            print(f"[DEBUG] Backend NOT found!")  # Debug print
+            self.log(f"[WARNING] Socket {switch_index} backend not ready yet!")
+            # Tampilkan pesan ke user yang lebih jelas
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                self,
+                "Smart Socket Not Ready",
+                f"⚠️ Smart Socket {switch_index} backend belum siap.\n\n"
+                f"MQTT mungkin sedang menghubungkan...\n"
+                f"Tunggu 2-3 detik setelah aplikasi terbuka, lalu coba lagi.\n\n"
+                f"Pastikan:\n"
+                f"• MQTT Broker (Mosquitto) sudah jalan\n"
+                f"• Simulator smartsocket_simulator.py sudah berjalan"
+            )
 
     def ac_temp_up(self):
         self.acbutton_backend.temp_up()
@@ -1092,7 +1131,8 @@ class MainWindow(QMainWindow):
     def open_smartsocket_popup(self, socket_number):
         """Buka popup kontrol Smart Socket"""
         try:
-            popup = SmartSocketPopup(socket_number, self)
+            backend = self.smartsocket_manager.get_backend(socket_number)
+            popup = SmartSocketPopup(socket_number, backend, self)
             popup.exec()  # Modal dialog
 
         except Exception as e:
@@ -1145,12 +1185,146 @@ class MainWindow(QMainWindow):
             if hasattr(self, "update_ac_status"):
                 self.update_ac_status(state)
 
+    # ================= SMART SOCKET HANDLERS =================
+    def _on_socket_relay_status(self, socket_number: int, state: bool):
+        """Update relay status UI untuk Smart Socket"""
+        if 1 <= socket_number <= 5:
+            # Update switch button state
+            if socket_number <= len(self.switches):
+                switch = self.switches[socket_number - 1]
+                switch.blockSignals(True)
+                switch.setOn(state)
+                switch.blockSignals(False)
+
+            # Update label status
+            label = getattr(self.ui, f"label_switch_status_value{socket_number}", None)
+            if label:
+                label.setText("ON" if state else "OFF")
+                label.setProperty("state", "on" if state else "off")
+                label.style().polish(label)
+
+            # Clear energy labels saat relay OFF
+            if not state:
+                self._clear_socket_energy_labels(socket_number)
+
+    def _on_socket_energy_data(self, socket_number: int, data: dict):
+        """Update energy data UI untuk Smart Socket - Hanya saat relay ON"""
+        if not data:
+            return
+
+        # Cek status relay dari switch button
+        if socket_number <= len(self.switches):
+            relay_on = self.switches[socket_number - 1].isOn()
+        else:
+            relay_on = False
+
+        # Get labels for this socket
+        voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
+        current_label = getattr(self.ui, f"label_current{socket_number}", None)
+        power_label = getattr(self.ui, f"label_power{socket_number}", None)
+        energy_label = getattr(self.ui, f"label_energy{socket_number}", None)
+        freq_label = getattr(self.ui, f"label_frequency{socket_number}", None)
+        pf_label = getattr(self.ui, f"label_powerfactor{socket_number}", None)
+
+        # Update labels HANYA saat relay ON
+        if relay_on:
+            if voltage_label:
+                voltage_label.setText(f"Voltage: {data.get('voltage', 0):.1f} V")
+            if current_label:
+                current_label.setText(f"Current: {data.get('current', 0):.3f} A")
+            if power_label:
+                power_label.setText(f"Power: {data.get('power', 0):.1f} W")
+            if energy_label:
+                energy_label.setText(f"Energy: {data.get('energy', 0):.3f} kWh")
+            if freq_label:
+                freq_label.setText(f"Frequency: {data.get('frequency', 0):.1f} Hz")
+            if pf_label:
+                pf_label.setText(f"PF: {data.get('pf', 0):.2f}")
+        else:
+            # Tampilkan "--" saat relay OFF
+            if voltage_label:
+                voltage_label.setText("Voltage: -- V")
+            if current_label:
+                current_label.setText("Current: -- A")
+            if power_label:
+                power_label.setText("Power: -- W")
+            if energy_label:
+                energy_label.setText("Energy: -- kWh")
+            if freq_label:
+                freq_label.setText("Frequency: -- Hz")
+            if pf_label:
+                pf_label.setText("PF: --")
+
+    def _clear_socket_energy_labels(self, socket_number: int):
+        """Clear energy labels saat relay OFF"""
+        voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
+        current_label = getattr(self.ui, f"label_current{socket_number}", None)
+        power_label = getattr(self.ui, f"label_power{socket_number}", None)
+        energy_label = getattr(self.ui, f"label_energy{socket_number}", None)
+        freq_label = getattr(self.ui, f"label_frequency{socket_number}", None)
+        pf_label = getattr(self.ui, f"label_powerfactor{socket_number}", None)
+
+        if voltage_label:
+            voltage_label.setText("Voltage: -- V")
+        if current_label:
+            current_label.setText("Current: -- A")
+        if power_label:
+            power_label.setText("Power: -- W")
+        if energy_label:
+            energy_label.setText("Energy: -- kWh")
+        if freq_label:
+            freq_label.setText("Frequency: -- Hz")
+        if pf_label:
+            pf_label.setText("PF: --")
+
+    def _on_socket_timer_status(self, socket_number: int, status: str):
+        """Update timer status UI untuk Smart Socket"""
+        label = getattr(self.ui, f"label_timer_status{socket_number}", None)
+        if label:
+            label.setText(status)
+
+    def _on_socket_schedule_status(self, socket_number: int, status: str):
+        """Update schedule status UI untuk Smart Socket"""
+        import json
+        try:
+            data = json.loads(status)
+            mode = data.get("mode", "N/A")
+            start = data.get("start", "N/A")
+            stop = data.get("stop", "N/A")
+
+            if start and stop:
+                status_text = f"{mode.capitalize()}: {start}-{stop}"
+            elif start:
+                status_text = f"Start: {start}"
+            elif stop:
+                status_text = f"Stop: {stop}"
+            else:
+                status_text = "Not Set"
+        except:
+            status_text = status
+
+        label = getattr(self.ui, f"label_scheduling_status{socket_number}", None)
+        if label:
+            label.setText(status_text)
+
+    def _on_socket_device_status(self, socket_number: int, online: bool):
+        """Update device status UI untuk Smart Socket"""
+        label = getattr(self.ui, f"statussocket{socket_number}", None)
+        if label:
+            label.setText("Status Device: Online" if online else "Status Device: Offline")
+            label.setProperty("state", "on" if online else "off")
+            label.style().polish(label)
+
     def sync_ui_from_mqtt(self):
         # sinkron lampu
         self.update_lamp_ui_from_state()
 
         # sinkron AC
         self.update_ac_ui_from_state()
+
+        # Initialize Smart Socket energy labels to "--"
+        for i in range(1, 6):
+            self._clear_socket_energy_labels(i)
 
     def _safe_energy_value(self, value, max_limit=100000):
         """

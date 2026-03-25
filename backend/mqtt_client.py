@@ -30,6 +30,7 @@ class MqttClient:
         self.port = port
         self.logger = logger
         self._subscriptions = []
+        self._handlers = {}  # Handlers untuk routing messages
 
         # Create MQTT client
         self.client = mqtt.Client()
@@ -56,6 +57,7 @@ class MqttClient:
             self._log(f"[MQTT CORE] Plain MQTT (port {port})")
 
         self.client.on_connect = self._on_connect
+        self.client.on_message = self._on_message
 
     def _log(self, message):
         """Helper untuk logging"""
@@ -122,4 +124,28 @@ class MqttClient:
         except Exception as e:
             self._log(f"[MQTT ERROR] Publish failed: {e}")
 
+    def register_handler(self, name, handler):
+        """
+        Register message handler untuk routing pesan
+
+        Args:
+            name: Nama handler (untuk identifikasi)
+            handler: Function dengan signature (topic, payload)
+        """
+        self._handlers[name] = handler
+        self._log(f"[MQTT CORE] Registered handler: {name}")
+
+    def _on_message(self, client, userdata, msg):
+        """
+        Global message callback - route ke semua handlers yang terdaftar
+        """
+        topic = msg.topic
+        payload = msg.payload.decode()
+
+        # Route ke semua handlers yang terdaftar
+        for name, handler in self._handlers.items():
+            try:
+                handler(topic, payload)
+            except Exception as e:
+                self._log(f"[MQTT ERROR] Handler {name} failed: {e}")
 

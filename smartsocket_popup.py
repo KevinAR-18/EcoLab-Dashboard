@@ -4,9 +4,10 @@ from ui_smartsocket_popup import Ui_SmartSocketPopup
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
-    def __init__(self, socket_number, parent=None):
+    def __init__(self, socket_number, backend, parent=None):
         super().__init__(parent)
         self.socket_number = socket_number
+        self.backend = backend  # SmartSocketBackend instance
         self.setupUi(self)
 
         # Set borderless window with rounded corners
@@ -69,8 +70,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         if duration.isdigit():
             self.label_timer_status.setText(f"Status: Starting {duration}s timer...")
             self.label_timer_status.setStyleSheet("color: blue; font-weight: bold;")
-            # TODO: Send MQTT command later
-            print(f"[Socket {self.socket_number}] Start Timer: {duration}s")
+            # Send MQTT command
+            self.backend.set_timer(int(duration))
         else:
             self.label_timer_status.setText("Status: Invalid input!")
             self.label_timer_status.setStyleSheet("color: red;")
@@ -79,8 +80,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         """Handle Cancel Timer button click"""
         self.label_timer_status.setText("Status: Cancelling...")
         self.label_timer_status.setStyleSheet("color: orange; font-weight: bold;")
-        # TODO: Send MQTT command later
-        print(f"[Socket {self.socket_number}] Cancel Timer")
+        # Send MQTT command
+        self.backend.cancel_timer()
 
     # ================= SCHEDULE HANDLERS =================
     def on_set_schedule(self):
@@ -115,8 +116,12 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         self.label_schedule_status.setStyleSheet("color: blue; font-weight: bold;")
 
-        # TODO: Send MQTT commands later
-        print(f"[Socket {self.socket_number}] Set Schedule: {start_time} - {stop_time} ({mode})")
+        # Send MQTT commands
+        self.backend.set_schedule_mode(mode)
+        if start_time:
+            self.backend.set_schedule_start(start_time)
+        if stop_time:
+            self.backend.set_schedule_stop(stop_time)
 
     def on_clear_schedule(self):
         """Handle Clear Schedule button click"""
@@ -127,8 +132,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.label_schedule_status.setText("Status: Clearing...")
         self.label_schedule_status.setStyleSheet("color: orange; font-weight: bold;")
 
-        # TODO: Send MQTT command later
-        print(f"[Socket {self.socket_number}] Clear Schedule")
+        # Send MQTT command
+        self.backend.clear_schedule()
 
     # ================= HELPER FUNCTIONS =================
     def validate_time_format(self, time_str):

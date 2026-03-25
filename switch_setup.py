@@ -43,6 +43,7 @@ class SwitchSetup:
             main_window.switches.append(switch)
 
             # Connect signal
+            # Signal: toggled(switch_index, state) → idx, state
             switch.toggled.connect(
-                lambda state, idx=i: main_window.on_switch_toggled(idx, state)
+                lambda idx, state: main_window.on_switch_toggled(idx, state)
             )
