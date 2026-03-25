@@ -1129,11 +1129,34 @@ class MainWindow(QMainWindow):
             )
 
     def open_smartsocket_popup(self, socket_number):
-        """Buka popup kontrol Smart Socket"""
+        """Buka popup kontrol Smart Socket - Cegah popup ganda"""
+        # Cek apakah popup untuk socket ini sudah terbuka
+        popup_attr = f"_socket{socket_number}_popup"
+
+        if hasattr(self, popup_attr):
+            existing_popup = getattr(self, popup_attr)
+            # Jika popup masih ada dan visible, fokus ke popup yang sudah ada
+            try:
+                if existing_popup.isVisible():
+                    existing_popup.raise_()  # Bawa popup ke front
+                    existing_popup.activateWindow()  # Aktifkan window
+                    return  # Jangan buka popup baru
+            except:
+                # Popup sudah dihancurkan, hapus referensi
+                delattr(self, popup_attr)
+
         try:
             backend = self.smartsocket_manager.get_backend(socket_number)
             popup = SmartSocketPopup(socket_number, backend, self)
+
+            # Simpan referensi popup
+            setattr(self, popup_attr, popup)
+
             popup.exec()  # Modal dialog
+
+            # Hapus referensi setelah popup ditutup
+            if hasattr(self, popup_attr):
+                delattr(self, popup_attr)
 
         except Exception as e:
             QMessageBox.critical(
