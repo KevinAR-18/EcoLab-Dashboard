@@ -4,6 +4,7 @@ EcoLab MCU B Simulator (Python)
 Menirukan ESP32 untuk kontrol AC + DHT
 
 - Subscribe: ecolab/mcuB/ac/control
+import os
 - Publish: ecolab/mcuB/ac/status
 - Publish: ecolab/mcuB/dht/temperature, ecolab/mcuB/dht/humidity
 - LWT: ecolab/mcuB/status

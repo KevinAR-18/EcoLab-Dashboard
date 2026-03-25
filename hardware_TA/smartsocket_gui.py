@@ -1,4 +1,5 @@
 import sys
+import os
 import json
 import ssl
 from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
@@ -15,7 +16,7 @@ PORT = 8883
 USERNAME = "dashboard"
 PASSWORD = "ecolab123"
 
-CA_CERT_PATH = r"C:\Program Files\Mosquitto\certs\ca.crt"
+CA_CERT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
 
 # MQTT Topics
 TOPIC_CONTROL = "ecolab/socket/1/control"

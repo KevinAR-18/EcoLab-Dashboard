@@ -46,7 +46,7 @@ MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab123"
-MQTT_CA_CERT = r"C:\Program Files\Mosquitto\certs\ca.crt"
+MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca.crt")
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu

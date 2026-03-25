@@ -1,0 +1,384 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                  PANDUAN GITHUB - KOMPUTER KEDUA                            ║
+║           Menghubungkan Komputer Baru ke GitHub (Akun Sama)                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 PERSIAPAN DI KOMPUTER KEDUA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. INSTALL GIT (jika belum ada)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Windows:
+   • Download: https://git-scm.com/download/win
+   • Install dengan opsi default
+
+   Atau pakai package manager:
+   • Winget: winget install Git.Git
+   • Chocolatey: choco install git
+
+
+2. SETUP KONFIGURASI GIT
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Buka terminal/command prompt dan jalankan:
+
+   git config --global user.name "Nama Anda"
+   git config --global user.email "email@example.com"
+
+   ⚠️  PENTING: Email harus sama dengan email GitHub Anda!
+
+
+3. PILIH METODE AUTENTIKASI
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │  OPSI 1: SSH KEY (RECOMMENDED - LEBIH AMAN & MUDAH)                 │
+   └─────────────────────────────────────────────────────────────────────┘
+
+   A. Generate SSH Key
+      ───────────────────────────────────────────────────────────────────
+
+      Jalankan di terminal:
+
+      ssh-keygen -t ed25519 -C "email@example.com"
+
+      • Tekan Enter terus (gunakan default location)
+      • Bisa isi passphrase atau biarkan kosong (tekan Enter)
+
+
+   B. Copy SSH Key Public
+      ───────────────────────────────────────────────────────────────────
+
+      Linux/Mac:
+      cat ~/.ssh/id_ed25519.pub
+
+      Windows (Git Bash/PowerShell):
+      cat ~/.ssh/id_ed25519.pub
+      # atau
+      type %USERPROFILE%\.ssh\id_ed25519.pub
+
+      Copy semua output (mulai dari "ssh-ed25519...")
+
+   C. Tambah SSH Key ke GitHub
+      ───────────────────────────────────────────────────────────────────
+
+      1. Buka https://github.com dan login
+      2. Klik profile picture → Settings
+      3. Di menu kiri, klik "SSH and GPG keys"
+      4. Klik tombol "New SSH key"
+      5. Title: isi nama komputer (contoh: "PC-Laptop-ASUS")
+      6. Key type: Authentication Key
+      7. Paste SSH key yang tadi di-copy
+      8. Klik "Add SSH key"
+
+   D. Test Koneksi
+      ───────────────────────────────────────────────────────────────────
+
+      Jalankan di terminal:
+
+      ssh -T git@github.com
+
+      Jika berhasil:
+      "Hi username! You've successfully authenticated..."
+      (pesan error tetap bisa berarti berhasil)
+
+   E. Clone Repository dengan SSH
+      ───────────────────────────────────────────────────────────────────
+
+      git clone git@github.com:username/repository.git
+
+
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │  OPSI 2: PERSONAL ACCESS TOKEN (PAT)                                │
+   └─────────────────────────────────────────────────────────────────────┘
+
+   A. Buat Personal Access Token di GitHub
+      ───────────────────────────────────────────────────────────────────
+
+      1. Buka https://github.com dan login
+      2. Klik profile picture → Settings
+      3. Di menu kiri, scroll ke "Developer settings"
+      4. Klik "Personal access tokens" → "Tokens (classic)"
+      5. Klik "Generate new token" → "Generate new token (classic)"
+      6. Isi:
+         • Note: "PC Kedua - tanggal"
+         • Expiration: pilih (atau No expiration)
+         • Checklist scopes:
+           ☑ repo
+           ☑ workflow
+           ☑ write:packages
+      7. Klik "Generate token"
+      8. ⚠️ COPY TOKEN dan simpan baik-baik (tidak akan muncul lagi!)
+
+   B. Clone Repository dengan HTTPS
+      ───────────────────────────────────────────────────────────────────
+
+      git clone https://github.com/username/repository.git
+
+      Saat push/pull:
+      • Username: github_username_anda
+      • Password: paste_TOKEN_disini (bukan password akun!)
+
+   C. Save Token di Git Credential Manager (Optional)
+      ───────────────────────────────────────────────────────────────────
+
+      Windows (Git Credential Manager):
+      Saat pertama push, Git akan minta username & password
+      Setelah berhasil, token akan disimpan otomatis
+
+      Linux/Mac:
+      git config --global credential.helper store
+      # Atau untuk cache (lebih aman):
+      git config --global credential.helper 'cache --timeout=3600'
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📥 CLONE REPOSITORY DI KOMPUTER KEDUA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Pilih salah satu (sesuai metode autentikasi):
+
+SSH:
+  git clone git@github.com:username/repository.git
+
+HTTPS:
+  git clone https://github.com/username/repository.git
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 SYNC WORK ANTAR KOMPUTER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WORKFLOW DI KOMPUTER KEDUA:
+
+1. SEBELUM MULAI KERJA (Pull dulu biar sinkron)
+   ────────────────────────────────────────────────────────────────────
+
+   git pull origin main
+
+   # Atau lebih aman dengan rebase:
+   git pull origin main --rebase
+
+
+2. SELAMA KERJA
+   ────────────────────────────────────────────────────────────────────
+
+   git add .
+   git commit -m "pesan commit"
+
+
+3. SETELAH SELESAI KERJA (Push ke GitHub)
+   ────────────────────────────────────────────────────────────────────
+
+   git push origin main
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  MENGHADAPI CONFLICT (Jika 2 komputer edit file yang sama)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Gejala:
+  git pull origin main
+  # ERROR: Automatic merge failed; fix conflicts...
+
+Solusi:
+
+OPSI 1: Manual Resolve
+────────────────────────────────────────────────────────────────────
+
+1. Jalankan:
+   git pull origin main
+
+2. Git akan menandai file yang conflict dengan "<<<<<<<"
+
+3. Buka file yang conflict, cari tanda:
+
+   <<<<<<< HEAD
+   kode dari komputer Anda
+   =======
+   kode dari GitHub
+   >>>>>>> main
+
+4. Edit manual, pilih yang benar, atau gabungkan:
+
+   def fungsi_saya():
+       # Pilih salah satu atau gabungkan
+       return nilai
+
+5. Hapus tanda conflict (<<<<<<<, =======, >>>>>>>)
+
+6. Stage dan commit:
+
+   git add .
+   git commit -m "Resolve merge conflict"
+
+7. Push:
+   git push origin main
+
+
+OPSI 2: Rebase (Lebih clean history)
+────────────────────────────────────────────────────────────────────
+
+git pull origin main --rebase
+
+# Jika ada conflict:
+1. Resolve conflict manual di file
+2. git add .
+3. git rebase --continue
+4. git push origin main
+
+
+OPSI 3: Force Push (Hati-hati! Jika Anda yakin versi Anda yang benar)
+────────────────────────────────────────────────────────────────────
+
+git push origin main --force
+
+⚠️  Hanya gunakan jika Anda tahu yang Anda lakukan!
+    Akan menimpa versi di GitHub!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔐 PERBANDINGAN METODE AUTENTIKASI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────┬───────────────────┬───────────────────┐
+│      FITUR         │  SSH KEY          │  PAT (TOKEN)      │
+├────────────────────┼───────────────────┼───────────────────┤
+│ Keamanan           │ ✅ Sangat Aman    │ ⚠️  Medium        │
+│ Kemudahan Setup    │ ✅ Mudah          │ ✅ Mudah          │
+│ Expired            │ ❌ Tidak Expired  │ ⚠️  Bisa Expired  │
+│ Password Prompt    │ ❌ Tidak Perlu    | ⚠️  Setiap Push   │
+│ Multi-Device       │ ✅ Banyak Device  │ ✅ Banyak Token   │
+└────────────────────┴───────────────────┴───────────────────┘
+
+🏆 REKOMENDASI: Gunakan SSH KEY!
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📝 TIPS & TRICKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. CEK STATUS GIT
+   ────────────────────────────────────────────────────────────────────
+
+   git status
+   # Lihat file apa saja yang berubah
+
+
+2. CEK REMOTE URL
+   ────────────────────────────────────────────────────────────────────
+
+   git remote -v
+   # Lihat URL repository (SSH/HTTPS)
+
+
+3. UBAH DARI HTTPS KE SSH
+   ────────────────────────────────────────────────────────────────────
+
+   git remote set-url origin git@github.com:username/repo.git
+
+
+4. CEK BRANCH
+   ────────────────────────────────────────────────────────────────────
+
+   git branch
+   # Lihat branch yang sedang aktif
+
+
+5. CEK COMMIT HISTORY
+   ────────────────────────────────────────────────────────────────────
+
+   git log --oneline --graph --all
+   # Tampilkan history dalam bentuk graph
+
+
+6. BATALKAN COMMIT (Sebelum Push)
+   ────────────────────────────────────────────────────────────────────
+
+   git reset HEAD~1
+   # Batalkan commit terakhir, tapi jaga perubahan
+
+
+7. BATALKAN PERUBAHAN FILE
+   ────────────────────────────────────────────────────────────────────
+
+   git restore nama_file.ext
+   # Kembalikan file ke kondisi terakhir commit
+
+
+8. IGNORE FILE (Jangan di-commit)
+   ────────────────────────────────────────────────────────────────────
+
+   Buat file ".gitignore":
+   __pycache__/
+   *.pyc
+   .env
+   session.json
+   node_modules/
+   etc...
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆘 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLEM: "Permission denied (publickey)"
+SOLUSI:
+  • SSH key belum ditambahkan ke GitHub
+  • SSH key belum ter-generate
+  • Test koneksi: ssh -T git@github.com
+
+
+PROBLEM: "Support for password authentication was removed"
+SOLUSI:
+  • GitHub tidak support password lagi
+  • Gunakan Personal Access Token (PAT)
+  • Atau gunakan SSH key
+
+
+PROBLEM: "Failed to connect to github.com"
+SOLUSI:
+  • Cek koneksi internet
+  • Cek proxy/firewall
+  • Coba ping github.com
+
+
+PROBLEM: "fatal: refusing to merge unrelated histories"
+SOLUSI:
+  git pull origin main --allow-unrelated-histories
+
+
+PROBLEM: "ERROR: Repository not found"
+SOLUSI:
+  • Cek URL repository: git remote -v
+  • Pastikan Anda punya akses ke repository
+  • Cek apakah repository private/benar
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 REFERENSI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• GitHub Docs: https://docs.github.com
+• Git Documentation: https://git-scm.com/doc
+• GitHub SSH Keys: https://docs.github.com/en/authentication/connecting-to-github-with-ssh
+• Git Handbook: https://guides.github.com/introduction/git-handbook/
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ CHECKLIST SEBELUM MULAI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+☑ Git sudah terinstall
+☑ Git config sudah di-set (name & email)
+☑ SSH key sudah di-generate
+☑ SSH key sudah ditambahkan ke GitHub
+☑ Koneksi SSH berhasil (ssh -T git@github.com)
+☑ Repository sudah di-clone
+☑ Bisa pull dari GitHub
+☑ Bisa push ke GitHub
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                              GOOD LUCK! 🚀
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

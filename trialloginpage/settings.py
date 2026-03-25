@@ -2,8 +2,9 @@ import os
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
-CLIENT_SECRET = BASE_DIR / "client_secret.json"
+BASE_DIR = Path(__file__).resolve().parent.parent
+CREDENTIALS_DIR = BASE_DIR / "credentials"
+CLIENT_SECRET = CREDENTIALS_DIR / "client_secret.json"
 
 _FIREBASE_DEFAULTS = {
     "apiKey": "AIzaSyDkca9-2rrP1_wetueUq-TbX-HTCrA_sCw",
@@ -25,7 +26,7 @@ _FIREBASE_ENV_MAP = {
     "appId": "TRIALLOGIN_FIREBASE_APP_ID",
 }
 
-_DEFAULT_ADMIN_SERVICE_ACCOUNT = BASE_DIR / "firebase_service_account.json"
+_DEFAULT_ADMIN_SERVICE_ACCOUNT = CREDENTIALS_DIR / "firebase_service_account.json"
 
 
 def get_firebase_config():

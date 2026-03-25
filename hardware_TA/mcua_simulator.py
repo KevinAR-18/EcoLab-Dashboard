@@ -4,6 +4,7 @@ EcoLab MCU A Simulator (Python)
 Menirukan Wemos D1 Mini untuk testing
 
 - Subscribe: ecolab/mcuA/lamp1-5/control
+import os
 - Publish: ecolab/mcuA/lamp1-5/status
 - Publish: ecolab/mcuA/dht/temperature, ecolab/mcuA/dht/humidity
 - LWT: ecolab/mcuA/status
