@@ -1,3 +1,6 @@
 
 List
-- Update Warna Status di Admin Panel
+- Update Warna Status di Admin Panel (cek ulang)
+- Pas One TIme Terus set schedule, Di Gui belum keupdate One Time statusnya
+- Tambah Program SmartScoket bisa nyimpen Settingan Jadwal pas kereset. jadi simpan di EEPROM
+- 
