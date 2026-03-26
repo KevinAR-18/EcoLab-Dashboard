@@ -1,0 +1,5 @@
+
+List
+- Login Page dan Pop Up Pilihan Admin/Dashboard, Pop Up Smart Socket jangan sampai terpengaruh Dark Mode Windows 11. 
+- Pop Up Action di Admin Panel dikasih Tombol Close atau ketika klik bagian luar pop up auto Close
+-
