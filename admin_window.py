@@ -57,10 +57,18 @@ class UserActionDialog(QDialog):
 
         layout = QVBoxLayout(container)
         layout.setContentsMargins(25, 20, 25, 20)
-        layout.setSpacing(12)
+
+        # Header with title and close button
+        header_layout = QHBoxLayout()
+        header_layout.setSpacing(10)
+
+        # Spacer untuk balance (sama lebar dengan close button)
+        left_spacer = QWidget()
+        left_spacer.setFixedSize(115, 25)
+        header_layout.addWidget(left_spacer)
 
         # Title
-        title = QLabel(f"User Actions: {self.user_data.get('username', 'N/A')}")
+        title = QLabel(f"User Actions ")
         title.setStyleSheet("""
             QLabel {
                 font-size: 14pt;
@@ -70,22 +78,62 @@ class UserActionDialog(QDialog):
             }
         """)
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title)
+        header_layout.addWidget(title)
 
-        # User info
-        info_text = f"Email: {self.user_data.get('email', 'N/A')}\nStatus: {self.user_data.get('status', 'N/A')}\nAuth: {self.user_data.get('auth_provider', 'N/A')}"
-        info = QLabel(info_text)
-        info.setStyleSheet("""
-            QLabel {
+        header_layout.addStretch()
+
+        # Close button (circular)
+        close_btn = QPushButton("X")
+        close_btn.setFixedSize(25, 25)
+        close_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        close_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #5A8BD8;
+                color: white;
+                border: none;
+                border-radius: 12px;
                 font-size: 10pt;
-                color: #4a647d;
-                background: transparent;
-                padding: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #4672C4;
+            }
+            QPushButton:pressed {
+                background-color: #3B5CA0;
             }
         """)
-        layout.addWidget(info)
+        close_btn.clicked.connect(self.reject)
+        header_layout.addWidget(close_btn)
 
-        layout.addSpacing(10)
+        layout.addLayout(header_layout)
+
+        # User info labels
+        info_na_txt = f"Name: {self.user_data.get('username', 'N/A')}"
+        info_na = QLabel(info_na_txt)
+        info_na.setStyleSheet("""
+            QLabel {
+                font-size: 10pt;
+                font-weight: 700;
+                color: #000000;
+                background: transparent;
+            }
+        """)
+        layout.addWidget(info_na)
+
+        info_usn_txt = f"Email: {self.user_data.get('email', 'N/A')}"
+        info_usn = QLabel(info_usn_txt)
+        info_usn.setStyleSheet("""
+            QLabel {
+                font-size: 10pt;
+                font-weight: 700;
+                color: #000000;
+                background: transparent;
+            }
+        """)
+        layout.addWidget(info_usn)
+        
+        layout.addSpacing(6)
+
 
         # Action buttons
         self.approve_btn = QPushButton("✅ Approve Account")
@@ -608,12 +656,18 @@ class AdminPanelWindow(QMainWindow):
             QMessageBox.critical(self, "Error", f"❌ Error performing action:\n{str(e)}")
 
     def go_back_to_selection(self):
-        """Kembali ke popup pilihan dashboard/admin panel"""
+        """Kembali ke dashboard utama (bukan ke popup selection)"""
         self.close()  # Close admin panel
 
-        # Show login window lagi
+        # Show dashboard utama langsung (bukan popup selection)
         if self.login_window:
-            self.login_window.show_admin_selection_dialog()
+            # Cek apakah login_window punya method show_admin_selection_dialog
+            if hasattr(self.login_window, 'show_admin_selection_dialog'):
+                # Ini masih di login page - tampilkan dialog selection
+                self.login_window.show_admin_selection_dialog()
+            else:
+                # Ini sudah di dashboard utama (MainWindow) - langsung show saja
+                self.login_window.show()
 
     def resource_path(self, relative_path):
         """ Mengonversi path relatif menjadi path absolut.
