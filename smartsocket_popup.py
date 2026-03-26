@@ -4,10 +4,11 @@ from ui_smartsocket_popup import Ui_SmartSocketPopup
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
-    def __init__(self, socket_number, backend, parent=None):
+    def __init__(self, socket_number, backend, main_window, parent=None):
         super().__init__(parent)
         self.socket_number = socket_number
         self.backend = backend  # SmartSocketBackend instance
+        self.main_window = main_window  # Reference ke MainWindow untuk simpan format
         self.setupUi(self)
 
         # Set borderless window with rounded corners
@@ -29,6 +30,21 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Set dynamic title based on socket number
         self.label_title.setText(f"⚡ Smart Socket {self.socket_number} Control")
+
+        # Set placeholder untuk input timer
+        self.input_timer_duration.setPlaceholderText("HH:MM:SS or seconds")
+
+        # Set tooltip untuk input timer
+        self.input_timer_duration.setToolTip(
+            "Timer Duration Format:\n"
+            "• HH:MM:SS → 01:30:00 = 1 jam 30 menit\n"
+            "• MM:SS → 05:30 = 5 menit 30 detik\n"
+            "• Seconds → 3600 = 3600 detik (1 jam)\n\n"
+            "Examples:\n"
+            "• 00:05:00 = 5 menit\n"
+            "• 01:00:00 = 1 jam\n"
+            "• 02:30:45 = 2 jam 30 menit 45 detik"
+        )
 
         # Connect buttons (placeholder functions for now)
         self.connect_buttons()
@@ -66,15 +82,90 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     # ================= TIMER HANDLERS =================
     def on_start_timer(self):
         """Handle Start Timer button click"""
-        duration = self.input_timer_duration.text()
-        if duration.isdigit():
-            self.label_timer_status.setText(f"Status: Starting {duration}s timer...")
+        duration_input = self.input_timer_duration.text().strip()
+
+        # Cek apakah input dalam format HH:MM:SS atau hanya detik
+        total_seconds = self.parse_timer_duration(duration_input)
+
+        if total_seconds is not None and total_seconds > 0:
+            # Tentukan format input
+            if ':' in duration_input:
+                format_type = "hms"  # Format jam:menit:detik
+                display_text = f"Status: Starting {duration_input} timer..."
+            else:
+                format_type = "seconds"  # Format detik saja
+                display_text = f"Status: Starting {total_seconds}s timer..."
+
+            # Simpan format di main window
+            if hasattr(self.main_window, 'socket_timer_formats'):
+                self.main_window.socket_timer_formats[self.socket_number] = format_type
+
+            self.label_timer_status.setText(display_text)
             self.label_timer_status.setStyleSheet("color: blue; font-weight: bold;")
-            # Send MQTT command
-            self.backend.set_timer(int(duration))
+            # Send MQTT command (total detik)
+            self.backend.set_timer(total_seconds)
         else:
-            self.label_timer_status.setText("Status: Invalid input!")
+            self.label_timer_status.setText("Status: Invalid input!\nUse HH:MM:SS or seconds")
             self.label_timer_status.setStyleSheet("color: red;")
+
+    def parse_timer_duration(self, duration_str):
+        """
+        Parse timer duration dari format HH:MM:SS, MM:SS, atau detik saja
+
+        Args:
+            duration_str: String durasi (HH:MM:SS, MM:SS, atau detik)
+
+        Returns:
+            Total detik (int) atau None jika invalid
+        """
+        duration_str = duration_str.strip()
+
+        # Cek format dengan titik dua (HH:MM:SS atau MM:SS)
+        if ':' in duration_str:
+            parts = duration_str.split(':')
+
+            if len(parts) == 3:
+                # Format HH:MM:SS
+                try:
+                    hours = int(parts[0])
+                    minutes = int(parts[1])
+                    seconds = int(parts[2])
+
+                    # Validasi range
+                    if hours >= 0 and minutes >= 0 and minutes <= 59 and seconds >= 0 and seconds <= 59:
+                        # Konversi ke total detik
+                        total = (hours * 3600) + (minutes * 60) + seconds
+                        return total if total > 0 else None
+                    else:
+                        return None
+                except ValueError:
+                    return None
+
+            elif len(parts) == 2:
+                # Format MM:SS (menit:detik)
+                try:
+                    minutes = int(parts[0])
+                    seconds = int(parts[1])
+
+                    # Validasi range
+                    if minutes >= 0 and seconds >= 0 and seconds <= 59:
+                        # Konversi ke total detik
+                        total = (minutes * 60) + seconds
+                        return total if total > 0 else None
+                    else:
+                        return None
+                except ValueError:
+                    return None
+
+            else:
+                return None
+        else:
+            # Format detik saja
+            try:
+                seconds = int(duration_str)
+                return seconds if seconds > 0 else None
+            except ValueError:
+                return None
 
     def on_cancel_timer(self):
         """Handle Cancel Timer button click"""

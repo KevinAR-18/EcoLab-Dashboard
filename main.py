@@ -134,6 +134,9 @@ class MainWindow(QMainWindow):
         self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
         self.smartsocket_manager.start()
 
+        # Simpan format timer per socket untuk display
+        self.socket_timer_formats = {}  # {socket_number: "hms" atau "seconds"}
+
         # Setup SmartSocket langsung (tanpa delay)
         SmartSocketSetup.setup(self)
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
@@ -1386,7 +1389,34 @@ class MainWindow(QMainWindow):
         """Update timer status UI untuk Smart Socket"""
         label = getattr(self.ui, f"label_timer_status{socket_number}", None)
         if label:
-            label.setText(status)
+            # Parse status dari backend: "ACTIVE:XXs" atau "INACTIVE"
+            if status.startswith("ACTIVE:"):
+                # Extract detik
+                seconds_str = status.replace("ACTIVE:", "").replace("s", "").strip()
+                try:
+                    remaining_seconds = int(seconds_str)
+
+                    # Cek format yang digunakan user
+                    format_type = self.socket_timer_formats.get(socket_number, "seconds")
+
+                    if format_type == "hms":
+                        # Konversi ke HH:MM:SS
+                        hours = remaining_seconds // 3600
+                        minutes = (remaining_seconds % 3600) // 60
+                        seconds = remaining_seconds % 60
+                        display_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+                        label.setText(f"Active: {display_time}")
+                    else:
+                        # Tampilkan dalam detik
+                        label.setText(f"Active: {remaining_seconds}s")
+
+                    # Jangan ubah warna - biarkan stylesheet asli
+                except ValueError:
+                    label.setText(status)
+            elif status == "INACTIVE":
+                label.setText("Inactive")
+            else:
+                label.setText(status)
 
     def _on_socket_schedule_status(self, socket_number: int, status: str):
         """Update schedule status UI untuk Smart Socket"""
