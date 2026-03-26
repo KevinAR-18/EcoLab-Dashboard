@@ -200,6 +200,10 @@ class AdminPanelWindow(QMainWindow):
 
         self.ui.contentTop.setContentsMargins(0, 0, 0, 0)
 
+        # FORCE LABEL COLORS - Prevent Dark Mode Windows 11 interference
+        # Set warna teks untuk label yang tidak punya color eksplisit
+        self._fix_label_colors()
+
         # WINDOW SETTINGS (SAMA SEPERTI MAIN.PY)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.Window)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -234,6 +238,27 @@ class AdminPanelWindow(QMainWindow):
 
         # Load data dari Firebase
         self.load_firebase_data()
+
+    def _fix_label_colors(self):
+        """
+        Force warna teks label untuk mencegah Dark Mode Windows 11 interference
+        Label yang tidak punya color eksplisit akan di-set ke hitam
+        """
+        # List label yang perlu di-fix (hanya punya font-size, tanpa color)
+        labels_to_fix = [
+            'labelAccountsText',  # "ACCOUNTS"
+            'labelPendingText',   # "PENDING"
+            'labelActiveText',    # "ACTIVE"
+            'labelBlockedText',   # "BLOCKED"
+            'labelAdminsText',    # "ADMINS"
+        ]
+
+        for label_name in labels_to_fix:
+            if hasattr(self.ui, label_name):
+                label = getattr(self.ui, label_name)
+                # Ambil style yang sudah ada, tambahkan color
+                current_style = label.styleSheet() or ""
+                label.setStyleSheet(f"{current_style} color: #000000;")
 
     def setup_clock_timer(self):
         """Setup timer untuk update jam setiap 1 detik"""
