@@ -65,7 +65,7 @@ class MainWindow(QMainWindow):
     logout_signal = Signal()
 
     # APP VERSION
-    APP_VERSION = "v2.0-beta"
+    APP_VERSION = "v2.0"
 
     def __init__(self, user_session=None):
         super().__init__()
