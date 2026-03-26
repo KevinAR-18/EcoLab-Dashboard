@@ -230,10 +230,15 @@ class LoginWindow(QMainWindow):
             self,
             "Guest Mode",
             "🎭 Welcome, Guest!\n\n"
-            "You are in Guest Viewer Mode.\n"
-            "• Limited access to dashboard\n"
-            "• Cannot modify settings\n"
-            "• Cannot access admin panel\n\n"
+            "You are in Guest Viewer Mode.\n\n"
+            "✅ Available Features (Monitoring Only):\n"
+            "• EcoLab Power Monitoring\n"
+            "• Monitoring Status Lampu dan AC\n"
+            "• Environment Monitoring\n"
+            "• Monitoring Status Smart Socket\n\n"
+            "❌ Restrictions:\n"
+            "• Cannot operate/modify any settings\n"
+            "• Read-only access\n\n"
             "Enjoy browsing! 👀"
         )
 

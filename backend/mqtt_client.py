@@ -148,4 +148,3 @@ class MqttClient:
                 handler(topic, payload)
             except Exception as e:
                 self._log(f"[MQTT ERROR] Handler {name} failed: {e}")
-

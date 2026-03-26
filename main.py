@@ -86,17 +86,17 @@ class MainWindow(QMainWindow):
         self.ui.logPlainEdit.setReadOnly(True)
         self._weather_initial_fetched = False
 
-        # Setup user features (Settings page)
-        if self.user_session:
-            self.setup_user_features()
-
-        # SETUP UI COMPONENTS (Lamp, AC, Arrow)
+        # SETUP UI COMPONENTS (Lamp, AC, Arrow) FIRST
         LampSetup.setup(self.ui, self)
         ACSetup.setup(self.ui, self)
         ArrowSetup.setup(self.ui, self)
 
         # SETUP SWITCH BUTTONS
         SwitchSetup.setup(self.ui, self)
+
+        # Setup user features (Settings page)
+        if self.user_session:
+            self.setup_user_features()
 
         # SETUP SMART SOCKET (Backend akan di-connect setelah MQTT start)
         QTimer.singleShot(1000, lambda: SmartSocketSetup.setup(self))
@@ -762,6 +762,9 @@ class MainWindow(QMainWindow):
     def update_mcu_status_ui(self):
         status = self.mcu_status.fetch()
 
+        # Cek apakah guest mode - JANGAN override guest settings!
+        is_guest = self.user_session.get("role") == "guest" if self.user_session else False
+
         # ===== MCU A =====
         if status["mcuA"] is not None:
             statemcuA = status["mcuA"]
@@ -773,14 +776,16 @@ class MainWindow(QMainWindow):
                 "state", "on" if statemcuA else "off"
             )
             self.ui.statusmcuA.style().polish(self.ui.statusmcuA)
-            
-            disabled_lamps = {4}
 
-            for idx, lamp in enumerate(self.lamps, start=1):
-                if idx in disabled_lamps:
-                    lamp.setEnabled(False)
-                else:
-                    lamp.setEnabled(statemcuA)
+            # Hanya update enabled state jika BUKAN guest mode
+            if not is_guest:
+                disabled_lamps = {4}
+
+                for idx, lamp in enumerate(self.lamps, start=1):
+                    if idx in disabled_lamps:
+                        lamp.setEnabled(False)
+                    else:
+                        lamp.setEnabled(statemcuA)
 
         # ===== MCU B =====
         if status["mcuB"] is not None:
@@ -793,9 +798,11 @@ class MainWindow(QMainWindow):
                 "state", "on" if statemcuB else "off"
             )
             self.ui.statusmcuB.style().polish(self.ui.statusmcuB)
-            
-            for btn in self.ac_buttons:
-                btn.setEnabled(statemcuB)
+
+            # Hanya update enabled state jika BUKAN guest mode
+            if not is_guest:
+                for btn in self.ac_buttons:
+                    btn.setEnabled(statemcuB)
     
     def update_temp_style(self, temperature, frame, title):
         if temperature is None:
@@ -1019,6 +1026,81 @@ class MainWindow(QMainWindow):
             self.ui.btnLogout.setEnabled(True)
             self.ui.btnLogout.setToolTip("")
             self.ui.btnLogout.clicked.connect(self.handle_logout)
+
+        # 6. Setup kontrol devices (Smart Socket, Lampu, AC)
+        self.setup_device_controls(is_guest)
+
+    def setup_device_controls(self, is_guest):
+        """Setup device controls berdasarkan user role (guest atau bukan)"""
+        if is_guest:
+            # GUEST: Disable semua kontrol devices (read-only mode)
+
+            # === SMART SOCKET ACTION BUTTONS ===
+            for i in range(1, 6):
+                action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
+                if action_btn:
+                    action_btn.setEnabled(False)
+                    action_btn.setToolTip("Not available in Guest Mode (Read-only)")
+
+            # === SMART SOCKET SWITCH BUTTONS ===
+            if hasattr(self, 'switches'):
+                for switch in self.switches:
+                    switch.setEnabled(False)
+                    switch.setToolTip("Not available in Guest Mode (Read-only)")
+
+            # === LAMP BUTTONS ===
+            if hasattr(self, 'lamps'):
+                for lamp in self.lamps:
+                    lamp.setEnabled(False)
+                    lamp.setToolTip("Not available in Guest Mode (Read-only)")
+
+            # === AC BUTTON ===
+            if hasattr(self, 'ac_button'):
+                self.ac_button.setEnabled(False)
+                self.ac_button.setToolTip("Not available in Guest Mode (Read-only)")
+
+            # === AC CONTROL BUTTONS ===
+            ac_control_buttons = ['btn_temp_up', 'btn_temp_down', 'btn_cool_ac', 'btn_fan_ac']
+            for btn_name in ac_control_buttons:
+                btn = getattr(self.ui, btn_name, None)
+                if btn:
+                    btn.setEnabled(False)
+                    btn.setToolTip("Not available in Guest Mode (Read-only)")
+        else:
+            # USER & ADMIN: Enable semua kontrol devices
+            # Smart Socket Action Buttons
+            for i in range(1, 6):
+                action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
+                if action_btn:
+                    action_btn.setEnabled(True)
+                    action_btn.setToolTip("")
+
+            # Smart Socket Switch Buttons
+            if hasattr(self, 'switches'):
+                for switch in self.switches:
+                    switch.setEnabled(True)
+                    switch.setToolTip("")
+
+            # Lamp Buttons
+            if hasattr(self, 'lamps'):
+                for lamp in self.lamps:
+                    # Lamp 4 tetap disabled (sesuai setup awal)
+                    if lamp != self.lamps[3]:  # Index 3 adalah Lamp 4
+                        lamp.setEnabled(True)
+                    lamp.setToolTip("")
+
+            # AC Button
+            if hasattr(self, 'ac_button'):
+                self.ac_button.setEnabled(True)
+                self.ac_button.setToolTip("")
+
+            # === AC CONTROL BUTTONS ===
+            ac_control_buttons = ['btn_temp_up', 'btn_temp_down', 'btn_cool_ac', 'btn_fan_ac']
+            for btn_name in ac_control_buttons:
+                btn = getattr(self.ui, btn_name, None)
+                if btn:
+                    btn.setEnabled(True)
+                    btn.setToolTip("")
 
     def load_user_profile(self):
         """Load username dan email ke Settings page"""

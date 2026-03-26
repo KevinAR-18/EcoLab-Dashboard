@@ -95,6 +95,10 @@ class LampButton(QWidget):
         return self._is_on
 
     def mousePressEvent(self, event):
+        # Cek apakah widget enabled sebelum proses event
+        if not self.isEnabled():
+            return
+
         if event.button() == Qt.LeftButton:
             self.setOn(not self._is_on)
         super().mousePressEvent(event)
@@ -103,6 +107,10 @@ class LampButton(QWidget):
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
+
+        # Jika disabled, set opacity untuk visual feedback
+        if not self.isEnabled():
+            p.setOpacity(0.4)  # 40% opacity saat disabled
 
         w, h = self.width(), self.height()
         cx = w // 2

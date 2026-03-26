@@ -2,7 +2,9 @@
 Admin Panel Window
 Window untuk menampilkan admin panel dengan tombol back
 """
+import os
 from PySide6.QtCore import Qt, QTimer, QDateTime, QCoreApplication
+from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtWidgets import (
     QMainWindow, QComboBox, QPushButton, QWidget, QVBoxLayout,
     QHBoxLayout, QLabel, QDialog, QInputDialog, QMessageBox,
@@ -203,6 +205,11 @@ class AdminPanelWindow(QMainWindow):
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setWindowTitle("EcoLab Admin Panel")
 
+        # Mengatur Icon Aplikasi
+        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.setWindowIcon(icon)
+
         # Connect signals
         self.ui.minimizeAppBtn.clicked.connect(self.showMinimized)
         self.ui.maximizeRestoreAppBtn.clicked.connect(self.ui_functions.toggle_max_restore)
@@ -321,6 +328,75 @@ class AdminPanelWindow(QMainWindow):
             role_combo.currentTextChanged.connect(
                 lambda text, uid=user["uid"]: self.on_role_changed(uid, text)
             )
+            role_combo.setStyleSheet("""
+                QComboBox {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f8f9fa, stop:1 #e9ecef);
+                    color: #495057;
+                    border: 2px solid #dee2e6;
+                    border-radius: 8px;
+                    padding: 6px 12px;
+                    font-size: 10pt;
+                    font-weight: 600;
+                    min-width: 80px;
+                }
+                QComboBox:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #ffffff, stop:1 #f1f3f5);
+                    border: 2px solid #adb5bd;
+                }
+                QComboBox:focus {
+                    border: 2px solid #74c0fc;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #ffffff, stop:1 #f8f9fa);
+                }
+                QComboBox::drop-down {
+                    subcontrol-origin: padding;
+                    subcontrol-position: right center;
+                    width: 30px;
+                    border: none;
+                    border-radius: 6px;
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #4dabf7, stop:1 #339af0);
+                    margin-right: 4px;
+                }
+                QComboBox::drop-down:hover {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #74c0fc, stop:1 #4dabf7);
+                }
+                QComboBox::drop-down:pressed {
+                    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #339af0, stop:1 #228be6);
+                }
+                QComboBox::down-arrow {
+                    image: none;
+                    border: 6px solid transparent;
+                    border-top: 4px solid #ffffff;
+                    width: 0;
+                    height: 0;
+                    margin-top: 2px;
+                }
+                QComboBox QAbstractItemView {
+                    background: white;
+                    border: 2px solid #dee2e6;
+                    border-radius: 0px;
+                    selection-background-color: transparent;
+                    selection-color: #1971c2;
+                    outline: none;
+                    padding: 4px;
+                    show-decoration-selected: 1;
+                }
+                QComboBox QAbstractItemView::item {
+                    height: 24px;
+                    padding: 4px 10px;
+                    color: #495057;
+                    font-weight: 600;
+                    border-radius: 6px;
+                    margin: 2px;
+                }
+                QComboBox QAbstractItemView::item:hover {
+                    background: #f1f3f5;
+                    color: #1971c2;
+                }
+                QComboBox QAbstractItemView::item:selected {
+                    background: #e7f5ff;
+                    color: #1971c2;
+                }
+            """)
             table.setCellWidget(row, 3, role_combo)
 
             # Status (CENTER)
@@ -513,3 +589,11 @@ class AdminPanelWindow(QMainWindow):
         # Show login window lagi
         if self.login_window:
             self.login_window.show_admin_selection_dialog()
+
+    def resource_path(self, relative_path):
+        """ Mengonversi path relatif menjadi path absolut.
+        Berguna untuk memastikan file dapat ditemukan dari
+        direktori aplikasi saat ini.
+        """
+        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
+        return os.path.join(base_path, relative_path)

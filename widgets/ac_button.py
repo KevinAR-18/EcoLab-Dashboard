@@ -55,6 +55,10 @@ class ACButton(QWidget):
 
     # ===== interaction =====
     def mousePressEvent(self, event):
+        # Cek apakah widget enabled sebelum proses event
+        if not self.isEnabled():
+            return
+
         if event.button() == Qt.LeftButton:
             self.toggle()
 
@@ -103,6 +107,10 @@ class ACButton(QWidget):
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
+
+        # Jika disabled, set opacity untuk visual feedback
+        if not self.isEnabled():
+            p.setOpacity(0.4)  # 40% opacity saat disabled
 
         # Background
         p.setBrush(QBrush(self._bg_color))
