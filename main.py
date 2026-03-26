@@ -21,6 +21,14 @@ from ui_functions import UIFunctions
 from session_manager import SessionManager
 from auth_service import TrialLoginService
 
+# Import Theme Helper untuk styled message boxes
+from ui_theme_helper import (
+    show_styled_information,
+    show_styled_warning,
+    show_styled_critical,
+    show_styled_question
+)
+
 from lamp_setup import LampSetup
 from switch_setup import SwitchSetup
 from ac_setup import ACSetup
@@ -717,8 +725,7 @@ class MainWindow(QMainWindow):
             print(f"[DEBUG] Backend NOT found!")  # Debug print
             self.log(f"[WARNING] Socket {switch_index} backend not ready yet!")
             # Tampilkan pesan ke user yang lebih jelas
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(
+            show_styled_warning(
                 self,
                 "Smart Socket Not Ready",
                 f"⚠️ Smart Socket {switch_index} backend belum siap.\n\n"
@@ -1126,7 +1133,7 @@ class MainWindow(QMainWindow):
 
         # Cek apakah user pakai Google Auth
         if self.user_session.get("auth_provider") == "google":
-            QMessageBox.warning(
+            show_styled_warning(
                 self,
                 "Update Password",
                 "❌ Cannot update password for Google accounts.\n\n"
@@ -1146,7 +1153,7 @@ class MainWindow(QMainWindow):
         if ok and new_password:
             # Validasi password
             if len(new_password) < 6:
-                QMessageBox.warning(
+                show_styled_warning(
                     self,
                     "Invalid Password",
                     "❌ Password must be at least 6 characters!"
@@ -1164,20 +1171,20 @@ class MainWindow(QMainWindow):
                 )
 
                 if result["status"] == "success":
-                    QMessageBox.information(
+                    show_styled_information(
                         self,
                         "Success",
                         "✅ Password updated successfully!"
                     )
                 else:
-                    QMessageBox.critical(
+                    show_styled_critical(
                         self,
                         "Error",
                         f"❌ Failed to update password:\n{result['message']}"
                     )
 
             except Exception as e:
-                QMessageBox.critical(
+                show_styled_critical(
                     self,
                     "Error",
                     f"❌ Failed to update password:\n{str(e)}"
@@ -1185,12 +1192,11 @@ class MainWindow(QMainWindow):
 
     def handle_logout(self):
         """Handle tombol Logout diklik"""
-        reply = QMessageBox.question(
+        from PySide6.QtWidgets import QMessageBox
+        reply = show_styled_question(
             self,
             "Logout",
-            "Are you sure you want to logout?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No
+            "Are you sure you want to logout?"
         )
 
         if reply == QMessageBox.StandardButton.Yes:
@@ -1207,7 +1213,7 @@ class MainWindow(QMainWindow):
             self.admin_panel_window.show()
 
         except Exception as e:
-            QMessageBox.critical(
+            show_styled_critical(
                 self,
                 "Error",
                 f"❌ Failed to open Admin Panel:\n{str(e)}"
@@ -1244,7 +1250,7 @@ class MainWindow(QMainWindow):
                 delattr(self, popup_attr)
 
         except Exception as e:
-            QMessageBox.critical(
+            show_styled_critical(
                 self,
                 "Error",
                 f"❌ Failed to open Smart Socket Control:\n{str(e)}"

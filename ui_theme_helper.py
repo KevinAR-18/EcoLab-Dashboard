@@ -361,6 +361,36 @@ def get_light_theme_stylesheet():
     QDialog {
         color: #000000;
     }
+
+    /* MESSAGE BOX - Fix Dark Mode interference on popups */
+    QMessageBox {
+        color: #000000;
+        background-color: #FFFFFF;
+    }
+
+    QMessageBox QLabel {
+        color: #000000;
+        background-color: transparent;
+    }
+
+    QMessageBox QPushButton {
+        color: #000000;
+        background-color: #F0F0F0;
+        border: 1px solid #cfd8e3;
+        padding: 6px 12px;
+        border-radius: 4px;
+        min-width: 80px;
+    }
+
+    QMessageBox QPushButton:hover {
+        background-color: #E1F2FB;
+        border: 1px solid #2b6cb0;
+    }
+
+    /* MESSAGE BOX - Specific dialog types */
+    QMessageBox QMessageBox QLabel {
+        color: #000000;
+    }
     """
 
 
@@ -425,3 +455,118 @@ def set_widget_text_color(widget, color):
         set_widget_text_color(my_button, "#FFFFFF")
     """
     widget.setStyleSheet(f"{widget.__class__.__name__} {{ color: {color} !important; }}")
+
+
+def show_styled_message_box(parent, title, text, icon_type="information", buttons=None, default_button=None):
+    """
+    Tampilkan QMessageBox dengan styling yang benar untuk mencegah Dark Mode interference
+
+    Args:
+        parent: Parent widget
+        title: Judul message box
+        text: Isi pesan
+        icon_type: Jenis icon ("information", "warning", "critical", "question")
+        buttons: Tuple of buttons (opsional)
+        default_button: Default button (opsional)
+
+    Returns:
+        QMessageBox result
+
+    Usage:
+        # Simple information
+        show_styled_message_box(self, "Success", "Operation completed!")
+
+        # Warning
+        show_styled_message_box(self, "Warning", "Are you sure?", "warning")
+
+        # Question with Yes/No
+        from PySide6.QtWidgets import QMessageBox
+        result = show_styled_message_box(
+            self,
+            "Confirm",
+            "Delete this item?",
+            "question",
+            buttons=(QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No),
+            default_button=QMessageBox.StandardButton.No
+        )
+    """
+    from PySide6.QtWidgets import QMessageBox
+
+    # Buat message box
+    msg_box = QMessageBox(parent)
+
+    # Set icon
+    icon_map = {
+        "information": QMessageBox.Icon.Information,
+        "warning": QMessageBox.Icon.Warning,
+        "critical": QMessageBox.Icon.Critical,
+        "question": QMessageBox.Icon.Question
+    }
+    msg_box.setIcon(icon_map.get(icon_type, QMessageBox.Icon.Information))
+
+    # Set title dan text
+    msg_box.setWindowTitle(title)
+    msg_box.setText(text)
+
+    # Set buttons jika diberikan
+    if buttons:
+        msg_box.setStandardButtons(buttons[0] | buttons[1] if len(buttons) > 1 else buttons[0])
+        if default_button:
+            msg_box.setDefaultButton(default_button)
+
+    # Apply stylesheet untuk memaksa warna teks yang benar
+    # Ini penting untuk mencegah Dark Mode Windows 11 mengubah warna teks
+    msg_box.setStyleSheet("""
+        QMessageBox {
+            background-color: #FFFFFF;
+        }
+        QMessageBox QLabel {
+            color: #000000;
+            background-color: transparent;
+            font-size: 10pt;
+        }
+        QMessageBox QPushButton {
+            color: #000000;
+            background-color: #F0F0F0;
+            border: 1px solid #cfd8e3;
+            padding: 6px 16px;
+            border-radius: 4px;
+            min-width: 80px;
+            font-size: 9pt;
+        }
+        QMessageBox QPushButton:hover {
+            background-color: #E1F2FB;
+            border: 1px solid #2b6cb0;
+        }
+        QMessageBox QPushButton:pressed {
+            background-color: #d4e8f7;
+        }
+    """)
+
+    # Show dan return result
+    return msg_box.exec()
+
+
+def show_styled_information(parent, title, text):
+    """Helper untuk information message box"""
+    return show_styled_message_box(parent, title, text, "information")
+
+
+def show_styled_warning(parent, title, text):
+    """Helper untuk warning message box"""
+    return show_styled_message_box(parent, title, text, "warning")
+
+
+def show_styled_critical(parent, title, text):
+    """Helper untuk critical/error message box"""
+    return show_styled_message_box(parent, title, text, "critical")
+
+
+def show_styled_question(parent, title, text):
+    """Helper untuk question message box (Yes/No)"""
+    from PySide6.QtWidgets import QMessageBox
+    return show_styled_message_box(
+        parent, title, text, "question",
+        buttons=(QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No),
+        default_button=QMessageBox.StandardButton.No
+    )
