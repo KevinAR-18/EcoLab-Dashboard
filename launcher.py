@@ -165,6 +165,10 @@ def main():
     app = QApplication(sys.argv)
     app.setApplicationName("EcoLab Dashboard")
 
+    # Apply light theme untuk mencegah Dark Mode Windows 11 interference
+    from ui_theme_helper import get_light_theme_stylesheet
+    app.setStyleSheet(get_light_theme_stylesheet())
+
     # Buat launcher
     launcher = AppLauncher()
 
