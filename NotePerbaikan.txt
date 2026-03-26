@@ -2,3 +2,9 @@
 List
 - Pop Up Seperti Pop Up Logout (Jenis Pop Up biasa bukan pop up buatan sendiri, warna teksnya masih hitam jadi malah nggak kelihatan)
 - Pop Up Action di Admin Panel dikasih Tombol Close atau ketika klik bagian luar pop up auto Close
+- [DEBUG] SmartSocketSetup.setup() called!
+Traceback (most recent call last):
+  File "c:\Users\Angela Kinanti\Documents\File Kevin\EcoLab-Dashboard\admin_window.py", line 616, in go_back_to_selection
+    self.login_window.show_admin_selection_dialog()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'MainWindow' object has no attribute 'show_admin_selection_dialog'
