@@ -2,12 +2,13 @@
 Login Main Entry Point
 Frameless window dengan centered position, draggable, dan navigasi
 """
+import os
 import sys
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, Signal, QEvent
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QMessageBox, QDialog
 )
-from PySide6.QtGui import QScreen
+from PySide6.QtGui import QScreen, QPixmap, QIcon
 
 # Import Qt Resources untuk load gambar
 import resources_rc
@@ -58,6 +59,11 @@ class LoginWindow(QMainWindow):
         # Set window title
         self.setWindowTitle("EcoLab Login")
 
+        # Set window icon
+        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.setWindowIcon(icon)
+
         # Center window on screen
         self.center_window()
 
@@ -95,6 +101,19 @@ class LoginWindow(QMainWindow):
 
         # ===== SIGN IN BUTTON =====
         self.ui.signinButton.clicked.connect(self.handle_signin)
+
+        # ===== ENTER KEY FOR SIGN IN =====
+        # Tekan Enter di email atau password field → auto click Sign In
+        self.ui.emailInput.returnPressed.connect(self.handle_signin)
+        self.ui.passwordInput.returnPressed.connect(self.handle_signin)
+
+        # ===== ENTER KEY FOR REMEMBER ME CHECKBOX =====
+        # Install event filter untuk menangani Enter key
+        self.ui.rememberCheck.installEventFilter(self)
+
+        # ===== ENTER KEY FOR SIGN IN BUTTON =====
+        # Install event filter untuk menangani Enter key pada tombol
+        self.ui.signinButton.installEventFilter(self)
 
         # ===== SIGN UP BUTTON =====
         self.ui.signupButton.clicked.connect(self.handle_signup)
@@ -134,6 +153,11 @@ class LoginWindow(QMainWindow):
             self.ui.showpasssignupCheck
         )
 
+    def toggle_remember_me(self):
+        """Toggle checkbox Remember Me saat Enter ditekan"""
+        current_state = self.ui.rememberCheck.isChecked()
+        self.ui.rememberCheck.setChecked(not current_state)
+
     def _is_valid_email(self, email):
         """
         Validasi format email menggunakan regex
@@ -161,11 +185,7 @@ class LoginWindow(QMainWindow):
 
         # Validasi input
         if not email or not password:
-            QMessageBox.warning(
-                self,
-                "Login Error",
-                "Please enter email and password!"
-            )
+            self.show_message_box("warning", "Login Error", "Please enter email and password!")
             return
 
         # Panggil auth service untuk login
@@ -180,28 +200,16 @@ class LoginWindow(QMainWindow):
 
         # Validasi input
         if not username or not email or not password:
-            QMessageBox.warning(
-                self,
-                "Signup Error",
-                "Please fill all fields!\nUsername, Email, and Password are required."
-            )
+            self.show_message_box("warning", "Signup Error", "Please fill all fields!\nUsername, Email, and Password are required.")
             return
 
         # Validasi format email
         if not self._is_valid_email(email):
-            QMessageBox.warning(
-                self,
-                "Signup Error",
-                "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com"
-            )
+            self.show_message_box("warning", "Signup Error", "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com")
             return
 
         if len(password) < 6:
-            QMessageBox.warning(
-                self,
-                "Signup Error",
-                "Password must be at least 6 characters!"
-            )
+            self.show_message_box("warning", "Signup Error", "Password must be at least 6 characters!")
             return
 
         # Panggil auth service untuk signup
@@ -226,8 +234,8 @@ class LoginWindow(QMainWindow):
         print(f"DEBUG: Save result: {result}")
 
         # Tampilkan notifikasi
-        QMessageBox.information(
-            self,
+        self.show_message_box(
+            "information",
             "Guest Mode",
             "🎭 Welcome, Guest!\n\n"
             "You are in Guest Viewer Mode.\n\n"
@@ -256,8 +264,8 @@ class LoginWindow(QMainWindow):
             self._handle_auth_result(result, "Google Sign In")
 
         except Exception as e:
-            QMessageBox.critical(
-                self,
+            self.show_message_box(
+                "critical",
                 "Google Sign In Error",
                 f"❌ Failed to sign in with Google:\n\n{str(e)}\n\nPlease try again."
             )
@@ -272,8 +280,8 @@ class LoginWindow(QMainWindow):
             self._handle_auth_result(result, "Google Sign Up")
 
         except Exception as e:
-            QMessageBox.critical(
-                self,
+            self.show_message_box(
+                "critical",
                 "Google Sign Up Error",
                 f"❌ Failed to sign up with Google:\n\n{str(e)}\n\nPlease try again."
             )
@@ -314,8 +322,8 @@ class LoginWindow(QMainWindow):
                 # Tampilkan popup pilihan
                 self.show_admin_selection_dialog()
             else:
-                QMessageBox.critical(
-                    self,
+                self.show_message_box(
+                    "critical",
                     "Login Error",
                     "❌ Failed to load user data"
                 )
@@ -324,8 +332,8 @@ class LoginWindow(QMainWindow):
         elif status == "success":
             if operation_type == "Signup":
                 # Signup berhasil - user perlu approval admin
-                QMessageBox.information(
-                    self,
+                self.show_message_box(
+                    "information",
                     "Registration Successful",
                     f"✅ Account created successfully!\n\n"
                     f"Username: {signup_username or 'N/A'}\n"
@@ -339,8 +347,8 @@ class LoginWindow(QMainWindow):
             else:
                 # Login berhasil - load user session
                 if self._load_and_save_user_session(user_id):
-                    QMessageBox.information(
-                        self,
+                    self.show_message_box(
+                        "information",
                         "Login Successful",
                         f"Welcome back! 🎉\n\n{message}"
                     )
@@ -348,16 +356,16 @@ class LoginWindow(QMainWindow):
                     self.login_completed.emit()
                     self.close()
                 else:
-                    QMessageBox.critical(
-                        self,
+                    self.show_message_box(
+                        "critical",
                         "Login Error",
                         "❌ Failed to load user session"
                     )
 
         # ===== PENDING (Need Admin Approval) =====
         elif status == "pending":
-            QMessageBox.warning(
-                self,
+            self.show_message_box(
+                "warning",
                 "Account Pending Approval",
                 f"⏳ {message}\n\n"
                 f"Your account is waiting for admin approval.\n"
@@ -366,8 +374,8 @@ class LoginWindow(QMainWindow):
 
         # ===== BLOCKED =====
         elif status == "blocked":
-            QMessageBox.critical(
-                self,
+            self.show_message_box(
+                "critical",
                 "Account Blocked",
                 f"🚫 {message}\n\n"
                 f"Your account has been blocked.\n"
@@ -379,23 +387,23 @@ class LoginWindow(QMainWindow):
             # Tampilkan pesan error yang lebih user-friendly
             if operation_type == "Login":
                 # Untuk login error, tampilkan pesan sederhana
-                QMessageBox.warning(
-                    self,
+                self.show_message_box(
+                    "warning",
                     "Login Gagal",
                     "Username atau Password salah\n\nSilakan coba lagi."
                 )
             else:
                 # Untuk signup error, tampilkan pesan yang lebih jelas
-                QMessageBox.warning(
-                    self,
+                self.show_message_box(
+                    "warning",
                     f"{operation_type} Gagal",
                     f"{message}\n\nSilakan coba lagi."
                 )
 
         # ===== OTHER =====
         else:
-            QMessageBox.information(
-                self,
+            self.show_message_box(
+                "information",
                 operation_type,
                 message
             )
@@ -468,8 +476,8 @@ class LoginWindow(QMainWindow):
             self.admin_window.show()
 
             # Tampilkan notifikasi sukses
-            QMessageBox.information(
-                self,
+            self.show_message_box(
+                "information",
                 "Admin Panel",
                 "✅ Admin Panel berhasil dibuka!\n\nKlik tombol Back untuk kembali ke pilihan."
             )
@@ -477,8 +485,8 @@ class LoginWindow(QMainWindow):
             self.close()
 
         except Exception as e:
-            QMessageBox.critical(
-                self,
+            self.show_message_box(
+                "critical",
                 "Error",
                 f"❌ Gagal membuka Admin Panel:\n{str(e)}"
             )
@@ -515,6 +523,64 @@ class LoginWindow(QMainWindow):
     def mouseMoveEvent(self, event):
         """Handle mouse move untuk drag window"""
         self.ui_functions.mouse_move(event)
+
+    def eventFilter(self, obj, event):
+        """
+        Event filter untuk menangani key press pada widget tertentu
+
+        Args:
+            obj: Widget yang mengirim event
+            event: Event yang terjadi
+
+        Returns:
+            True jika event ditangani, False jika tidak
+        """
+        # Cek apakah event adalah KeyPress
+        if event.type() == QEvent.Type.KeyPress:
+            # Handle Enter pada checkbox Remember Me
+            if obj == self.ui.rememberCheck:
+                if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
+                    # Toggle checkbox
+                    self.toggle_remember_me()
+                    return True  # Event ditangani
+
+            # Handle Enter pada tombol Sign In
+            elif obj == self.ui.signinButton:
+                if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
+                    # Klik tombol Sign In
+                    self.handle_signin()
+                    return True  # Event ditangani
+
+        return False  # Biarkan event diproses secara default
+
+    def resource_path(self, relative_path):
+        """ Mengonversi path relatif menjadi path absolut.
+        Berguna untuk memastikan file dapat ditemukan dari
+        direktori aplikasi saat ini.
+        """
+        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
+        return os.path.join(base_path, relative_path)
+
+    def show_message_box(self, icon_type, title, text):
+        """
+        Tampilkan QMessageBox dengan icon EcoLab
+
+        Args:
+            icon_type: "information", "warning", "critical", "question"
+            title: Judul message box
+            text: Isi pesan
+        """
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(getattr(QMessageBox.Icon, icon_type.capitalize()))
+        msg_box.setWindowTitle(title)
+        msg_box.setText(text)
+
+        # Set icon EcoLab
+        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        icon = QIcon(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        msg_box.setWindowIcon(icon)
+
+        msg_box.exec()
 
 
 def main():
