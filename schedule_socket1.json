@@ -1,0 +1,9 @@
+{
+  "start_active": true,
+  "start_hour": 22,
+  "start_minute": 55,
+  "stop_active": true,
+  "stop_hour": 23,
+  "stop_minute": 10,
+  "daily_mode": true
+}

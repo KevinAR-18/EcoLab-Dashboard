@@ -179,7 +179,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         """Handle Set Schedule button click"""
         start_time = self.input_schedule_start.text().strip()
         stop_time = self.input_schedule_stop.text().strip()
-        mode = "daily" if self.combo_schedule_mode.currentIndex() == 0 else "onetime"
+
+        # Get mode from combo box (0=Daily, 1=Onetime)
+        current_index = self.combo_schedule_mode.currentIndex()
+        if current_index == 0:
+            mode = "daily"
+        elif current_index == 1:
+            mode = "onetime"
+        else:
+            mode = "daily"  # Default fallback
 
         # Validate time format
         if start_time and not self.validate_time_format(start_time):
@@ -191,6 +199,9 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.label_schedule_status.setText("Status: Invalid stop format (HH:MM)")
             self.label_schedule_status.setStyleSheet("color: red;")
             return
+
+        # Debug: Print ke console untuk cek
+        # print(f"[DEBUG Schedule] currentIndex: {current_index}, mode: {mode}, start: {start_time}, stop: {stop_time}")
 
         # Update status
         if start_time and stop_time:
@@ -208,6 +219,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.label_schedule_status.setStyleSheet("color: blue; font-weight: bold;")
 
         # Send MQTT commands
+        # print(f"[DEBUG Schedule] Sending mode: {mode}")  # Debug
         self.backend.set_schedule_mode(mode)
         if start_time:
             self.backend.set_schedule_start(start_time)

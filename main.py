@@ -1427,11 +1427,18 @@ class MainWindow(QMainWindow):
     def _on_socket_schedule_status(self, socket_number: int, status: str):
         """Update schedule status UI untuk Smart Socket"""
         import json
+
+        # DEBUG: Print raw status dari hardware
+        # print(f"[DEBUG Schedule UI] Socket {socket_number} received: {repr(status)}")
+
         try:
             data = json.loads(status)
             mode = data.get("mode", "N/A")
             start = data.get("start", "N/A")
             stop = data.get("stop", "N/A")
+
+            # DEBUG: Print parsed data
+            # print(f"[DEBUG Schedule UI] Socket {socket_number} parsed - mode: {mode}, start: {start}, stop: {stop}")
 
             if start and stop:
                 status_text = f"{mode.capitalize()}: {start}-{stop}"
@@ -1441,12 +1448,17 @@ class MainWindow(QMainWindow):
                 status_text = f"Stop: {stop}"
             else:
                 status_text = "Not Set"
-        except:
+        except Exception as e:
+            # print(f"[DEBUG Schedule UI] Socket {socket_number} JSON parse error: {e}")
             status_text = status
 
         label = getattr(self.ui, f"label_scheduling_status{socket_number}", None)
         if label:
+            # print(f"[DEBUG Schedule UI] Socket {socket_number} updating label to: {repr(status_text)}")
             label.setText(status_text)
+        else:
+            # print(f"[DEBUG Schedule UI] Socket {socket_number} label NOT FOUND!")
+            pass
 
     def _on_socket_device_status(self, socket_number: int, online: bool):
         """Update device status UI untuk Smart Socket"""

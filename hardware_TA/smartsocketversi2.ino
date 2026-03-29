@@ -4,6 +4,7 @@
 #include <PZEM004Tv30.h>
 #include <DS1302.h>
 #include <time.h>
+#include <EEPROM.h>  // Untuk menyimpan schedule agar tidak hilang saat reboot
 
 // ================= OUTPUT =================
 #define RELAY_PIN 7
@@ -88,6 +89,17 @@ PZEM004Tv30 pzem(PZEMSerial, PZEM_RX_PIN, PZEM_TX_PIN);
 #define RTC_SCLK 2
 
 DS1302 rtc(RTC_CE, RTC_IO, RTC_SCLK);
+
+// ================= EEPROM ADDRESSES =================
+// Untuk menyimpan schedule agar tidak hilang saat reboot
+#define EEPROM_SIZE 64  // Ukuran EEPROM yang digunakan
+#define ADDR_SCHEDULE_START_ACTIVE    0
+#define ADDR_SCHEDULE_STOP_ACTIVE     1
+#define ADDR_SCHEDULE_START_HOUR      2
+#define ADDR_SCHEDULE_START_MINUTE    3
+#define ADDR_SCHEDULE_STOP_HOUR       4
+#define ADDR_SCHEDULE_STOP_MINUTE     5
+#define ADDR_SCHEDULE_DAILY_MODE      6
 
 // ================= MQTT =================
 WiFiClientSecure espClient;
@@ -299,6 +311,7 @@ void callback(char *topic, byte *payload, unsigned int length)
             scheduleStartActive = false;
             startTriggered = false;
             publishStatusSync();
+            saveScheduleToEEPROM();  // Simpan ke EEPROM
             Serial.println("Start schedule cancelled");
         }
         else
@@ -314,6 +327,7 @@ void callback(char *topic, byte *payload, unsigned int length)
                 startTriggered = false; // Reset trigger
 
                 publishStatusSync();
+                saveScheduleToEEPROM();  // Simpan ke EEPROM
             }
             else
             {
@@ -331,6 +345,7 @@ void callback(char *topic, byte *payload, unsigned int length)
             scheduleStopActive = false;
             stopTriggered = false;
             publishStatusSync();
+            saveScheduleToEEPROM();  // Simpan ke EEPROM
             Serial.println("Stop schedule cancelled");
         }
         else
@@ -346,6 +361,7 @@ void callback(char *topic, byte *payload, unsigned int length)
                 stopTriggered = false; // Reset trigger
 
                 publishStatusSync();
+                saveScheduleToEEPROM();  // Simpan ke EEPROM
             }
             else
             {
@@ -363,6 +379,8 @@ void callback(char *topic, byte *payload, unsigned int length)
             scheduleDailyMode = true;
             lastTriggeredDay = 0;
             publishStatusSync();
+            saveScheduleToEEPROM();  // Simpan ke EEPROM
+            Serial.println("Schedule mode: Daily");
         }
         else if (msg == "onetime")
         {
@@ -371,6 +389,8 @@ void callback(char *topic, byte *payload, unsigned int length)
             startTriggered = false;
             stopTriggered = false;
             publishStatusSync();
+            saveScheduleToEEPROM();  // Simpan ke EEPROM
+            Serial.println("Schedule mode: Onetime");
         }
         else
         {
@@ -385,6 +405,51 @@ void callback(char *topic, byte *payload, unsigned int length)
         client.publish(topic_datetime_status, "INFO: RTC set from NTP, manual sync disabled");
         Serial.println("Manual datetime sync disabled - using NTP");
     }
+}
+
+// ================= EEPROM SAVE/LOAD =================
+void saveScheduleToEEPROM()
+{
+    Serial.println("Saving schedule to EEPROM...");
+    EEPROM.write(ADDR_SCHEDULE_START_ACTIVE, scheduleStartActive ? 1 : 0);
+    EEPROM.write(ADDR_SCHEDULE_STOP_ACTIVE, scheduleStopActive ? 1 : 0);
+    EEPROM.write(ADDR_SCHEDULE_START_HOUR, schedStartHour);
+    EEPROM.write(ADDR_SCHEDULE_START_MINUTE, schedStartMinute);
+    EEPROM.write(ADDR_SCHEDULE_STOP_HOUR, schedStopHour);
+    EEPROM.write(ADDR_SCHEDULE_STOP_MINUTE, schedStopMinute);
+    EEPROM.write(ADDR_SCHEDULE_DAILY_MODE, scheduleDailyMode ? 1 : 0);
+    EEPROM.commit();  // Wajib untuk ESP32
+    Serial.println("Schedule saved to EEPROM!");
+}
+
+void loadScheduleFromEEPROM()
+{
+    Serial.println("Loading schedule from EEPROM...");
+    scheduleStartActive = EEPROM.read(ADDR_SCHEDULE_START_ACTIVE) == 1;
+    scheduleStopActive = EEPROM.read(ADDR_SCHEDULE_STOP_ACTIVE) == 1;
+    schedStartHour = EEPROM.read(ADDR_SCHEDULE_START_HOUR);
+    schedStartMinute = EEPROM.read(ADDR_SCHEDULE_START_MINUTE);
+    schedStopHour = EEPROM.read(ADDR_SCHEDULE_STOP_HOUR);
+    schedStopMinute = EEPROM.read(ADDR_SCHEDULE_STOP_MINUTE);
+    scheduleDailyMode = EEPROM.read(ADDR_SCHEDULE_DAILY_MODE) == 1;
+
+    // Print loaded schedule
+    Serial.print("Loaded Schedule - ");
+    Serial.print(scheduleStartActive ? "Start: " : "Start: N/A, ");
+    if (scheduleStartActive) {
+        Serial.print(schedStartHour);
+        Serial.print(":");
+        Serial.print(schedStartMinute);
+    }
+    Serial.print(", ");
+    Serial.print(scheduleStopActive ? "Stop: " : "Stop: N/A, ");
+    if (scheduleStopActive) {
+        Serial.print(schedStopHour);
+        Serial.print(":");
+        Serial.print(schedStopMinute);
+    }
+    Serial.print(", Mode: ");
+    Serial.println(scheduleDailyMode ? "Daily" : "Onetime");
 }
 
 // ================= MQTT CONNECT =================
@@ -536,6 +601,49 @@ void handleSchedule()
             }
         }
     }
+
+    // ================= RECOVERY LOGIC =================
+    // Kalau relay mati tapi seharusnya nyala (dalam rentang schedule), nyalakan lagi
+    // Ini untuk recovery setelah reboot/power loss
+    if (!timerActive)  // Timer lebih prioritas, jangan override
+    {
+        if (scheduleStartActive && scheduleStopActive)
+        {
+            // Cek apakah sekarang dalam rentang schedule
+            int nowMinutes = timeRTC.hr * 60 + timeRTC.min;
+            int startMinutes = schedStartHour * 60 + schedStartMinute;
+            int stopMinutes = schedStopHour * 60 + schedStopMinute;
+
+            bool should_be_on = false;
+
+            // Untuk schedule yang melewati tengah malam (misal 23:00 - 02:00)
+            if (startMinutes < stopMinutes)
+            {
+                // Normal: 07:00 - 20:00
+                should_be_on = (nowMinutes >= startMinutes && nowMinutes < stopMinutes);
+            }
+            else
+            {
+                // Lewat tengah malam: 23:00 - 02:00
+                should_be_on = (nowMinutes >= startMinutes || nowMinutes < stopMinutes);
+            }
+
+            // Recovery: Nyalakan jika seharusnya ON tapi sekarang OFF
+            if (should_be_on && !relayState)
+            {
+                digitalWrite(RELAY_PIN, HIGH);
+                relayState = true;
+
+                client.publish(topic_statusrelay, "ON");
+                publishStatusSync();
+
+                char buf[100];
+                sprintf(buf, "[RECOVERY] Relay ON (within schedule range: %02d:%02d - %02d:%02d)",
+                        schedStartHour, schedStartMinute, schedStopHour, schedStopMinute);
+                Serial.println(buf);
+            }
+        }
+    }
 }
 
 // ================= STATUS SYNC (untuk multi-GUI) =================
@@ -644,6 +752,10 @@ void setup()
 
     // ===== PZEM INIT =====
     PZEMSerial.begin(9600, SERIAL_8N1, PZEM_RX_PIN, PZEM_TX_PIN);
+
+    // ===== EEPROM INIT =====
+    EEPROM.begin(EEPROM_SIZE);
+    loadScheduleFromEEPROM();  // Load schedule yang tersimpan
 }
 
 // ================= LOOP =================

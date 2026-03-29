@@ -57,6 +57,7 @@ user smartsocket1
 topic read ecolab/socket/1/control
 topic read ecolab/socket/1/schedule/start
 topic read ecolab/socket/1/schedule/stop
+topic read ecolab/socket/1/schedule/mode
 topic read ecolab/socket/1/timer
 
 # ESP32 → GUI
@@ -77,6 +78,7 @@ user smartsocket2
 topic read ecolab/socket/2/control
 topic read ecolab/socket/2/schedule/start
 topic read ecolab/socket/2/schedule/stop
+topic read ecolab/socket/2/schedule/mode
 topic read ecolab/socket/2/timer
 
 # ESP32 → GUI
@@ -97,6 +99,7 @@ user smartsocket3
 topic read ecolab/socket/3/control
 topic read ecolab/socket/3/schedule/start
 topic read ecolab/socket/3/schedule/stop
+topic read ecolab/socket/3/schedule/mode
 topic read ecolab/socket/3/timer
 
 # ESP32 → GUI
@@ -117,6 +120,7 @@ user smartsocket4
 topic read ecolab/socket/4/control
 topic read ecolab/socket/4/schedule/start
 topic read ecolab/socket/4/schedule/stop
+topic read ecolab/socket/4/schedule/mode
 topic read ecolab/socket/4/timer
 
 # ESP32 → GUI
@@ -137,6 +141,7 @@ user smartsocket5
 topic read ecolab/socket/5/control
 topic read ecolab/socket/5/schedule/start
 topic read ecolab/socket/5/schedule/stop
+topic read ecolab/socket/5/schedule/mode
 topic read ecolab/socket/5/timer
 
 # ESP32 → GUI

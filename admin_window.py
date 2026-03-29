@@ -4,7 +4,7 @@ Window untuk menampilkan admin panel dengan tombol back
 """
 import os
 from PySide6.QtCore import Qt, QTimer, QDateTime, QCoreApplication
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtGui import QPixmap, QIcon, QColor, QBrush
 from PySide6.QtWidgets import (
     QMainWindow, QComboBox, QPushButton, QWidget, QVBoxLayout,
     QHBoxLayout, QLabel, QDialog, QInputDialog, QMessageBox,
@@ -379,18 +379,24 @@ class AdminPanelWindow(QMainWindow):
         table = self.ui.tabeldata
         table.setRowCount(len(users))
 
+        # Set table agar tidak bisa diedit (read-only)
+        table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+
         for row, user in enumerate(users):
             # Nomor (CENTER)
             no_item = QTableWidgetItem(str(row + 1))
             no_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            no_item.setFlags(no_item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
             table.setItem(row, 0, no_item)
 
             # Username
             username_item = QTableWidgetItem(user["username"])
+            username_item.setFlags(username_item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
             table.setItem(row, 1, username_item)
 
             # Email
             email_item = QTableWidgetItem(user["email"])
+            email_item.setFlags(email_item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
             table.setItem(row, 2, email_item)
 
             # Role (Dropdown)
@@ -472,22 +478,25 @@ class AdminPanelWindow(QMainWindow):
             """)
             table.setCellWidget(row, 3, role_combo)
 
-            # Status (CENTER)
-            status_item = QTableWidgetItem(user["status"].capitalize())
-            status_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-            # Color coding untuk status
+            # Status (CENTER) dengan Emoji
+            status_text = user["status"].capitalize()
             if user["status"] == "active":
-                status_item.setForeground(Qt.GlobalColor.green)
+                status_text = "✅ Active"
             elif user["status"] == "pending":
-                status_item.setForeground(Qt.GlobalColor.darkYellow)
+                status_text = "⏳ Pending"
             elif user["status"] == "blocked":
-                status_item.setForeground(Qt.GlobalColor.red)
+                status_text = "🚫 Blocked"
+
+            status_item = QTableWidgetItem(status_text)
+            status_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            status_item.setFlags(status_item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
             table.setItem(row, 4, status_item)
 
             # Created (CENTER)
             created_date = user["date"]  # Format: YYYY-MM-DD
             created_item = QTableWidgetItem(created_date)
             created_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            created_item.setFlags(created_item.flags() & ~Qt.ItemFlag.ItemIsEditable)  # Read-only
             table.setItem(row, 5, created_item)
 
             # Action Button (CENTER via widget alignment)
