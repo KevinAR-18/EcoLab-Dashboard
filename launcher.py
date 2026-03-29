@@ -25,9 +25,13 @@ class AppLauncher(QObject):
         self.main_window = None
         self.login_window = None
         self.login_completed_received = False  # Flag untuk track apakah login completed
+        self.current_session = None  # Simpan session yang sedang aktif
 
     def start(self):
         """Start aplikasi - cek session dulu"""
+        # Setup handler untuk saat aplikasi akan quit
+        QApplication.instance().aboutToQuit.connect(self.on_app_about_to_quit)
+
         # Cek apakah ada session tersimpan
         session = self.session_manager.load_session()
 
@@ -75,6 +79,8 @@ class AppLauncher(QObject):
 
         if session:
             print(f"DEBUG: Session found! Opening dashboard for user: {session.get('username')}")
+            # Simpan session yang sedang aktif
+            self.current_session = session
             # Login success → buka dashboard
             self.open_dashboard(session)
         else:
@@ -101,6 +107,18 @@ class AppLauncher(QObject):
             # Kemungkinan: User buka admin panel (bukan dashboard)
             # Jangan buka dashboard, biarkan admin panel jalan
             print("DEBUG: Session exists but login not completed (likely admin panel), staying alive")
+
+            # Simpan session yang sedang aktif (untuk admin panel case)
+            self.current_session = session
+
+            # 🔥 BUG FIX: Hapus session SEKARANG JUGA jika remember_me=False
+            # Admin panel tidak akan membuka dashboard, jadi kita harus hapus sekarang
+            if not session.get("remember_me", False):
+                print(f"DEBUG: remember_me is OFF (admin panel mode), deleting session IMMEDIATELY")
+                result = self.session_manager.delete_session()
+                print(f"DEBUG: Session delete result: {result}")
+                # Jangan simpan session yang sudah dihapus
+                self.current_session = None
         else:
             # Tidak ada session dan window di-close manual → exit app
             print("DEBUG: No session and window closed manually, quitting app")
@@ -112,6 +130,9 @@ class AppLauncher(QObject):
             # Import main window di sini (lazy import)
             from main import MainWindow
 
+            # Simpan session yang sedang aktif
+            self.current_session = session
+
             # Buat main window dengan session
             self.main_window = MainWindow(user_session=session)
 
@@ -121,12 +142,8 @@ class AppLauncher(QObject):
             # Show main window
             self.main_window.show()
 
-            # Kalau remember_me = False, hapus session setelah dashboard terbuka
-            # (Supaya next time harus login lagi)
-            if not session.get("remember_me", False):
-                print(f"DEBUG: remember_me is OFF, scheduling session deletion")
-                # Hapus session setelah delay (supaya window benar-benar terbuka dulu)
-                QTimer.singleShot(1000, lambda: self.session_manager.delete_session())
+            # ⚠️ JANGAN hapus session di sini lagi
+            # Session akan dihapus saat aplikasi quit (lihat on_app_about_to_quit)
 
             return True
 
@@ -144,6 +161,9 @@ class AppLauncher(QObject):
             # Hapus session
             self.session_manager.delete_session()
 
+            # Clear current session
+            self.current_session = None
+
             # Close main window jika ada
             if self.main_window:
                 self.main_window.close()
@@ -158,6 +178,25 @@ class AppLauncher(QObject):
                 "Logout Error",
                 f"❌ Failed to logout:\n{str(e)}"
             )
+
+    def on_app_about_to_quit(self):
+        """Handler saat aplikasi akan quit - hapus session jika remember_me=False"""
+        # Cek current session dulu, lalu fallback ke load dari file
+        session = self.current_session
+
+        if not session:
+            # Fallback: load dari file jika current_session belum di-set
+            session = self.session_manager.load_session()
+
+        if session and not session.get("remember_me", False):
+            print(f"DEBUG: App quitting, remember_me is OFF, deleting session")
+            result = self.session_manager.delete_session()
+            print(f"DEBUG: Session delete result: {result}")
+        else:
+            if session:
+                print(f"DEBUG: App quitting, keeping session (remember_me is ON)")
+            else:
+                print(f"DEBUG: App quitting, no session to delete")
 
 
 def main():
