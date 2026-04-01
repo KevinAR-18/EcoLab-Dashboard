@@ -5,7 +5,7 @@
  * Features:
  * - DHT22 Temperature & Humidity Sensor (Pin D4)
  * - 5x Relay Control (Pin D1, D2, D5, D6, D7)
- * - MQTT Communication (TLS)
+ * - MQTT Communication (TLS Insecure - No CA verification)
  *
  * MQTT Topics:
  * - Subscribe: ecolab/mcuA/lamp1-5/control
@@ -13,6 +13,9 @@
  * - Publish: ecolab/mcuA/dht/temperature
  * - Publish: ecolab/mcuA/dht/humidity
  * - LWT: ecolab/mcuA/status
+ *
+ * WARNING: TLS Insecure mode skips certificate verification!
+ *          Not recommended for production use.
  */
 
 #include <ESP8266WiFi.h>
@@ -23,13 +26,13 @@
 // ============================================================
 // WIFI CONFIG
 // ============================================================
-const char* WIFI_SSID = "YOUR_WIFI_SSID";        // Ganti dengan WiFi SSID
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"; // Ganti dengan WiFi Password
+const char* WIFI_SSID = "EcoLab";        // Ganti dengan WiFi SSID
+const char* WIFI_PASSWORD = "ecolab321"; // Ganti dengan WiFi Password
 
 // ============================================================
 // MQTT CONFIG
 // ============================================================
-const char* MQTT_BROKER = "DESKTOP-CVPE153";  // Ganti dengan IP broker
+const char* MQTT_BROKER = "10.33.11.148";  // Ganti dengan IP broker
 const int MQTT_PORT = 8883;                   // TLS
 const char* MQTT_USERNAME = "mcua";
 const char* MQTT_PASSWORD = "mcua123";
@@ -92,12 +95,15 @@ void setup() {
   // Connect WiFi
   connectWiFi();
 
-  // Setup MQTT
+  // Setup MQTT - TLS Insecure Mode (tanpa CA certificate)
   mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
   mqttClient.setCallback(mqttCallback);
 
-  // Set LWT (Last Will Testament)
-  mqttClient.setWill(TOPIC_MCU_STATUS, "OFFLINE", true, 0);
+  // ESP8266: Set insecure mode (skip certificate verification)
+  espClient.setInsecure();
+
+  // ESP8266: Increase buffer size untuk TLS
+  espClient.setBufferSizes(2048, 2048);
 
   Serial.println("\n[INFO] Setup complete. Starting loop...\n");
 }
@@ -148,8 +154,21 @@ void connectWiFi() {
   }
 
   Serial.println("\n[WIFI] Connected!");
+  Serial.println("====================");
+  Serial.print("[WIFI] SSID: ");
+  Serial.println(WiFi.SSID());
   Serial.print("[WIFI] IP Address: ");
   Serial.println(WiFi.localIP());
+  Serial.print("[WIFI] Gateway: ");
+  Serial.println(WiFi.gatewayIP());
+  Serial.print("[WIFI] Subnet Mask: ");
+  Serial.println(WiFi.subnetMask());
+  Serial.print("[WIFI] Signal Strength (RSSI): ");
+  Serial.print(WiFi.RSSI());
+  Serial.println(" dBm");
+  Serial.print("[WIFI] MAC Address: ");
+  Serial.println(WiFi.macAddress());
+  Serial.println("====================");
 }
 
 // ============================================================
@@ -160,10 +179,10 @@ bool reconnectMQTT() {
   Serial.print(MQTT_BROKER);
   Serial.print("...");
 
-  // Set TLS (skip certificate verification for simplicity)
-  espClient.setInsecure();  // WARNING: Not secure for production!
+  // ESP8266: Insecure mode (skip certificate verification)
+  // Note: setInsecure() sudah dipanggil di setup()
 
-  if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
+  if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, TOPIC_MCU_STATUS, 0, true, "OFFLINE")) {
     Serial.println(" connected!");
 
     // Subscribe to lamp control topics

@@ -13,8 +13,8 @@
 #define BLUE_LED_PIN 10
 
 // ================= WIFI =================
-const char *ssid = "ya gak punya kuota ya? wkwkwk";
-const char *password = "debritto21";
+const char *ssid = "UGM-Hotspot";
+const char *password = "";
 
 // ================= NTP CONFIG =================
 const char* ntpServer = "pool.ntp.org";
@@ -22,7 +22,7 @@ const long  gmtOffset_sec = 7 * 3600;  // GMT+7 (WIB)
 const int   daylightOffset_sec = 0;    // Tidak ada daylight saving di Indonesia
 
 // ================= MQTT =================
-const char *mqtt_server = "10.65.124.151";
+const char *mqtt_server = "10.33.11.148";
 const int mqtt_port = 8883;
 
 const char *mqtt_user = "smartsocket1";

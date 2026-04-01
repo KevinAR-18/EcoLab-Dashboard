@@ -3,9 +3,9 @@
  * Wemos D1 Mini - ESP8266
  *
  * Features:
- * - DHT11 Temperature & Humidity Sensor (Pin D2)
+ * - DHT11 Temperature & Humidity Sensor (Pin D4)
  * - Daikin AC IR Control (Pin D1)
- * - MQTT Communication (TLS)
+ * - MQTT Communication (TLS Insecure - No CA verification)
  *
  * MQTT Topics:
  * - Subscribe: ecolab/mcuB/ac/control
@@ -13,6 +13,9 @@
  * - Publish: ecolab/mcuB/dht/temperature
  * - Publish: ecolab/mcuB/dht/humidity
  * - LWT: ecolab/mcuB/status
+ *
+ * WARNING: TLS Insecure mode skips certificate verification!
+ *          Not recommended for production use.
  */
 
 #include <ESP8266WiFi.h>
@@ -38,31 +41,8 @@ const char* MQTT_USERNAME = "mcub";
 const char* MQTT_PASSWORD = "mcub123";
 const char* MQTT_CLIENT_ID = "ecolab_mcub";
 
-// CA Certificate untuk TLS verification
-const char* CA_CERT = R"(
------BEGIN CERTIFICATE-----
-MIIDrTCCApWgAwIBAgIUKFYwJQFQ7JDUKBtRlbyz+MkxL1wwDQYJKoZIhvcNAQEL
-BQAwZjELMAkGA1UEBhMCSUQxDDAKBgNVBAgMA0RJWTETMBEGA1UEBwwKWW9neWFr
-YXJ0YTEPMA0GA1UECgwGRWNvTGFiMQ8wDQYDVQQLDAZFY29MYWIxEjAQBgNVBAMM
-CUVjb2xhYi1DQTAeFw0yNjAzMzEwODM0NTlaFw0zNjAzMjgwODM0NTlaMGYxCzAJ
-BgNVBAYTAklEMQwwCgYDVQQIDANESVkxEzARBgNVBAcMCllvZ3lha2FydGExDzAN
-BgNVBAoMBkVjb0xhYjEPMA0GA1UECwwGRWNvTGFiMRIwEAYDVQQDDAlFY29sYWIt
-Q0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJMVvFYOUG7zs4w/sC
-9dvblP5v0MmumansCh3wWEAjFcLXFDC4kS0hERHw661asm4TNYl1K8XUj8uCvqN8G
-Rpgqh3qnld9JEUY8tVrmLZxh0sd/B3bJ+2sQTLZTznk/N1mJS4UIatu+KYAusv/Q
-QHRgtQM42rpMZpFaq3+qsTWx/cTZV3WwQWMEY6Ypr3lMI+naSB18jg7Ac321escd
-K+GW20/5ScJQhrSd5g0iUETOvRzoKrqhHq4sZ1xBa0W4CGLF4UV8IGP7C118skIQ
-nJajJ79obXTyAqzqzKrLIM0zc5Xxt/mbaapghsk7+/IvZUEAizwPQmU1Uj9Pr5er
-4SbnAgMBAAGjUzBRMB0GA1UdDgQWBBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAfBgNV
-HSMEGDAWgBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAPBgNVHRMBAf8EBTADAQH/MA0G
-CSqGSIb3DQEBCwUAA4IBAQAk2RsxuzFzWT3WbVghHtcczDjR1u28TWFYY7jGTvgy
-ZvyYWxi0PnFl8Ht/6liNvWoxVdXc0MOauIQTfq29RKLz99U9xMIqT4Vz0V/7n+Mb
-sk1KwWIPbQrGe0aQaZUNtq1+0DA2BDyOpbaAxJKCqu02df5LXcHE+ZxMlIHjboHt
-a+xJtxrLkMcqU0oislf/IGrs6155Sb9yszaXt9Rk1Dugrzz/QQmhXHBLyQTjxy9Q
-5BwkMG4ysoqz6SrySg+s7USvNuOa4f3u2mglLwRPWNLljkf55EN22OvRN6yDL2qa
-MlQOy/la90QK6a7W969cM6ZpdVh3OwthHG1/5VpwonBO
------END CERTIFICATE-----
-)";
+// TLS INSECURE MODE - No CA certificate verification
+// Peringatan: Mode ini tidak aman untuk production!
 
 // Topics
 const char* TOPIC_AC_CONTROL = "ecolab/mcuB/ac/control";
@@ -137,13 +117,12 @@ void setup() {
   // Connect WiFi
   connectWiFi();
 
-  // Setup MQTT - Set CA certificate dengan cara ESP8266
+  // Setup MQTT - TLS Insecure Mode (tanpa CA certificate)
   mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
   mqttClient.setCallback(mqttCallback);
 
-  // ESP8266: Set CA certificate AFTER setServer
-  BearSSL::X509List cert(CA_CERT);
-  espClient.setTrustAnchors(&cert);
+  // ESP8266: Set insecure mode (skip certificate verification)
+  espClient.setInsecure();
 
   // ESP8266: Increase buffer size untuk TLS
   espClient.setBufferSizes(2048, 2048);
@@ -222,11 +201,10 @@ bool reconnectMQTT() {
   Serial.print(MQTT_BROKER);
   Serial.print("...");
 
-  // ESP8266: Set CA cert setiap kali reconnect ( BearSSL bug )
-  BearSSL::X509List cert(CA_CERT);
-  espClient.setTrustAnchors(&cert);
+  // ESP8266: Insecure mode (skip certificate verification)
+  espClient.setInsecure();
 
-  Serial.println("[TLS] CA certificate loaded");
+  Serial.println("[TLS] Insecure mode enabled (no certificate verification)");
 
   if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, TOPIC_MCU_STATUS, 0, true, "OFFLINE")) {
     Serial.println(" connected!");
