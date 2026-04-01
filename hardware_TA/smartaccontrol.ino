@@ -26,17 +26,43 @@
 // ============================================================
 // WIFI CONFIG
 // ============================================================
-const char* WIFI_SSID = "YOUR_WIFI_SSID";        // Ganti dengan WiFi SSID
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD"; // Ganti dengan WiFi Password
+const char* WIFI_SSID = "EcoLab";        // Ganti dengan WiFi SSID
+const char* WIFI_PASSWORD = "ecolab321"; // Ganti dengan WiFi Password
 
 // ============================================================
 // MQTT CONFIG
 // ============================================================
-const char* MQTT_BROKER = "DESKTOP-CVPE153";  // Ganti dengan IP broker
+const char* MQTT_BROKER = "10.33.11.148";  // Ganti dengan IP broker
 const int MQTT_PORT = 8883;                   // TLS
 const char* MQTT_USERNAME = "mcub";
 const char* MQTT_PASSWORD = "mcub123";
 const char* MQTT_CLIENT_ID = "ecolab_mcub";
+
+// CA Certificate untuk TLS verification
+const char* CA_CERT = R"(
+-----BEGIN CERTIFICATE-----
+MIIDrTCCApWgAwIBAgIUKFYwJQFQ7JDUKBtRlbyz+MkxL1wwDQYJKoZIhvcNAQEL
+BQAwZjELMAkGA1UEBhMCSUQxDDAKBgNVBAgMA0RJWTETMBEGA1UEBwwKWW9neWFr
+YXJ0YTEPMA0GA1UECgwGRWNvTGFiMQ8wDQYDVQQLDAZFY29MYWIxEjAQBgNVBAMM
+CUVjb2xhYi1DQTAeFw0yNjAzMzEwODM0NTlaFw0zNjAzMjgwODM0NTlaMGYxCzAJ
+BgNVBAYTAklEMQwwCgYDVQQIDANESVkxEzARBgNVBAcMCllvZ3lha2FydGExDzAN
+BgNVBAoMBkVjb0xhYjEPMA0GA1UECwwGRWNvTGFiMRIwEAYDVQQDDAlFY29sYWIt
+Q0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJMVvFYOUG7zs4w/sC
+9dvblP5v0MmumansCh3wWEAjFcLXFDC4kS0hERHw661asm4TNYl1K8XUj8uCvqN8G
+Rpgqh3qnld9JEUY8tVrmLZxh0sd/B3bJ+2sQTLZTznk/N1mJS4UIatu+KYAusv/Q
+QHRgtQM42rpMZpFaq3+qsTWx/cTZV3WwQWMEY6Ypr3lMI+naSB18jg7Ac321escd
+K+GW20/5ScJQhrSd5g0iUETOvRzoKrqhHq4sZ1xBa0W4CGLF4UV8IGP7C118skIQ
+nJajJ79obXTyAqzqzKrLIM0zc5Xxt/mbaapghsk7+/IvZUEAizwPQmU1Uj9Pr5er
+4SbnAgMBAAGjUzBRMB0GA1UdDgQWBBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAfBgNV
+HSMEGDAWgBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAPBgNVHRMBAf8EBTADAQH/MA0G
+CSqGSIb3DQEBCwUAA4IBAQAk2RsxuzFzWT3WbVghHtcczDjR1u28TWFYY7jGTvgy
+ZvyYWxi0PnFl8Ht/6liNvWoxVdXc0MOauIQTfq29RKLz99U9xMIqT4Vz0V/7n+Mb
+sk1KwWIPbQrGe0aQaZUNtq1+0DA2BDyOpbaAxJKCqu02df5LXcHE+ZxMlIHjboHt
+a+xJtxrLkMcqU0oislf/IGrs6155Sb9yszaXt9Rk1Dugrzz/QQmhXHBLyQTjxy9Q
+5BwkMG4ysoqz6SrySg+s7USvNuOa4f3u2mglLwRPWNLljkf55EN22OvRN6yDL2qa
+MlQOy/la90QK6a7W969cM6ZpdVh3OwthHG1/5VpwonBO
+-----END CERTIFICATE-----
+)";
 
 // Topics
 const char* TOPIC_AC_CONTROL = "ecolab/mcuB/ac/control";
@@ -53,7 +79,7 @@ const uint16_t IR_LED_PIN = D1;
 IRDaikinESP ac(IR_LED_PIN);
 
 // DHT11
-#define DHTPIN D2         // Pin DHT11
+#define DHTPIN D4      // Pin DHT11
 #define DHTTYPE DHT11     // Tipe sensor DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -111,12 +137,16 @@ void setup() {
   // Connect WiFi
   connectWiFi();
 
-  // Setup MQTT
+  // Setup MQTT - Set CA certificate dengan cara ESP8266
   mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
   mqttClient.setCallback(mqttCallback);
 
-  // Set LWT (Last Will Testament)
-  mqttClient.setWill(TOPIC_MCU_STATUS, "OFFLINE", true, 0);
+  // ESP8266: Set CA certificate AFTER setServer
+  BearSSL::X509List cert(CA_CERT);
+  espClient.setTrustAnchors(&cert);
+
+  // ESP8266: Increase buffer size untuk TLS
+  espClient.setBufferSizes(2048, 2048);
 
   Serial.println("\n[INFO] Setup complete. Starting loop...\n");
 }
@@ -167,8 +197,21 @@ void connectWiFi() {
   }
 
   Serial.println("\n[WIFI] Connected!");
+  Serial.println("====================");
+  Serial.print("[WIFI] SSID: ");
+  Serial.println(WiFi.SSID());
   Serial.print("[WIFI] IP Address: ");
   Serial.println(WiFi.localIP());
+  Serial.print("[WIFI] Gateway: ");
+  Serial.println(WiFi.gatewayIP());
+  Serial.print("[WIFI] Subnet Mask: ");
+  Serial.println(WiFi.subnetMask());
+  Serial.print("[WIFI] Signal Strength (RSSI): ");
+  Serial.print(WiFi.RSSI());
+  Serial.println(" dBm");
+  Serial.print("[WIFI] MAC Address: ");
+  Serial.println(WiFi.macAddress());
+  Serial.println("====================");
 }
 
 // ============================================================
@@ -179,10 +222,13 @@ bool reconnectMQTT() {
   Serial.print(MQTT_BROKER);
   Serial.print("...");
 
-  // Set TLS (skip certificate verification for simplicity)
-  espClient.setInsecure();  // WARNING: Not secure for production!
+  // ESP8266: Set CA cert setiap kali reconnect ( BearSSL bug )
+  BearSSL::X509List cert(CA_CERT);
+  espClient.setTrustAnchors(&cert);
 
-  if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
+  Serial.println("[TLS] CA certificate loaded");
+
+  if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, TOPIC_MCU_STATUS, 0, true, "OFFLINE")) {
     Serial.println(" connected!");
 
     // Subscribe to AC control topic
