@@ -46,15 +46,20 @@ trialloginpage/client_secret.json
 # =========================
 # Sensitive Files / Secrets
 # =========================
-# Credentials folder (Firebase, Google OAuth, MQTT TLS)
-credentials/
+# Firebase & Google OAuth credentials
+credentials/client_secret.json
+credentials/firebase_service_account.json
+credentials/*.old
 
-# Individual credential files (backup)
-firebase_service_account.json
-client_secret.json
+# MQTT TLS certificates
+credentials/ca.crt
+credentials/ca2.crt
+
+# Old location (backup)
 trialloginpage/firebase_service_account.json
 trialloginpage/client_secret.json
-ca.crt
+firebase_service_account.json
+client_secret.json
 
 # Session files
 ecolab_session.json
