@@ -35,7 +35,8 @@ EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** yang dib
 - **Google Cloud Storage** - Config untuk Google Sign-Up/Sign-In
 
 ### Hardware:
-- **Arduino/ESP8266** - Microcontroller untuk peralatan lab
+- **ESP32C3** - Microcontroller untuk Smart Socket
+- **Wemos D1 Mini** - Microcontroller untuk Smart Lamp dan Smart AC
 - **MQTT** - Protokol komunikasi IoT untuk kontrol peralatan
 - **IR (Infrared)** - Komunikasi untuk AC control
 
