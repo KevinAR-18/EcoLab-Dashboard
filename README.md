@@ -154,8 +154,8 @@ Folder `hardware_TA/` berisi program untuk microcontroller dan simulator peralat
 
 ### Arduino Programs (.ino):
 1. **smartsocket.ino** - Smart Socket untuk kontrol peralatan lab dengan MQTT
-2. **smartlampcontrol.ino** - Smart Lamp untuk pencahayaan lab dengan MQTT
-3. **smartaccontrol.ino** - Smart AC Control untuk suhu ruangan lab dengan IR
+2. **smartlampcontrol.ino** - Smart Lamp untuk pencahayaan lab dengan MQTT (*Developed with Ilham Purnomo*)
+3. **smartaccontrol.ino** - Smart AC Control untuk suhu ruangan lab dengan IR (*Developed with Ilham Purnomo*)
 
 ### Python Simulators:
 1. **smartsocket_simulator.py** - Simulasi Smart Socket 1
@@ -245,13 +245,23 @@ launcher.py → Check Session
 ## 📞 Contact
 
 **Stephanus Kevin Andika Rata**
-Magang Lab Elektronika DTEDI 2025 
+Magang Lab Elektronika DTEDI 2025
 Tugas Akhir - EcoLab Smart Laboratory
 
 Laboratorium Elektronika DTEDI
 Universitas Gadjah Mada
 
 📧 Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
+
+---
+
+**Ilham Purnomo**
+Anggota Pas Magang - Smart Lamp & Smart AC Developer
+
+Laboratorium Elektronika DTEDI
+Universitas Gadjah Mada
+
+📧 Email: [ilhampurnomo@example.com](mailto:ilhampurnomo@example.com)
 
 ---
 
