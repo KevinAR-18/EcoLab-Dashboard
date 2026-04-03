@@ -26,18 +26,18 @@ EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** yang dib
 
 ### Frontend:
 - **PySide6** (Qt6) - GUI Framework
-- **Python** 3.10+ (Recomend 3.12.5)
+- **Python** 3.10+ (Recommended 3.12.5)
 
 ### Backend:
-- **Firebase Authentication** - User authentication
+- **Firebase Authentication** - User authentication (Email, Google Sign-In)
 - **Pyrebase4** - Firebase SDK for Python
 - **MQTT** (paho-mqtt) - IoT communication protocol
-- **Google Cloud Storage** - File storage
+- **Google Cloud Storage** - Config untuk Google Sign-Up/Sign-In
 
 ### Hardware:
 - **Arduino/ESP8266** - Microcontroller untuk peralatan lab
-- **BLE (Bluetooth Low Energy)** - Komunikasi dengan perangkat lab
 - **MQTT** - Protokol komunikasi IoT untuk kontrol peralatan
+- **IR (Infrared)** - Komunikasi untuk AC control
 
 ---
 
