@@ -245,8 +245,8 @@ launcher.py → Check Session
 ## 📞 Contact
 
 **Stephanus Kevin Andika Rata**
-Magang Lab Elektronika DTEDI 2025
-Tugas Akhir - EcoLab Smart Laboratory Management System
+Magang Lab Elektronika DTEDI 2025 
+Tugas Akhir - EcoLab Smart Laboratory
 
 Laboratorium Elektronika DTEDI
 Universitas Gadjah Mada
@@ -259,7 +259,7 @@ Universitas Gadjah Mada
 
 © 2025 **Stephanus Kevin Andika Rata**
 
-This project is developed as part of **Tugas Akhir** for **Magang Lab Elektronika DTEDI 2025** at **Universitas Gadjah Mada**.
+This project is developed as part of **Magang Lab Elektronika DTEDI 2025** and **Final Project** at **Universitas Gadjah Mada**.
 
 ### Usage Terms:
 - This project is for **educational and research purposes** only
