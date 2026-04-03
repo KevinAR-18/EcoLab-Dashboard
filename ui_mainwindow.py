@@ -5030,6 +5030,12 @@ class Ui_MainWindow(object):
 "/* Pressed: sedikit lebih gelap */\n"
 "QPushButton#btn_action_socket1:pressed {\n"
 "    background-color: #914de6;      /* ungu gelap */\n"
+"}\n"
+"\n"
+"/* Disabled: ungu redup (guest mode) */\n"
+"QPushButton#btn_action_socket1:disabled {\n"
+"    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */\n"
+"    color: #d0d0d0;                 /* text sedikit redup */\n"
 "}")
 
         self.horizontalLayout_action1.addWidget(self.btn_action_socket1)
@@ -5473,6 +5479,12 @@ class Ui_MainWindow(object):
 "/* Pressed: sedikit lebih gelap */\n"
 "QPushButton#btn_action_socket2:pressed {\n"
 "    background-color: #1976D2;      /* biru gelap */\n"
+"}\n"
+"\n"
+"/* Disabled: biru redup (guest mode) */\n"
+"QPushButton#btn_action_socket2:disabled {\n"
+"    background-color: #2c7ac0;      /* biru redup (lebih gelap) */\n"
+"    color: #d0d0d0;                 /* text sedikit redup */\n"
 "}")
 
         self.horizontalLayout_action2.addWidget(self.btn_action_socket2)
@@ -5916,6 +5928,12 @@ class Ui_MainWindow(object):
 "/* Pressed: sedikit lebih gelap */\n"
 "QPushButton#btn_action_socket3:pressed {\n"
 "    background-color: #914de6;      /* ungu gelap */\n"
+"}\n"
+"\n"
+"/* Disabled: ungu redup (guest mode) */\n"
+"QPushButton#btn_action_socket3:disabled {\n"
+"    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */\n"
+"    color: #d0d0d0;                 /* text sedikit redup */\n"
 "}")
 
         self.horizontalLayout_action3.addWidget(self.btn_action_socket3)
@@ -6359,6 +6377,12 @@ class Ui_MainWindow(object):
 "/* Pressed: sedikit lebih gelap */\n"
 "QPushButton#btn_action_socket4:pressed {\n"
 "    background-color: #1976D2;      /* biru gelap */\n"
+"}\n"
+"\n"
+"/* Disabled: biru redup (guest mode) */\n"
+"QPushButton#btn_action_socket4:disabled {\n"
+"    background-color: #2c7ac0;      /* biru redup (lebih gelap) */\n"
+"    color: #d0d0d0;                 /* text sedikit redup */\n"
 "}")
 
         self.horizontalLayout_action4.addWidget(self.btn_action_socket4)
@@ -6802,6 +6826,12 @@ class Ui_MainWindow(object):
 "/* Pressed: sedikit lebih gelap */\n"
 "QPushButton#btn_action_socket5:pressed {\n"
 "    background-color: #914de6;      /* ungu gelap */\n"
+"}\n"
+"\n"
+"/* Disabled: ungu redup (guest mode) */\n"
+"QPushButton#btn_action_socket5:disabled {\n"
+"    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */\n"
+"    color: #d0d0d0;                 /* text sedikit redup */\n"
 "}")
 
         self.horizontalLayout_action5.addWidget(self.btn_action_socket5)

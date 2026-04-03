@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'loginpage.ui'
+## Form generated from reading UI file 'loginpageOLBYsx.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.10.1
 ##
@@ -84,14 +84,14 @@ class Ui_MainWindow(object):
 "\n"
 "/* PRIMARY */\n"
 "\n"
-"#signinButton,#signupButton{\n"
+"#signinButton,#signupButton,#sendResetEmailBtn{\n"
 "background-color:#2b6cb0;\n"
 "color:white;\n"
 "}\n"
 "\n"
-"#signinButton:hover,#signupButton:hover{\n"
-"backgroun"
-                        "d-color:#1e4f8a;\n"
+"#signinButton:hover,#signupButton:h"
+                        "over,#sendResetEmailBtn:hover{\n"
+"background-color:#1e4f8a;\n"
 "}\n"
 "\n"
 "/* GUEST */\n"
@@ -119,7 +119,7 @@ class Ui_MainWindow(object):
 "\n"
 "/* OR LABEL */\n"
 "\n"
-"#orLabel{\n"
+"#orLabel,#forgotPasswordTitle,#signup_label{\n"
 "font-size:10pt;\n"
 "font-weight:bold;\n"
 "color:#5b6f82;\n"
@@ -127,14 +127,14 @@ class Ui_MainWindow(object):
 "\n"
 "/* LINK BUTTON */\n"
 "\n"
-"#goto_signuppage,#goto_signinpage{\n"
+"#goto_signuppage,#goto_signinpage,#backToSigninFromForgotBtn,#goto_forgot_password{\n"
 "background:transparent;\n"
 "color:#2b6cb0;\n"
 "border:none;\n"
 "font-weight:bold;\n"
 "}\n"
 "\n"
-"#goto_signuppage:hover,#goto_signinpage:hover{\n"
+"#goto_signuppage:hover,#goto_signinpage:hover,#backToSigninFromForgotBtn:hover,#goto_forgot_password:hover{\n"
 "text-decoration:underline;\n"
 "}\n"
 "\n"
@@ -245,7 +245,7 @@ class Ui_MainWindow(object):
         self.page_signin = QWidget()
         self.page_signin.setObjectName(u"page_signin")
         self.verticalLayout_3 = QVBoxLayout(self.page_signin)
-        self.verticalLayout_3.setSpacing(10)
+        self.verticalLayout_3.setSpacing(16)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(-1, 30, -1, 30)
         self.guestButton = QPushButton(self.page_signin)
@@ -357,6 +357,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.showpasssigninCheck)
 
+        self.goto_forgot_password = QPushButton(self.page_signin)
+        self.goto_forgot_password.setObjectName(u"goto_forgot_password")
+
+        self.horizontalLayout_2.addWidget(self.goto_forgot_password)
+
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_2)
 
@@ -393,6 +398,13 @@ class Ui_MainWindow(object):
         self.page_signup.setObjectName(u"page_signup")
         self.verticalLayout_4 = QVBoxLayout(self.page_signup)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.signup_label = QLabel(self.page_signup)
+        self.signup_label.setObjectName(u"signup_label")
+        self.signup_label.setMaximumSize(QSize(16777215, 20))
+        self.signup_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_4.addWidget(self.signup_label)
+
         self.usernameInput = QLineEdit(self.page_signup)
         self.usernameInput.setObjectName(u"usernameInput")
 
@@ -473,6 +485,34 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.goto_signinpage)
 
         self.stackedWidget.addWidget(self.page_signup)
+        self.page_forgot_password = QWidget()
+        self.page_forgot_password.setObjectName(u"page_forgot_password")
+        self.verticalLayout_5 = QVBoxLayout(self.page_forgot_password)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(9, 130, -1, 130)
+        self.forgotPasswordTitle = QLabel(self.page_forgot_password)
+        self.forgotPasswordTitle.setObjectName(u"forgotPasswordTitle")
+        self.forgotPasswordTitle.setMaximumSize(QSize(16777215, 20))
+        self.forgotPasswordTitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.verticalLayout_5.addWidget(self.forgotPasswordTitle)
+
+        self.forgotPasswordEmailInput = QLineEdit(self.page_forgot_password)
+        self.forgotPasswordEmailInput.setObjectName(u"forgotPasswordEmailInput")
+
+        self.verticalLayout_5.addWidget(self.forgotPasswordEmailInput)
+
+        self.sendResetEmailBtn = QPushButton(self.page_forgot_password)
+        self.sendResetEmailBtn.setObjectName(u"sendResetEmailBtn")
+
+        self.verticalLayout_5.addWidget(self.sendResetEmailBtn)
+
+        self.backToSigninFromForgotBtn = QPushButton(self.page_forgot_password)
+        self.backToSigninFromForgotBtn.setObjectName(u"backToSigninFromForgotBtn")
+
+        self.verticalLayout_5.addWidget(self.backToSigninFromForgotBtn)
+
+        self.stackedWidget.addWidget(self.page_forgot_password)
 
         self.verticalLayout_2.addWidget(self.stackedWidget)
 
@@ -512,10 +552,12 @@ class Ui_MainWindow(object):
         self.passwordInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Password", None))
         self.rememberCheck.setText(QCoreApplication.translate("MainWindow", u"Remember me", None))
         self.showpasssigninCheck.setText(QCoreApplication.translate("MainWindow", u"Show Password", None))
+        self.goto_forgot_password.setText(QCoreApplication.translate("MainWindow", u"Forgot Password?", None))
         self.signinButton.setText(QCoreApplication.translate("MainWindow", u"Sign In", None))
         self.googleSigninButton.setText("")
         self.donthaveLabel.setText(QCoreApplication.translate("MainWindow", u"Don't have an account?", None))
         self.goto_signuppage.setText(QCoreApplication.translate("MainWindow", u"Create Account", None))
+        self.signup_label.setText(QCoreApplication.translate("MainWindow", u"--- SIGN UP ---", None))
         self.usernameInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Username", None))
         self.signupEmailInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Email", None))
         self.signupPasswordInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Password", None))
@@ -523,5 +565,9 @@ class Ui_MainWindow(object):
         self.signupButton.setText(QCoreApplication.translate("MainWindow", u"Create Account", None))
         self.googleSignupButton.setText("")
         self.goto_signinpage.setText(QCoreApplication.translate("MainWindow", u"Back to Sign In", None))
+        self.forgotPasswordTitle.setText(QCoreApplication.translate("MainWindow", u"--- FORGET PASSWORD ---", None))
+        self.forgotPasswordEmailInput.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Email", None))
+        self.sendResetEmailBtn.setText(QCoreApplication.translate("MainWindow", u"Send ", None))
+        self.backToSigninFromForgotBtn.setText(QCoreApplication.translate("MainWindow", u"Back to Sign In", None))
     # retranslateUi
 

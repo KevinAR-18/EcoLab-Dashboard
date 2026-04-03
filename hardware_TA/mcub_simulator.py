@@ -24,8 +24,8 @@ MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "mcub"
 MQTT_PASSWORD = "mcub123"
-CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
-# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_AC_CONTROL = "ecolab/mcuB/ac/control"

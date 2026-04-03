@@ -14,6 +14,19 @@ from PySide6.QtWidgets import (
 # Import Auth Service untuk Firebase
 from auth_service import TrialLoginService
 
+# ============================================================
+# PRIMARY ADMIN EMAIL
+# Email admin utama yang TIDAK BOLEH diubah rolenya
+# Bisa diganti/ditambah untuk keamanan
+# ============================================================
+PRIMARY_ADMIN_EMAILS = [
+    "admin@ecolab.com",  # Email admin utama (satu-satunya admin yang tidak bisa diubah)
+    # Tambahkan email admin penting lainnya di sini jika perlu
+    # "superadmin@ecolab.com",
+    "kevinandika18@gmail.com",
+    "ecolabtedi@gmail.com",
+]
+
 
 class Date:
     """Helper class untuk update waktu dan tanggal"""
@@ -287,6 +300,18 @@ class AdminPanelWindow(QMainWindow):
         # Load data dari Firebase
         self.load_firebase_data()
 
+    def _is_primary_admin(self, user_email):
+        """
+        Cek apakah user adalah primary admin yang TIDAK BOLEH diubah rolenya
+
+        Args:
+            user_email: Email user yang akan dicek
+
+        Returns:
+            bool: True jika primary admin, False jika bukan
+        """
+        return user_email.lower() in [email.lower() for email in PRIMARY_ADMIN_EMAILS]
+
     def _fix_label_colors(self):
         """
         Force warna teks label untuk mencegah Dark Mode Windows 11 interference
@@ -404,6 +429,29 @@ class AdminPanelWindow(QMainWindow):
             role_combo.addItem("user")
             role_combo.addItem("admin")
             role_combo.setCurrentText(user["role"])
+
+            # DISABLE dropdown jika user adalah PRIMARY ADMIN
+            if self._is_primary_admin(user["email"]):
+                role_combo.setEnabled(False)
+                # Tambahkan tooltip untuk informasi
+                role_combo.setToolTip(
+                    f"⛔ Primary Admin - Role cannot be changed\n"
+                    f"Protected: {user['email']}"
+                )
+                # Ubah style untuk menandakan disabled
+                role_combo.setStyleSheet("""
+                    QComboBox:disabled {
+                        background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #e9ecef, stop:1 #dee2e6);
+                        color: #6c757d;
+                        border: 2px solid #adb5bd;
+                        border-radius: 8px;
+                        padding: 6px 12px;
+                        font-size: 10pt;
+                        font-weight: 600;
+                        min-width: 80px;
+                    }
+                """)
+
             role_combo.currentTextChanged.connect(
                 lambda text, uid=user["uid"]: self.on_role_changed(uid, text)
             )
@@ -533,11 +581,42 @@ class AdminPanelWindow(QMainWindow):
     def on_role_changed(self, uid, new_role):
         """Handle ketika role dropdown diubah"""
         try:
+            # Cari user data berdasarkan UID
+            user_data = None
+            for user in self.users_data:
+                if user["uid"] == uid:
+                    user_data = user
+                    break
+
+            if not user_data:
+                QMessageBox.critical(self, "Error", "❌ User data not found!")
+                self.load_firebase_data()
+                return
+
+            # VALIDASI: Cek apakah user adalah PRIMARY ADMIN
+            if self._is_primary_admin(user_data["email"]):
+                QMessageBox.warning(
+                    self,
+                    "Role Change Restricted",
+                    f"⛔ CANNOT CHANGE PRIMARY ADMIN ROLE!\n\n"
+                    f"Email: {user_data['email']}\n"
+                    f"Current Role: {user_data['role']}\n\n"
+                    f"This is a PRIMARY ADMIN account.\n"
+                    f"Primary admin role cannot be changed to 'user' for security reasons.\n\n"
+                    f"Protected emails:\n"
+                    f"• {', '.join(PRIMARY_ADMIN_EMAILS)}"
+                )
+                # Refresh table untuk revert dropdown
+                self.load_firebase_data()
+                return
+
             # Confirm dialog
             reply = QMessageBox.question(
                 self,
                 "Confirm Role Change",
-                f"Are you sure you want to change this user's role to '{new_role}'?",
+                f"Are you sure you want to change this user's role to '{new_role}'?\n\n"
+                f"Email: {user_data['email']}\n"
+                f"Username: {user_data['username']}",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
                 QMessageBox.StandardButton.No
             )

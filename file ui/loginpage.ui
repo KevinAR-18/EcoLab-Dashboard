@@ -79,12 +79,12 @@ font-weight:bold;
 
 /* PRIMARY */
 
-#signinButton,#signupButton{
+#signinButton,#signupButton,#sendResetEmailBtn{
 background-color:#2b6cb0;
 color:white;
 }
 
-#signinButton:hover,#signupButton:hover{
+#signinButton:hover,#signupButton:hover,#sendResetEmailBtn:hover{
 background-color:#1e4f8a;
 }
 
@@ -113,7 +113,7 @@ opacity:0.8;
 
 /* OR LABEL */
 
-#orLabel{
+#orLabel,#forgotPasswordTitle,#signup_label{
 font-size:10pt;
 font-weight:bold;
 color:#5b6f82;
@@ -121,14 +121,14 @@ color:#5b6f82;
 
 /* LINK BUTTON */
 
-#goto_signuppage,#goto_signinpage{
+#goto_signuppage,#goto_signinpage,#backToSigninFromForgotBtn,#goto_forgot_password{
 background:transparent;
 color:#2b6cb0;
 border:none;
 font-weight:bold;
 }
 
-#goto_signuppage:hover,#goto_signinpage:hover{
+#goto_signuppage:hover,#goto_signinpage:hover,#backToSigninFromForgotBtn:hover,#goto_forgot_password:hover{
 text-decoration:underline;
 }
 
@@ -378,7 +378,7 @@ color:#4a647d;
          <widget class="QWidget" name="page_signin">
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="spacing">
-            <number>10</number>
+            <number>16</number>
            </property>
            <property name="topMargin">
             <number>30</number>
@@ -520,6 +520,13 @@ border:1px solid #cfd8e3;
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="goto_forgot_password">
+               <property name="text">
+                <string>Forgot Password?</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
@@ -582,6 +589,22 @@ border:1px solid #cfd8e3;
          </widget>
          <widget class="QWidget" name="page_signup">
           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QLabel" name="signup_label">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>--- SIGN UP ---</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QLineEdit" name="usernameInput">
              <property name="placeholderText">
@@ -687,6 +710,56 @@ border:1px solid #cfd8e3;
            </item>
            <item>
             <widget class="QPushButton" name="goto_signinpage">
+             <property name="text">
+              <string>Back to Sign In</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_forgot_password">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="leftMargin">
+            <number>9</number>
+           </property>
+           <property name="topMargin">
+            <number>130</number>
+           </property>
+           <property name="bottomMargin">
+            <number>130</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="forgotPasswordTitle">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>--- FORGET PASSWORD ---</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignmentFlag::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="forgotPasswordEmailInput">
+             <property name="placeholderText">
+              <string>Email</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="sendResetEmailBtn">
+             <property name="text">
+              <string>Send </string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="backToSigninFromForgotBtn">
              <property name="text">
               <string>Back to Sign In</string>
              </property>

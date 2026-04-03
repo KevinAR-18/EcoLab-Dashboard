@@ -83,15 +83,31 @@ class LoginWindow(QMainWindow):
         # Button untuk kembali ke sign in page
         self.ui.goto_signinpage.clicked.connect(self.show_signin_page)
 
-        # ===== SHOW PASSWORD SIGN IN =====
-        self.ui.showpasssigninCheck.stateChanged.connect(
-            lambda: self._toggle_password_signin()
-        )
+        # Button untuk pindah ke forgot password page
+        self.ui.goto_forgot_password.clicked.connect(self.show_forgot_password_page)
 
-        # ===== SHOW PASSWORD SIGN UP =====
-        self.ui.showpasssignupCheck.stateChanged.connect(
-            lambda: self._toggle_password_signup()
-        )
+        # Button untuk kembali ke sign in dari forgot password page
+        self.ui.backToSigninFromForgotBtn.clicked.connect(self.show_signin_page)
+
+        # ===== FORGOT PASSWORD =====
+        # Button untuk kirim reset email
+        self.ui.sendResetEmailBtn.clicked.connect(self.handle_forgot_password_send_email)
+
+        # Enter key di email input forgot password → auto click send
+        self.ui.forgotPasswordEmailInput.returnPressed.connect(self.handle_forgot_password_send_email)
+
+        # ===== SHOW PASSWORD =====
+        # Checkbox show password sign in
+        if hasattr(self.ui, 'showpasssigninCheck'):
+            self.ui.showpasssigninCheck.stateChanged.connect(
+                lambda: self._toggle_password_signin()
+            )
+
+        # Checkbox show password sign up
+        if hasattr(self.ui, 'showpasssignupCheck'):
+            self.ui.showpasssignupCheck.stateChanged.connect(
+                lambda: self._toggle_password_signup()
+            )
 
         # ===== CLOSE BUTTON =====
         self.ui.closeAppBtn.clicked.connect(self.close)
@@ -137,6 +153,10 @@ class LoginWindow(QMainWindow):
     def show_signup_page(self):
         """Tampilkan halaman sign up"""
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_signup)
+
+    def show_forgot_password_page(self):
+        """Tampilkan halaman forgot password"""
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_forgot_password)
 
     # ===== TOGGLE PASSWORD =====
     def _toggle_password_signin(self):
@@ -192,6 +212,60 @@ class LoginWindow(QMainWindow):
         result = self.auth_service.login_with_email(email, password)
         self._handle_auth_result(result, "Login")
 
+    def handle_forgot_password_send_email(self):
+        """Handle tombol send reset email diklik"""
+        email = self.ui.forgotPasswordEmailInput.text().strip()
+
+        # Validasi input
+        if not email:
+            self.show_message_box("warning", "Email Required", "Please enter your email address!")
+            return
+
+        # Validasi format email
+        if not self._is_valid_email(email):
+            self.show_message_box("warning", "Invalid Email", "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com")
+            return
+
+        # Konfirmasi sebelum kirim
+        msg_box = QMessageBox(self)
+        msg_box.setIcon(QMessageBox.Icon.Question)
+        msg_box.setWindowTitle("Send Reset Email")
+        msg_box.setText(f"Send password reset email to:\n\n{email}\n\nCheck your inbox/spam folder.")
+        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+
+        # Set icon EcoLab
+        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        icon = QIcon(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        msg_box.setWindowIcon(icon)
+
+        reply = msg_box.exec()
+
+        if reply == QMessageBox.StandardButton.Yes:
+            # Kirim reset email via Firebase
+            result = self.auth_service.send_reset_password(email)
+
+            if result["status"] == "success":
+                self.show_message_box(
+                    "information",
+                    "Email Sent",
+                    "✅ Password reset email has been sent!\n\n"
+                    "Please check your inbox (and spam folder).\n"
+                    "Follow the link in the email to reset your password."
+                )
+                # Clear input dan kembali ke sign in page
+                self.ui.forgotPasswordEmailInput.clear()
+                self.show_signin_page()
+            else:
+                self.show_message_box(
+                    "critical",
+                    "Error",
+                    f"❌ Failed to send reset email:\n\n{result['message']}\n\n"
+                    "Please check:\n"
+                    "• Email is registered\n"
+                    "• Internet connection"
+                )
+
     def handle_signup(self):
         """Handle tombol sign up diklik"""
         username = self.ui.usernameInput.text().strip()
@@ -206,6 +280,22 @@ class LoginWindow(QMainWindow):
         # Validasi format email
         if not self._is_valid_email(email):
             self.show_message_box("warning", "Signup Error", "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com")
+            return
+
+        # Cek apakah email sudah terdaftar
+        email_check = self.auth_service.check_email_exists(email)
+
+        if email_check["exists"]:
+            self.show_message_box(
+                "warning",
+                "Email Already Registered",
+                "⚠️ This email is already registered!\n\n"
+                f"Email: {email}\n\n"
+                "Please:\n"
+                "• Use a different email, OR\n"
+                "• Sign In with existing account, OR\n"
+                "• Reset password if forgotten"
+            )
             return
 
         if len(password) < 6:

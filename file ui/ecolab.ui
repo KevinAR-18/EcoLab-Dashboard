@@ -10384,6 +10384,12 @@ QPushButton#btn_action_socket1:hover {
 /* Pressed: sedikit lebih gelap */
 QPushButton#btn_action_socket1:pressed {
     background-color: #914de6;      /* ungu gelap */
+}
+
+/* Disabled: ungu redup (guest mode) */
+QPushButton#btn_action_socket1:disabled {
+    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */
+    color: #d0d0d0;                 /* text sedikit redup */
 }</string>
                                   </property>
                                   <property name="text">
@@ -11321,6 +11327,12 @@ QPushButton#btn_action_socket2:hover {
 /* Pressed: sedikit lebih gelap */
 QPushButton#btn_action_socket2:pressed {
     background-color: #1976D2;      /* biru gelap */
+}
+
+/* Disabled: biru redup (guest mode) */
+QPushButton#btn_action_socket2:disabled {
+    background-color: #2c7ac0;      /* biru redup (lebih gelap) */
+    color: #d0d0d0;                 /* text sedikit redup */
 }</string>
                                   </property>
                                   <property name="text">
@@ -12258,6 +12270,12 @@ QPushButton#btn_action_socket3:hover {
 /* Pressed: sedikit lebih gelap */
 QPushButton#btn_action_socket3:pressed {
     background-color: #914de6;      /* ungu gelap */
+}
+
+/* Disabled: ungu redup (guest mode) */
+QPushButton#btn_action_socket3:disabled {
+    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */
+    color: #d0d0d0;                 /* text sedikit redup */
 }</string>
                                   </property>
                                   <property name="text">
@@ -13195,6 +13213,12 @@ QPushButton#btn_action_socket4:hover {
 /* Pressed: sedikit lebih gelap */
 QPushButton#btn_action_socket4:pressed {
     background-color: #1976D2;      /* biru gelap */
+}
+
+/* Disabled: biru redup (guest mode) */
+QPushButton#btn_action_socket4:disabled {
+    background-color: #2c7ac0;      /* biru redup (lebih gelap) */
+    color: #d0d0d0;                 /* text sedikit redup */
 }</string>
                                   </property>
                                   <property name="text">
@@ -14132,6 +14156,12 @@ QPushButton#btn_action_socket5:hover {
 /* Pressed: sedikit lebih gelap */
 QPushButton#btn_action_socket5:pressed {
     background-color: #914de6;      /* ungu gelap */
+}
+
+/* Disabled: ungu redup (guest mode) */
+QPushButton#btn_action_socket5:disabled {
+    background-color: #7a4cb3;      /* ungu redup (lebih gelap) */
+    color: #d0d0d0;                 /* text sedikit redup */
 }</string>
                                   </property>
                                   <property name="text">

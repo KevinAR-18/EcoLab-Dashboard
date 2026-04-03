@@ -50,13 +50,13 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-# MQTT_BROKER = "DESKTOP-CVPE153"
-MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"
+# MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca.crt")
-# MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca2.crt")
+# MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca.crt")
+MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca2.crt")
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu
@@ -1052,6 +1052,8 @@ class MainWindow(QMainWindow):
                 action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
                 if action_btn:
                     action_btn.setEnabled(False)
+                    # Custom widget SmartSocketActionButton akan otomatis
+                    # set style redup via setEnabled() override
                     action_btn.setToolTip("Not available in Guest Mode (Read-only)")
 
             # === SMART SOCKET SWITCH BUTTONS ===
@@ -1085,6 +1087,7 @@ class MainWindow(QMainWindow):
                 action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
                 if action_btn:
                     action_btn.setEnabled(True)
+                    # Custom widget akan otomatis menghapus opacity via paintEvent saat enabled
                     action_btn.setToolTip("")
 
             # Smart Socket Switch Buttons

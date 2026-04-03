@@ -197,6 +197,38 @@ class TrialLoginService:
         except Exception as exc:
             return self._error_result(exc)
 
+    def check_email_exists(self, email):
+        """
+        Cek apakah email sudah terdaftar di Firebase Authentication
+        dengan mencoba login menggunakan dummy password
+
+        Args:
+            email: Email yang akan dicek
+
+        Returns:
+            dict: {"exists": bool, "message": str}
+        """
+        try:
+            # Coba sign in dengan dummy password
+            # Firebase akan return error spesifik berdasarkan kondisi:
+            # - EMAIL_NOT_FOUND → email belum terdaftar
+            # - INVALID_PASSWORD → email sudah ada (tapi password salah)
+            self.auth.sign_in_with_email_and_password(email, "__dummy_password_check_123__")
+            return {"exists": False, "message": "Unexpected success"}
+        except Exception as exc:
+            error_msg = str(exc)
+
+            # Parse error message dari Firebase
+            if "EMAIL_NOT_FOUND" in error_msg or "There is no user record" in error_msg:
+                # Email belum terdaftar
+                return {"exists": False, "message": "Email available"}
+            elif "INVALID_PASSWORD" in error_msg or "The password is invalid" in error_msg:
+                # Email sudah terdaftar (password salah = email ada)
+                return {"exists": True, "message": "Email already registered"}
+            else:
+                # Error lain (network, invalid email format, dll)
+                return {"exists": False, "message": f"Error: {error_msg}"}
+
     def get_pending_users(self):
         return [
             {

@@ -215,12 +215,13 @@ class SwitchButton(QWidget):
         # LED merah dengan alpha + glow
         led_color = QColor("#FF2222")
         led_color.setAlphaF(self._led_alpha)
+
         p.setBrush(led_color)
         p.drawRoundedRect(QRectF(rect_x, rect_y, rect_w, rect_h), corner_radius, corner_radius)
 
         # LED Glow effect (berkedip saat ON)
         if self._glow_alpha > 0:
-            glow_color = QColor("#FF4444")
+            glow_color = QColor("#FF4444")  # Merah
             glow_color.setAlphaF(self._glow_alpha * 0.4)
 
             # Glow di sekitar tombol
