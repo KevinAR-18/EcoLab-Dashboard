@@ -251,8 +251,17 @@ Tugas Akhir - EcoLab Smart Laboratory Management System
 Laboratorium Elektronika DTEDI
 Universitas Gadjah Mada
 
+📧 Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
+
 ---
 
-## 📄 License
+## 📄 License & Copyright
 
-This project is part of Tugas Akhir untuk Magang Lab Elektronika DTEDI 2025
+© 2025 **Stephanus Kevin Andika Rata**
+
+This project is developed as part of **Tugas Akhir** for **Magang Lab Elektronika DTEDI 2025** at **Universitas Gadjah Mada**.
+
+### Usage Terms:
+- This project is for **educational and research purposes** only
+- For academic and laboratory use at Laboratorium Elektronika DTEDI
+- Please contact the author for any commercial usage or redistribution requests
