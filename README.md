@@ -26,7 +26,7 @@ EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** yang dib
 
 ### Frontend:
 - **PySide6** (Qt6) - GUI Framework
-- **Python** 3.10+
+- **Python** 3.10+ (Recomend 3.12.5)
 
 ### Backend:
 - **Firebase Authentication** - User authentication
