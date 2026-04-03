@@ -248,7 +248,7 @@ Magang Lab Elektronika DTEDI 2025
 Tugas Akhir - EcoLab Smart Laboratory Management System
 
 Laboratorium Elektronika DTEDI
-Teknik Elektro - Universitas Indonesia
+Universitas Gadjah Mada
 
 ---
 
