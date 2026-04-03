@@ -26,10 +26,12 @@ import paho.mqtt.client as mqtt
 # CONFIG
 # ============================================================
 MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
+# MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "smartsocket1"
 MQTT_PASSWORD = "smart1"
 CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_CONTROL = "ecolab/socket/1/control"

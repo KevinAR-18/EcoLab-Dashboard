@@ -26,10 +26,12 @@ import paho.mqtt.client as mqtt
 # CONFIG
 # ============================================================
 MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
+# MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "smartsocket5"
 MQTT_PASSWORD = "smart5"
 CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_CONTROL = "ecolab/socket/5/control"
@@ -154,6 +156,7 @@ def on_message(client, userdata, msg):
             schedule_start_active = False
             start_triggered = False
             publish_status_sync()
+            save_schedule_to_file()
             print("[SCHEDULE] Start cancelled")
         else:
             # Format: HH:MM
@@ -167,6 +170,7 @@ def on_message(client, userdata, msg):
 
                 print(f"[SCHEDULE] Start set: {payload}")
                 publish_status_sync()
+                save_schedule_to_file()
             except:
                 client.publish(TOPIC_SCHEDULE_STATUS, "FORMAT ERROR")
 
@@ -176,6 +180,7 @@ def on_message(client, userdata, msg):
             schedule_stop_active = False
             stop_triggered = False
             publish_status_sync()
+            save_schedule_to_file()
             print("[SCHEDULE] Stop cancelled")
         else:
             # Format: HH:MM
@@ -189,6 +194,7 @@ def on_message(client, userdata, msg):
 
                 print(f"[SCHEDULE] Stop set: {payload}")
                 publish_status_sync()
+                save_schedule_to_file()
             except:
                 client.publish(TOPIC_SCHEDULE_STATUS, "FORMAT ERROR")
 
@@ -198,6 +204,7 @@ def on_message(client, userdata, msg):
             schedule_daily_mode = True
             last_triggered_day = None
             publish_status_sync()
+            save_schedule_to_file()
             print("[SCHEDULE] Mode: Daily")
         elif payload == "onetime":
             schedule_daily_mode = False
@@ -205,6 +212,7 @@ def on_message(client, userdata, msg):
             start_triggered = False
             stop_triggered = False
             publish_status_sync()
+            save_schedule_to_file()
             print("[SCHEDULE] Mode: Onetime")
         else:
             client.publish(TOPIC_SCHEDULE_STATUS, "MODE ERROR")
@@ -226,6 +234,63 @@ def send_relay_status():
     payload = "ON" if relay_state else "OFF"
     client.publish(TOPIC_RELAY_STATUS, payload, retain=True)
     print(f"[MQTT] Published: {TOPIC_RELAY_STATUS} -> {payload} (retain)")
+
+# ================= JSON SAVE/LOAD =================
+SCHEDULE_FILE = "schedule_socket5.json"
+
+def save_schedule_to_file():
+    """Simpan state schedule ke file JSON"""
+    global schedule_start_active, schedule_stop_active
+    global sched_start_hour, sched_start_minute
+    global sched_stop_hour, sched_stop_minute
+    global schedule_daily_mode
+
+    schedule_data = {
+        "start_active": schedule_start_active,
+        "start_hour": sched_start_hour,
+        "start_minute": sched_start_minute,
+        "stop_active": schedule_stop_active,
+        "stop_hour": sched_stop_hour,
+        "stop_minute": sched_stop_minute,
+        "daily_mode": schedule_daily_mode
+    }
+
+    try:
+        with open(SCHEDULE_FILE, "w") as f:
+            json.dump(schedule_data, f, indent=2)
+        print(f"[JSON] Schedule saved to {SCHEDULE_FILE}")
+    except Exception as e:
+        print(f"[JSON] Error saving schedule: {e}")
+
+def load_schedule_from_file():
+    """Load state schedule dari file JSON"""
+    global schedule_start_active, schedule_stop_active
+    global sched_start_hour, sched_start_minute
+    global sched_stop_hour, sched_stop_minute
+    global schedule_daily_mode
+
+    if not os.path.exists(SCHEDULE_FILE):
+        print(f"[JSON] Schedule file not found, using defaults")
+        return
+
+    try:
+        with open(SCHEDULE_FILE, "r") as f:
+            schedule_data = json.load(f)
+
+        schedule_start_active = schedule_data.get("start_active", False)
+        sched_start_hour = schedule_data.get("start_hour", 0)
+        sched_start_minute = schedule_data.get("start_minute", 0)
+        schedule_stop_active = schedule_data.get("stop_active", False)
+        sched_stop_hour = schedule_data.get("stop_hour", 0)
+        sched_stop_minute = schedule_data.get("stop_minute", 0)
+        schedule_daily_mode = schedule_data.get("daily_mode", True)
+
+        mode_str = "Daily" if schedule_daily_mode else "Onetime"
+        print(f"[JSON] Schedule loaded from {SCHEDULE_FILE}")
+        print(f"[JSON] Mode: {mode_str}, Start: {sched_start_hour:02d}:{sched_start_minute:02d}, "
+              f"Stop: {sched_stop_hour:02d}:{sched_stop_minute:02d}")
+    except Exception as e:
+        print(f"[JSON] Error loading schedule: {e}")
 
 def send_energy_data():
     """Publish PZEM energy data (REALISTIC MODE)"""
@@ -415,6 +480,32 @@ def handle_schedule():
                     stop_triggered = False
                     print("[SCHEDULE] Stop trigger reset (daily mode)")
 
+    # ================= RECOVERY LOGIC =================
+    # Kalau relay mati tapi seharusnya nyala (dalam rentang schedule), nyalakan lagi
+    # Ini untuk recovery setelah reboot/power loss
+    if not timer_active:  # Timer lebih prioritas, jangan override
+        if schedule_start_active and schedule_stop_active:
+            # Cek apakah sekarang dalam rentang schedule
+            now_minutes = current_hour * 60 + current_minute
+            start_minutes = sched_start_hour * 60 + sched_start_minute
+            stop_minutes = sched_stop_hour * 60 + sched_stop_minute
+
+            should_be_on = False
+
+            # Untuk schedule yang melewati tengah malam (misal 23:00 - 02:00)
+            if start_minutes < stop_minutes:
+                # Normal: 07:00 - 20:00
+                should_be_on = (now_minutes >= start_minutes and now_minutes < stop_minutes)
+            else:
+                # Lewat tengah malam: 23:00 - 02:00
+                should_be_on = (now_minutes >= start_minutes or now_minutes < stop_minutes)
+
+            # Recovery: Nyalakan jika seharusnya ON tapi sekarang OFF
+            if should_be_on and not relay_state:
+                relay_state = True
+                send_relay_status()
+                print(f"[RECOVERY] Relay ON (within schedule range: {sched_start_hour:02d}:{sched_start_minute:02d} - {sched_stop_hour:02d}:{sched_stop_minute:02d})")
+
 # ============================================================
 # USER INPUT THREAD (Beban/Load)
 # ============================================================
@@ -566,6 +657,9 @@ def main():
         client.username_pw_set(MQTT_USERNAME, MQTT_PASSWORD)
         client.connect(MQTT_BROKER, MQTT_PORT, 60)
         client.loop_start()
+
+        # Load schedule dari file JSON
+        load_schedule_from_file()
 
         # Main loop timing
         last_energy_time = time.time()

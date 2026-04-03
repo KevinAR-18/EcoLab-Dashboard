@@ -20,12 +20,13 @@ import os
 # ============================================================
 # CONFIG
 # ============================================================
-# MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
-MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
+# MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "mcua"
 MQTT_PASSWORD = "mcua123"
 CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_LAMP_CMD_PREFIX = "ecolab/mcuA/lamp"
