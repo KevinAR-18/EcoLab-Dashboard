@@ -708,23 +708,24 @@ class MainWindow(QMainWindow):
 
     def on_switch_toggled(self, switch_index: int, state: bool):
         """Handler saat switch button ditekan"""
-        print(f"[DEBUG] Switch {switch_index} toggled: {state}")  # Debug print
+        # print(f"[DEBUG] Switch {switch_index} toggled: {state}")  # Debug print
         self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
 
         # Debug: Cek apakah socket_backends ada
-        print(f"[DEBUG] hasattr(self, 'socket_backends'): {hasattr(self, 'socket_backends')}")
+        # print(f"[DEBUG] hasattr(self, 'socket_backends'): {hasattr(self, 'socket_backends')}")
         if hasattr(self, 'socket_backends'):
-            print(f"[DEBUG] socket_backends: {self.socket_backends}")
-            print(f"[DEBUG] switch_index {switch_index} in socket_backends: {switch_index in self.socket_backends}")
+            # print(f"[DEBUG] socket_backends: {self.socket_backends}")
+            # print(f"[DEBUG] switch_index {switch_index} in socket_backends: {switch_index in self.socket_backends}")
+            pass
 
         # Kirim command ke SmartSocket backend
         if hasattr(self, 'socket_backends') and switch_index in self.socket_backends:
             backend = self.socket_backends[switch_index]
-            print(f"[DEBUG] Backend found: {backend}")  # Debug print
+            # print(f"[DEBUG] Backend found: {backend}")  # Debug print
             backend.set_relay(state)
             self.log(f"[Socket {switch_index}] Relay command sent: {state}")
         else:
-            print(f"[DEBUG] Backend NOT found!")  # Debug print
+            # print(f"[DEBUG] Backend NOT found!")  # Debug print
             self.log(f"[WARNING] Socket {switch_index} backend not ready yet!")
             # Tampilkan pesan ke user yang lebih jelas
             show_styled_warning(
