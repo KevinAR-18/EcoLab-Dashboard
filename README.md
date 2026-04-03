@@ -253,18 +253,6 @@ Universitas Gadjah Mada
 
 📧 Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
 
----
-
-**Ilham Purnomo**
-Anggota Pas Magang - Smart Lamp & Smart AC Developer
-
-Laboratorium Elektronika DTEDI
-Universitas Gadjah Mada
-
-📧 Email: [ilhampurnomo@example.com](mailto:ilhampurnomo@example.com)
-
----
-
 ## 📄 License & Copyright
 
 © 2025 **Stephanus Kevin Andika Rata**
