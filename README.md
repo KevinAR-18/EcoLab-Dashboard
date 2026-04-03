@@ -1,4 +1,4 @@
-# EcoLab Dashboard - IoT Smart Home Application
+# EcoLab Dashboard - Smart Laboratory Management System
 
 Dashboard EcoLab - Magang Lab Elektronika DTEDI 2025 X Tugas Akhir
 **Author:** Stephanus Kevin Andika Rata
@@ -7,17 +7,17 @@ Dashboard EcoLab - Magang Lab Elektronika DTEDI 2025 X Tugas Akhir
 
 ## 📋 Project Overview
 
-EcoLab Dashboard adalah aplikasi IoT Smart Home yang dibangun dengan **PySide6 (Qt)** dan **Firebase Authentication**. Aplikasi ini memungkinkan pengguna untuk memonitor dan mengontrol perangkat smart home secara real-time, termasuk Smart Socket, Smart Lamp, dan Smart AC Control.
+EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** yang dibangun dengan **PySide6 (Qt)** dan **Firebase Authentication**. Aplikasi ini dirancang khusus untuk **Laboratorium EcoLab** DTEDI untuk memonitor dan mengontrol peralatan laboratorium secara real-time, termasuk Smart Socket, Smart Lamp, dan Smart AC Control.
 
 ### Key Features:
 - ✅ **Firebase Authentication** (Email, Google Sign-In, Guest Mode)
 - ✅ **Role-based Access Control** (User, Admin, Guest)
 - ✅ **Session Management** dengan "Remember Me" (7 days expiry)
-- ✅ **Admin Panel** untuk manajemen pengguna
-- ✅ **Smart Socket Control** dengan MQTT scheduling
-- ✅ **Smart Lamp Control**
-- ✅ **Smart AC Control**
-- ✅ **Real-time Monitoring** dan kontrol perangkat IoT
+- ✅ **Admin Panel** untuk manajemen pengguna laboratorium
+- ✅ **Smart Socket Control** untuk peralatan lab dengan MQTT scheduling
+- ✅ **Smart Lamp Control** pencahayaan laboratorium
+- ✅ **Smart AC Control** suhu ruangan laboratorium
+- ✅ **Real-time Monitoring** dan kontrol peralatan lab IoT
 - ✅ **Light Theme Enforcement** untuk konsistensi UI di Windows 11
 
 ---
@@ -35,8 +35,9 @@ EcoLab Dashboard adalah aplikasi IoT Smart Home yang dibangun dengan **PySide6 (
 - **Google Cloud Storage** - File storage
 
 ### Hardware:
-- **Arduino/ESP8266** - Microcontroller programs
-- **BLE (Bluetooth Low Energy)** - Device communication
+- **Arduino/ESP8266** - Microcontroller untuk peralatan lab
+- **BLE (Bluetooth Low Energy)** - Komunikasi dengan perangkat lab
+- **MQTT** - Protokol komunikasi IoT untuk kontrol peralatan
 
 ---
 
@@ -97,9 +98,9 @@ python launcher.py
 
 | Role | Features |
 |------|----------|
-| **Guest** | View dashboard only (no control) |
-| **User** | Full dashboard features (no admin panel) |
-| **Admin** | Full dashboard + Admin Panel access |
+| **Guest** | View dashboard laboratorium only (no control) |
+| **User** | Full dashboard features untuk kontrol peralatan lab (no admin panel) |
+| **Admin** | Full dashboard + Admin Panel untuk manajemen user laboratorium |
 
 ---
 
@@ -123,16 +124,16 @@ Aplikasi EcoLab - New/
 │   └── ...
 │
 ├── hardware_TA/                 # 🔌 Hardware Tugas Akhir programs
-│   ├── smartsocket_simulator.py      # Smart socket simulator
+│   ├── smartsocket_simulator.py      # Smart socket simulator untuk peralatan lab
 │   ├── smartsocket2_simulator.py     # Socket 2 simulator
 │   ├── smartsocket3_simulator.py     # Socket 3 simulator
 │   ├── smartsocket4_simulator.py     # Socket 4 simulator
 │   ├── smartsocket5_simulator.py     # Socket 5 simulator
 │   ├── mcua_simulator.py             # MCU-A simulator
 │   ├── mcub_simulator.py             # MCU-B simulator
-│   ├── smartsocketversi2.ino         # Arduino code for smart socket
-│   ├── smartlampcontrol.ino          # Arduino code for smart lamp
-│   └── smartaccontrol.ino            # Arduino code for smart AC
+│   ├── smartsocket.ino               # Arduino code untuk smart socket lab
+│   ├── smartlampcontrol.ino          # Arduino code untuk smart lamp lab
+│   └── smartaccontrol.ino            # Arduino code untuk smart AC lab
 │
 ├── backend/                     # Backend services
 ├── credentials/                 # Firebase credentials (not in repo)
@@ -148,12 +149,12 @@ Aplikasi EcoLab - New/
 
 ## 🔌 Hardware TA - Arduino Programs
 
-Folder `hardware_TA/` berisi program untuk microcontroller dan simulator:
+Folder `hardware_TA/` berisi program untuk microcontroller dan simulator peralatan laboratorium EcoLab:
 
 ### Arduino Programs (.ino):
-1. **smartsocketversi2.ino** - Smart Socket dengan MQTT
-2. **smartlampcontrol.ino** - Smart Lamp dengan BLE
-3. **smartaccontrol.ino** - Smart AC Control dengan IR
+1. **smartsocket.ino** - Smart Socket untuk kontrol peralatan lab dengan MQTT
+2. **smartlampcontrol.ino** - Smart Lamp untuk pencahayaan lab dengan MQTT
+3. **smartaccontrol.ino** - Smart AC Control untuk suhu ruangan lab dengan IR
 
 ### Python Simulators:
 1. **smartsocket_simulator.py** - Simulasi Smart Socket 1
@@ -189,23 +190,22 @@ python smartsocket_simulator.py
 - Delete users
 
 ### Smart Socket Control:
-- On/Off control
-- Real-time status
-- Schedule automation (MQTT)
-- Power consumption monitoring
-- 5 independent socket channels
+- Kontrol ON/OFF peralatan lab
+- Real-time status peralatan
+- Schedule automation dengan MQTT
+- Monitoring konsumsi daya
+- 5 saluran socket independen untuk berbagai peralatan
 
 ### Smart Lamp Control:
-- BLE connectivity
-- Brightness control
-- Color control (RGB)
+- MQTT control untuk pencahayaan lab
+- Kontrol kecerahan lampu
+- Kontrol warna (RGB)
 - On/Off control
 
 ### Smart AC Control:
-- IR-based control
-- Temperature control
-- Mode selection (Cool, Heat, Fan, Dry)
-- Timer scheduling
+- IR-based control untuk AC lab
+- Kontrol suhu ruangan
+- Pilihan mode (Cool, Heat, Fan, Dry)
 
 ---
 
@@ -245,10 +245,13 @@ launcher.py → Check Session
 
 **Stephanus Kevin Andika Rata**
 Magang Lab Elektronika DTEDI 2025
-Tugas Akhir - EcoLab Dashboard
+Tugas Akhir - EcoLab Smart Laboratory Management System
+
+Laboratorium Elektronika DTEDI
+Teknik Elektro - Universitas Indonesia
 
 ---
 
 ## 📄 License
 
-This project is part of Tugas Akhir for Magang Lab Elektronika DTEDI 2025
+This project is part of Tugas Akhir untuk Magang Lab Elektronika DTEDI 2025
