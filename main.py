@@ -81,13 +81,13 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-MQTT_BROKER = "DESKTOP-CVPE153"
-# MQTT_BROKER = "10.33.11.148"
+# MQTT_BROKER = "DESKTOP-CVPE153"
+MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-# MQTT_CA_CERT = get_credentials_path("ca.crt")  # Alternative certificate
-MQTT_CA_CERT = get_credentials_path("ca2.crt")
+MQTT_CA_CERT = get_credentials_path("ca.crt")  # Alternative certificate
+# MQTT_CA_CERT = get_credentials_path("ca2.crt")
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu
@@ -221,10 +221,10 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
-        # SEMENTARA: DRAG BG APP (seluruh background)
-        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        # # SEMENTARA: DRAG BG APP (seluruh background)
+        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOGGLE LEFT MENU
         self.ui.toggleButton.clicked.connect(
@@ -551,7 +551,34 @@ class MainWindow(QMainWindow):
             f"Load Percentage: {fmt(flow.get('load_percentage'), '%')}"
         )
 
-        
+
+    def _format_energy_value(self, value):
+        """
+        Format energy value ke kWh atau mWh
+
+        Args:
+            value: Nilai energy dalam kWh
+
+        Returns:
+            tuple: (nilai_string, satuan_string)
+                   Contoh: ("150.50", "kWh") atau ("1.50", "mWh")
+        """
+        if value is None:
+            return "--", "kWh"
+
+        try:
+            val = float(value)
+
+            # Jika >= 1000 kWh, tampilkan dalam mWh
+            if val >= 1000:
+                mwh = val / 1000
+                return f"{mwh:.2f}", "mWh"
+            else:
+                return f"{val:.2f}", "kWh"
+
+        except (ValueError, TypeError):
+            return "--", "kWh"
+
     def update_growatt_ui(self, data: dict):
         if not data:
             return
@@ -564,21 +591,46 @@ class MainWindow(QMainWindow):
         self.ui.currentimportgrid_value.setText(f"{data['grid_import_power']}W")
         self.ui.currentconsumppower_value.setText(f"{data['load_power']}W//{data['rateVA_power']}VA")
         self.ui.currentsocbat_value.setText(f"SoC Battery：{data['soc']}%")
+
+        # TODAY VALUES (tetap dalam kWh)
         self.ui.pvtoday_value.setText(f"{data['pv_today']}")
-        self.ui.pvtotal_value.setText(f"{data['pv_total']}")
         self.ui.loadtoday_value.setText(f"{data['load_today']}")
-        self.ui.loadtotal_value.setText(f"{data['load_total']}")
-        self.ui.chargingtotal_value.setText(f"{data['battery_charge_total']}")
-        self.ui.dischargingtoday_value.setText(f"{data['battery_discharge_today']}")
-        self.ui.dischargingtotal_value.setText(f"{data['battery_discharge_total']}")
-        self.ui.imporgridttotal_value.setText(f"{data['grid_total']}")
-        
-        # self.ui.chargingtoday_value.setText(f"{data['battery_charge_today']}")
-        # self.ui.imporgridttoday_value.setText(f"{data['grid_today']}")
-        
+
+        # TOTAL VALUES - Format ke kWh/mWh dan update satuan label
+        # PV Total
+        pv_total_val, pv_total_unit = self._format_energy_value(data['pv_total'])
+        self.ui.pvtotal_value.setText(pv_total_val)
+        if hasattr(self.ui, 'labelkwh2'):
+            self.ui.labelkwh2.setText(pv_total_unit)
+
+        # Load Total
+        load_total_val, load_total_unit = self._format_energy_value(data['load_total'])
+        self.ui.loadtotal_value.setText(load_total_val)
+        if hasattr(self.ui, 'labelkwh4'):
+            self.ui.labelkwh4.setText(load_total_unit)
+
+        # Battery Charge Total
+        charge_total_val, charge_total_unit = self._format_energy_value(data['battery_charge_total'])
+        self.ui.chargingtotal_value.setText(charge_total_val)
+        if hasattr(self.ui, 'labelkwh6'):
+            self.ui.labelkwh6.setText(charge_total_unit)
+
+        # Battery Discharge Total
+        discharge_total_val, discharge_total_unit = self._format_energy_value(data['battery_discharge_total'])
+        self.ui.dischargingtotal_value.setText(discharge_total_val)
+        if hasattr(self.ui, 'labelkwh8'):
+            self.ui.labelkwh8.setText(discharge_total_unit)
+
+        # Grid Total
+        grid_total_val, grid_total_unit = self._format_energy_value(data['grid_total'])
+        self.ui.imporgridttotal_value.setText(grid_total_val)
+        if hasattr(self.ui, 'labelkwh10'):
+            self.ui.labelkwh10.setText(grid_total_unit)
+
+        # TODAY VALUES (dengan safe energy check)
         charge_today = self._safe_energy_value(data.get("battery_charge_today"))
         grid_today = self._safe_energy_value(data.get("grid_today"))
-        
+
         self.ui.chargingtoday_value.setText(f"{charge_today}")
         self.ui.imporgridttoday_value.setText(f"{grid_today}")
 

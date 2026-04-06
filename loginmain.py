@@ -605,6 +605,8 @@ class LoginWindow(QMainWindow):
         self.move(x, y)
 
     # ===== DRAGGABLE WINDOW =====
+    # NOTE: Kode ini untuk DEVELOPMENT mode - seluruh window bisa digeser
+    #       Untuk PRODUCTION, hanya contentTopBg yang draggable (lihat __init__)
     def mousePressEvent(self, event):
         """Handle mouse press untuk drag window"""
         if event.button() == Qt.MouseButton.LeftButton:

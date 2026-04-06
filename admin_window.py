@@ -281,9 +281,20 @@ class AdminPanelWindow(QMainWindow):
         self.ui.closeAppBtn.clicked.connect(self.close)
         self.ui.btn_back.clicked.connect(self.go_back_to_selection)
 
-        # Mouse events for dragging
-        self.mousePressEvent = lambda e: self.ui_functions.mouse_press(e) if e.button() == Qt.MouseButton.LeftButton else None
-        self.mouseMoveEvent = self.ui_functions.mouse_move
+        # ============================================================
+        # DRAGGABLE WINDOW SETTINGS
+        # ============================================================
+        # Pilih salah satu mode:
+
+        # [PRODUCTION MODE] - Hanya contentTop yang bisa digeser
+        if hasattr(self.ui, 'contentTop'):
+            self.ui.contentTop.mousePressEvent = self.ui_functions.mouse_press
+            self.ui.contentTop.mouseMoveEvent = self.ui_functions.mouse_move
+            self.ui.contentTop.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+
+        # # [DEVELOPMENT MODE] - Seluruh window bisa digeser (uncomment untuk aktifkan)
+        # self.mousePressEvent = lambda e: self.ui_functions.mouse_press(e) if e.button() == Qt.MouseButton.LeftButton else None
+        # self.mouseMoveEvent = self.ui_functions.mouse_move
 
         # Setup Date & Clock Helper
         self.date_helper = Date()
