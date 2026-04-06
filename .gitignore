@@ -63,3 +63,5 @@ client_secret.json
 
 # Session files
 ecolab_session.json
+credentials/client_secretold.json
+credentials/firebase_service_accountold.json

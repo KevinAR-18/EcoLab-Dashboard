@@ -7,14 +7,24 @@ CREDENTIALS_DIR = BASE_DIR / "credentials"
 CLIENT_SECRET = CREDENTIALS_DIR / "client_secret.json"
 
 _FIREBASE_DEFAULTS = {
-    "apiKey": "AIzaSyDkca9-2rrP1_wetueUq-TbX-HTCrA_sCw",
-    "authDomain": "cobaloginpage.firebaseapp.com",
-    "databaseURL": "https://cobaloginpage-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "projectId": "cobaloginpage",
-    "storageBucket": "cobaloginpage.firebasestorage.app",
-    "messagingSenderId": "204601095466",
-    "appId": "1:204601095466:web:556f5b16bc20eccb679a53",
+    "apiKey": "AIzaSyCK8_r_Vyl7quiqv8kq_5f-FJB0Gkhb6Ec",
+    "authDomain": "ecolab-dashboard.firebaseapp.com",
+    "databaseURL": "https://ecolab-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "ecolab-dashboard",
+    "storageBucket": "ecolab-dashboard.firebasestorage.app",
+    "messagingSenderId": "327361095666",
+    "appId": "1:327361095666:web:5448ff5c2a73c18771ad6b",
 }
+
+# _FIREBASE_DEFAULTS = {
+#     "apiKey": "AIzaSyDkca9-2rrP1_wetueUq-TbX-HTCrA_sCw",
+#     "authDomain": "cobaloginpage.firebaseapp.com",
+#     "databaseURL": "https://cobaloginpage-default-rtdb.asia-southeast1.firebasedatabase.app",
+#     "projectId": "cobaloginpage",
+#     "storageBucket": "cobaloginpage.firebasestorage.app",
+#     "messagingSenderId": "204601095466",
+#     "appId": "1:204601095466:web:556f5b16bc20eccb679a53",
+# }
 
 _FIREBASE_ENV_MAP = {
     "apiKey": "TRIALLOGIN_FIREBASE_API_KEY",
