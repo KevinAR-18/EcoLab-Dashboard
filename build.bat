@@ -18,7 +18,7 @@ echo Building PyInstaller...
 echo.
 
 .venv\Scripts\pyinstaller ^
-  --name EcoLab Dashboard ^
+  --name "EcoLab Dashboard" ^
   --onefile ^
   --windowed ^
   --icon=icon\logoecolab.ico ^
