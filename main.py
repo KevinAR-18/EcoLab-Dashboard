@@ -5,6 +5,37 @@ from PySide6.QtCore import (
     QObject, QPoint, QRect, QSize, QTime, QTimer, QUrl, Qt, QEvent, QStandardPaths, Signal
 )
 
+
+# ============================================================
+# PATH RESOLUTION UTILITY (PyInstaller Compatible)
+# ============================================================
+def get_resource_path(relative_path):
+    """
+    Get absolute path ke resource file.
+    Works in both development mode and PyInstaller frozen executable.
+    """
+    try:
+        # PyInstaller creates temp folder & stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # Development mode: gunakan script directory
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+def get_credentials_path(filename):
+    """
+    Get path ke credentials folder.
+    Credentials TIDAK di-bundle di .exe, jadi selalu ambil dari folder eksternal.
+    """
+    if getattr(sys, 'frozen', False):
+        # Frozen mode: credentials di sebelah .exe
+        exe_dir = os.path.dirname(sys.executable)
+        return os.path.join(exe_dir, "credentials", filename)
+    else:
+        # Development mode: credentials di project folder
+        return os.path.join(os.path.abspath("."), "credentials", filename)
+
 from PySide6.QtGui import (
     QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase,
     QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
@@ -55,8 +86,8 @@ MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-# MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca.crt")
-MQTT_CA_CERT = os.path.join(os.path.dirname(__file__), "credentials", "ca2.crt")
+# MQTT_CA_CERT = get_credentials_path("ca.crt")  # Alternative certificate
+MQTT_CA_CERT = get_credentials_path("ca2.crt")
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu
@@ -978,9 +1009,10 @@ class MainWindow(QMainWindow):
         """ Mengonversi path relatif menjadi path absolut.
         Berguna untuk memastikan file dapat ditemukan dari
         direktori aplikasi saat ini.
+
+        Menggunakan get_resource_path() untuk PyInstaller compatibility.
         """
-        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
-        return os.path.join(base_path, relative_path)
+        return get_resource_path(relative_path)
 
     # ===============================
     # USER FEATURES (Settings Page)

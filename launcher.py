@@ -9,8 +9,14 @@ from PySide6.QtCore import QObject, Signal, QTimer
 # Import Login Window
 from loginmain import LoginWindow
 
+# Import Main Window (moved here for PyInstaller compatibility)
+from main import MainWindow
+
 # Import Session Manager
 from session_manager import SessionManager
+
+# Import Theme Helper for light theme
+from ui_theme_helper import get_light_theme_stylesheet
 
 
 class AppLauncher(QObject):
@@ -127,9 +133,6 @@ class AppLauncher(QObject):
     def open_dashboard(self, session):
         """Buka dashboard utama dengan session data"""
         try:
-            # Import main window di sini (lazy import)
-            from main import MainWindow
-
             # Simpan session yang sedang aktif
             self.current_session = session
 
@@ -205,7 +208,6 @@ def main():
     app.setApplicationName("EcoLab Dashboard")
 
     # Apply light theme untuk mencegah Dark Mode Windows 11 interference
-    from ui_theme_helper import get_light_theme_stylesheet
     app.setStyleSheet(get_light_theme_stylesheet())
 
     # Buat launcher
