@@ -4,6 +4,7 @@ Handle remember me feature with plain JSON storage and 7 days expiry
 """
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -12,9 +13,30 @@ class SessionManager:
     """Manager untuk handle user session (remember me feature)"""
 
     def __init__(self):
-        # Session file location (di project folder)
-        self.session_file = Path(__file__).parent / "ecolab_session.json"
+        # Session file location - support both EXE dan script mode
+        self.session_file = self._get_session_file_path()
         self.expiry_days = 7  # Session expire dalam 7 hari
+
+    def _get_session_file_path(self):
+        """
+        Tentukan lokasi session file berdasarkan mode running (EXE vs script)
+
+        Returns:
+            Path: Lokasi session file yang persisten
+        """
+        # Cek apakah running dari EXE (PyInstaller)
+        if getattr(sys, 'frozen', False):
+            # Running dari EXE - simpan di folder yang sama dengan EXE
+            exe_dir = Path(sys.executable).parent
+            session_file = exe_dir / "ecolab_session.json"
+        else:
+            # Running dari script - simpan di project folder
+            session_file = Path(__file__).parent / "ecolab_session.json"
+
+        # Debug print
+        print(f"DEBUG: Session file location: {session_file}")
+
+        return session_file
 
     def save_session(self, user_data):
         """
