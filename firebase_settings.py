@@ -1,8 +1,27 @@
 import os
+import sys
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
+def _get_base_dir():
+    """
+    Tentukan base directory berdasarkan mode running (EXE vs script)
+
+    Returns:
+        Path: Base directory untuk aplikasi
+    """
+    if getattr(sys, 'frozen', False):
+        # Running dari EXE - gunakan folder yang sama dengan EXE
+        base_dir = Path(sys.executable).parent
+    else:
+        # Running dari script - gunakan project folder
+        base_dir = Path(__file__).resolve().parent
+
+    print(f"DEBUG: Base directory: {base_dir}")
+    return base_dir
+
+
+BASE_DIR = _get_base_dir()
 CREDENTIALS_DIR = BASE_DIR / "credentials"
 CLIENT_SECRET = CREDENTIALS_DIR / "client_secret.json"
 
