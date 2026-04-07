@@ -343,6 +343,8 @@ class TrialLoginService:
         return self.db.child("users").child(uid).get().val()
 
     def _google_auth_login(self):
+        # Gunakan port yang fixed untuk menghindari redirect_uri_mismatch
+        # Pastikan http://localhost:8080 terdaftar di Google Cloud Console
         flow = InstalledAppFlow.from_client_secrets_file(
             str(CLIENT_SECRET),
             scopes=[
@@ -350,9 +352,10 @@ class TrialLoginService:
                 "https://www.googleapis.com/auth/userinfo.email",
                 "https://www.googleapis.com/auth/userinfo.profile",
             ],
+            redirect_uri="http://localhost:8080/"
         )
 
-        credentials = flow.run_local_server(port=0)
+        credentials = flow.run_local_server(port=8080)
         token = credentials.token
 
         return requests.get(
