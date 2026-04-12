@@ -40,6 +40,7 @@ build
 dist
 PlantUML_Diagrams
 plantumlnew
+dokumengapenting
 
 trialloginpage\client_secret.json
 trialloginpage/firebase_service_account.json
@@ -67,5 +68,3 @@ client_secret.json
 ecolab_session.json
 credentials/client_secretold.json
 credentials/firebase_service_accountold.json
-
-DOKUMENTASI_ECOLAB.txt
