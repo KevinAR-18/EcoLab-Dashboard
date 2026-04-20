@@ -46,10 +46,6 @@ const char *topic_schedule_stop = "ecolab/socket/1/schedule/stop";
 const char *topic_schedule_mode = "ecolab/socket/1/schedule/mode";
 const char *topic_schedule_status = "ecolab/socket/1/schedule/status";
 
-// DateTime Topic (RTC status only - set from NTP)
-const char *topic_datetime_set = "ecolab/socket/1/datetime/set";     // Keep for backward compat (disabled)
-const char *topic_datetime_status = "ecolab/socket/1/datetime/status";
-
 // ================= TLS CERT =================
 const char *ca_cert = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -100,6 +96,7 @@ DS1302 rtc(RTC_CE, RTC_IO, RTC_SCLK);
 #define ADDR_SCHEDULE_STOP_HOUR       4
 #define ADDR_SCHEDULE_STOP_MINUTE     5
 #define ADDR_SCHEDULE_DAILY_MODE      6
+#define ADDR_MANUAL_RELAY_STATE       7
 
 // ================= MQTT =================
 WiFiClientSecure espClient;
@@ -109,6 +106,7 @@ PubSubClient client(espClient);
 unsigned long lastEnergy = 0;
 unsigned long lastStatusSync = 0;
 unsigned long lastDebugPrint = 0;
+unsigned long lastMQTTRetry = 0;
 bool relayState = false;
 
 // ================= TIMER =================
@@ -131,6 +129,31 @@ bool scheduleDailyMode = true;
 int lastTriggeredDay = 0;
 bool startTriggered = false;
 bool stopTriggered = false;
+
+void saveManualRelayStateToEEPROM()
+{
+    EEPROM.write(ADDR_MANUAL_RELAY_STATE, relayState ? 1 : 0);
+    EEPROM.commit();
+    Serial.print("Saved manual relay state: ");
+    Serial.println(relayState ? "ON" : "OFF");
+}
+
+void restoreManualRelayStateFromEEPROM()
+{
+    bool savedRelayState = EEPROM.read(ADDR_MANUAL_RELAY_STATE) == 1;
+
+    if (scheduleStartActive || scheduleStopActive)
+    {
+        Serial.println("Manual relay restore skipped because schedule is active");
+        return;
+    }
+
+    relayState = savedRelayState;
+    digitalWrite(RELAY_PIN, relayState ? HIGH : LOW);
+
+    Serial.print("Restored manual relay state: ");
+    Serial.println(relayState ? "ON" : "OFF");
+}
 
 // ================= LED FUNCTION =================
 void blinkLED(int pin, int times, int delayMs)
@@ -268,12 +291,14 @@ void callback(char *topic, byte *payload, unsigned int length)
         {
             digitalWrite(RELAY_PIN, HIGH);
             relayState = true;
+            saveManualRelayStateToEEPROM();
             client.publish(topic_statusrelay, "ON");
         }
         else if (msg == "OFF")
         {
             digitalWrite(RELAY_PIN, LOW);
             relayState = false;
+            saveManualRelayStateToEEPROM();
             client.publish(topic_statusrelay, "OFF");
         }
     }
@@ -398,13 +423,6 @@ void callback(char *topic, byte *payload, unsigned int length)
         }
     }
 
-    // ================= DATETIME SET (DISABLED - USING NTP) =================
-    // RTC sekarang diset dari NTP, bukan dari MQTT
-    else if (String(topic) == topic_datetime_set)
-    {
-        client.publish(topic_datetime_status, "INFO: RTC set from NTP, manual sync disabled");
-        Serial.println("Manual datetime sync disabled - using NTP");
-    }
 }
 
 // ================= EEPROM SAVE/LOAD =================
@@ -455,38 +473,37 @@ void loadScheduleFromEEPROM()
 // ================= MQTT CONNECT =================
 void reconnect()
 {
-    while (!client.connected())
+    if (client.connected() || WiFi.status() != WL_CONNECTED)
     {
-        Serial.print("Connecting MQTT...");
-
-        if (client.connect(client_id, mqtt_user, mqtt_pass,
-                           topic_device_status, 0, false, "OFFLINE"))
-        {
-            Serial.println("connected");
-
-            // KIRIM STATUS ONLINE
-            client.publish(topic_device_status, "ONLINE", true);
-
-            // 🔥 SUBSCRIBE
-            client.subscribe(topic_control);
-            client.subscribe(topic_timer);
-            client.subscribe(topic_schedule_start);
-            client.subscribe(topic_schedule_stop);
-            client.subscribe(topic_schedule_mode);
-            // datetime_set tidak dipakai lagi (NTP sync)
-
-            // PUBLISH STATUS SAAT CONNECT (untuk sync GUI)
-            publishStatusSync();
-        }
-        else
-        {
-            Serial.print("failed, rc=");
-            Serial.print(client.state());
-            delay(2000);
-        }
+        return;
+    }
+    if (millis() - lastMQTTRetry < 5000)
+    {
+        return;
+    }
+    lastMQTTRetry = millis();
+    Serial.print("Connecting MQTT...");
+    if (client.connect(client_id, mqtt_user, mqtt_pass,
+                       topic_device_status, 0, false, "OFFLINE"))
+    {
+        Serial.println("connected");
+        // KIRIM STATUS ONLINE
+        client.publish(topic_device_status, "ONLINE", true);
+        // SUBSCRIBE
+        client.subscribe(topic_control);
+        client.subscribe(topic_timer);
+        client.subscribe(topic_schedule_start);
+        client.subscribe(topic_schedule_stop);
+        client.subscribe(topic_schedule_mode);
+        // PUBLISH STATUS SAAT CONNECT (untuk sync GUI)
+        publishStatusSync();
+    }
+    else
+    {
+        Serial.print("failed, rc=");
+        Serial.println(client.state());
     }
 }
-
 // ================= LOOP TAMBAHAN =================
 void handleTimer()
 {
@@ -708,18 +725,6 @@ void publishStatusSync()
 
     client.publish(topic_schedule_status, schedulePayload.c_str(), true);
 
-    // ================= PUBLISH DATETIME (FROM NTP) =================
-    Time currentRTC = rtc.time();
-
-    char datetimeStr[30];
-    sprintf(datetimeStr, "%04d-%02d-%02d %02d:%02d:%02d %d",
-            currentRTC.yr, currentRTC.mon, currentRTC.date,
-            currentRTC.hr, currentRTC.min, currentRTC.sec,
-            currentRTC.day);
-
-    // Kirim status RTC (selalu OK karena diset dari NTP)
-    String status = "OK:NTP_SYNCED:" + String(datetimeStr);
-    client.publish(topic_datetime_status, status.c_str(), true);
 }
 
 // ================= SETUP =================
@@ -756,26 +761,23 @@ void setup()
     // ===== EEPROM INIT =====
     EEPROM.begin(EEPROM_SIZE);
     loadScheduleFromEEPROM();  // Load schedule yang tersimpan
+    restoreManualRelayStateFromEEPROM();
 }
 
 // ================= LOOP =================
 void loop()
 {
-    if (!client.connected())
+    reconnect();
+    if (client.connected())
     {
-        reconnect();
+        client.loop();
     }
-
-    client.loop();
-
     // ================= DEBUG RTC (every 1 sec) =================
     if (millis() - lastDebugPrint > 1000)
     {
         lastDebugPrint = millis();
-
         Time timeRTC = rtc.time();
-
-        Serial.print("🕐 RTC: ");
+        Serial.print("???? RTC: ");
         Serial.print(timeRTC.yr);
         Serial.print("-");
         Serial.print(timeRTC.mon);
@@ -788,25 +790,21 @@ void loop()
         Serial.print(":");
         Serial.println(timeRTC.sec);
     }
-
     // ================= ENERGY PUBLISH (every 2 sec) =================
     if (millis() - lastEnergy > 2000)
     {
         lastEnergy = millis();
-
         float voltage, current, power, energy, frequency, pf;
-
         // CEK RELAY STATE
         if (relayState)
         {
-            // Relay ON → Baca data PZEM asli
+            // Relay ON ??? Baca data PZEM asli
             voltage = pzem.voltage();
             current = pzem.current();
             power = pzem.power();
             energy = pzem.energy();
             frequency = pzem.frequency();
             pf = pzem.pf();
-
             // Kalau PZEM error, kirim 0
             if (isnan(voltage))
             {
@@ -821,7 +819,7 @@ void loop()
         }
         else
         {
-            // Relay OFF → Kirim semua 0
+            // Relay OFF ??? Kirim semua 0
             voltage = 0;
             current = 0;
             power = 0;
@@ -830,7 +828,6 @@ void loop()
             pf = 0;
             Serial.println("Relay OFF, sending 0 data");
         }
-
         // Kirim payload JSON
         String payload = "{";
         payload += "\"voltage\":" + String(voltage, 2) + ",";
@@ -840,20 +837,25 @@ void loop()
         payload += "\"frequency\":" + String(frequency, 1) + ",";
         payload += "\"pf\":" + String(pf, 2);
         payload += "}";
-
-        client.publish(topic_energy, payload.c_str());
-
+        if (client.connected())
+        {
+            client.publish(topic_energy, payload.c_str());
+        }
         Serial.print("Energy: ");
         Serial.println(payload);
     }
-
     // ================= STATUS SYNC (every 2 sec for multi-GUI) =================
     if (millis() - lastStatusSync > 2000)
     {
         lastStatusSync = millis();
-        publishStatusSync();
+        if (client.connected())
+        {
+            publishStatusSync();
+        }
     }
-
     handleTimer();
     handleSchedule();
 }
+
+
+

@@ -329,41 +329,6 @@ class Ui_SmartSocketPopup(object):
 
         self.verticalLayout.addWidget(self.groupBox_schedule)
 
-        self.groupbox_datetime = QGroupBox(SmartSocketPopup)
-        self.groupbox_datetime.setObjectName(u"groupbox_datetime")
-        self.groupbox_datetime.setStyleSheet(u"QGroupBox{\n"
-"    font: bold 11pt \"Segoe UI\";\n"
-"    border: 2px solid #005C99;\n"
-"    border-radius: 10px;\n"
-"    margin-top: 10px;\n"
-"    padding-top: 15px;\n"
-"}")
-        self.verticalLayout_datetime = QVBoxLayout(self.groupbox_datetime)
-        self.verticalLayout_datetime.setObjectName(u"verticalLayout_datetime")
-        self.label_datetime_status = QLabel(self.groupbox_datetime)
-        self.label_datetime_status.setObjectName(u"label_datetime_status")
-        self.label_datetime_status.setStyleSheet(u"QLabel#label_datetime_status{\n"
-"    color: green;\n"
-"    font-size: 10pt;\n"
-"}")
-        self.label_datetime_status.setWordWrap(True)
-
-        self.verticalLayout_datetime.addWidget(self.label_datetime_status)
-
-        self.label_datetime_info = QLabel(self.groupbox_datetime)
-        self.label_datetime_info.setObjectName(u"label_datetime_info")
-        self.label_datetime_info.setStyleSheet(u"QLabel#label_datetime_info{\n"
-"    color: blue;\n"
-"    font-size: 9pt;\n"
-"    font-style: italic;\n"
-"    qproperty-alignment: AlignCenter;\n"
-"}")
-
-        self.verticalLayout_datetime.addWidget(self.label_datetime_info)
-
-
-        self.verticalLayout.addWidget(self.groupbox_datetime)
-
 
         self.retranslateUi(SmartSocketPopup)
 
@@ -395,8 +360,5 @@ class Ui_SmartSocketPopup(object):
         self.btn_set_schedule.setText(QCoreApplication.translate("SmartSocketPopup", u"Set Schedule", None))
         self.btn_clear_schedule.setText(QCoreApplication.translate("SmartSocketPopup", u"Clear Schedule", None))
         self.label_schedule_status.setText(QCoreApplication.translate("SmartSocketPopup", u"Status: Not Set", None))
-        self.groupbox_datetime.setTitle(QCoreApplication.translate("SmartSocketPopup", u"\U0001f550 RTC DateTime (NTP Sync)", None))
-        self.label_datetime_status.setText(QCoreApplication.translate("SmartSocketPopup", u"\U0001f7e2 RTC: Syncing from NTP...", None))
-        self.label_datetime_info.setText(QCoreApplication.translate("SmartSocketPopup", u"\u2139\ufe0f RTC auto-synced from NTP time server", None))
     # retranslateUi
 

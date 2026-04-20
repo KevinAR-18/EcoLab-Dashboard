@@ -517,53 +517,6 @@ QPushButton#btn_clear_schedule:hover {
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupbox_datetime">
-     <property name="styleSheet">
-      <string notr="true">QGroupBox{
-    font: bold 11pt &quot;Segoe UI&quot;;
-    border: 2px solid #005C99;
-    border-radius: 10px;
-    margin-top: 10px;
-    padding-top: 15px;
-}</string>
-     </property>
-     <property name="title">
-      <string>🕐 RTC DateTime (NTP Sync)</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_datetime">
-      <item>
-       <widget class="QLabel" name="label_datetime_status">
-        <property name="styleSheet">
-         <string notr="true">QLabel#label_datetime_status{
-    color: green;
-    font-size: 10pt;
-}</string>
-        </property>
-        <property name="text">
-         <string>🟢 RTC: Syncing from NTP...</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_datetime_info">
-        <property name="styleSheet">
-         <string notr="true">QLabel#label_datetime_info{
-    color: blue;
-    font-size: 9pt;
-    font-style: italic;
-    qproperty-alignment: AlignCenter;
-}</string>
-        </property>
-        <property name="text">
-         <string>ℹ️ RTC auto-synced from NTP time server</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </item>
   </layout>
  </widget>
