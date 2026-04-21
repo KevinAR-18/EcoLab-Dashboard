@@ -81,13 +81,13 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-# MQTT_BROKER = "DESKTOP-CVPE153"
-MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"
+# MQTT_BROKER = "10.33.11.148"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-MQTT_CA_CERT = get_credentials_path("ca.crt")  # Alternative certificate
-# MQTT_CA_CERT = get_credentials_path("ca2.crt")
+MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
+# MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu

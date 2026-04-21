@@ -106,8 +106,10 @@ PubSubClient client(espClient);
 unsigned long lastEnergy = 0;
 unsigned long lastStatusSync = 0;
 unsigned long lastDebugPrint = 0;
+unsigned long lastWiFiRetry = 0;
 unsigned long lastMQTTRetry = 0;
 bool relayState = false;
+bool ntpSynced = false;
 
 // ================= TIMER =================
 bool timerActive = false;
@@ -240,6 +242,7 @@ void syncNTPtoRTC() {
     Serial.print(hour); Serial.print(":");
     Serial.print(minute); Serial.print(":");
     Serial.println(second);
+    ntpSynced = true;
 }
 
 // ================= WIFI CONNECT =================
@@ -255,22 +258,54 @@ void start_wifi()
 
     Serial.print("WiFi connecting");
 
-    while (WiFi.status() != WL_CONNECTED)
+    unsigned long startAttempt = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < 15000)
     {
         delay(500);
         Serial.print(".");
     }
 
-    Serial.println("\nWiFi connected");
-    Serial.println(WiFi.localIP());
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        Serial.println("\nWiFi connected");
+        Serial.println(WiFi.localIP());
 
-    blinkLED(BLUE_LED_PIN, 3, 200);
-    digitalWrite(BLUE_LED_PIN, HIGH);
-
-    // 🔥 SYNC NTP KE RTC SETELAH WIFI CONNECT
-    syncNTPtoRTC();
+        blinkLED(BLUE_LED_PIN, 3, 200);
+        digitalWrite(BLUE_LED_PIN, HIGH);
+        syncNTPtoRTC();
+    }
+    else
+    {
+        Serial.println("\nWiFi not connected, continuing in offline mode");
+        digitalWrite(BLUE_LED_PIN, LOW);
+    }
 }
 
+void ensureWiFiConnection()
+{
+    if (WiFi.status() == WL_CONNECTED)
+    {
+        digitalWrite(BLUE_LED_PIN, HIGH);
+
+        if (!ntpSynced)
+        {
+            syncNTPtoRTC();
+        }
+        return;
+    }
+
+    digitalWrite(BLUE_LED_PIN, LOW);
+
+    if (millis() - lastWiFiRetry < 10000)
+    {
+        return;
+    }
+
+    lastWiFiRetry = millis();
+    Serial.println("WiFi disconnected, retrying...");
+    WiFi.disconnect();
+    WiFi.begin(ssid, password);
+}
 void callback(char *topic, byte *payload, unsigned int length)
 {
     String msg = "";
@@ -767,6 +802,7 @@ void setup()
 // ================= LOOP =================
 void loop()
 {
+    ensureWiFiConnection();
     reconnect();
     if (client.connected())
     {
@@ -856,6 +892,3 @@ void loop()
     handleTimer();
     handleSchedule();
 }
-
-
-
