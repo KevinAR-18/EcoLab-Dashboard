@@ -25,26 +25,26 @@ const int   daylightOffset_sec = 0;    // Tidak ada daylight saving di Indonesia
 const char *mqtt_server = "10.33.11.148";
 const int mqtt_port = 8883;
 
-const char *mqtt_user = "smartsocket1";
-const char *mqtt_pass = "smart1";
+const char *mqtt_user = "smartsocket5";
+const char *mqtt_pass = "smart5";
 
-const char* client_id = "smartsocket1";
+const char* client_id = "smartsocket5";
 
 // MQTT topics
-const char *topic_control = "ecolab/socket/1/control";
-const char *topic_energy = "ecolab/socket/1/energy";
-const char *topic_device_status = "ecolab/socket/1/devicestatus";
-const char *topic_statusrelay = "ecolab/socket/1/relaystatus";
+const char *topic_control = "ecolab/socket/5/control";
+const char *topic_energy = "ecolab/socket/5/energy";
+const char *topic_device_status = "ecolab/socket/5/devicestatus";
+const char *topic_statusrelay = "ecolab/socket/5/relaystatus";
 
 // ================= MQTT TOPIC TAMBAHAN =================
-const char *topic_timer = "ecolab/socket/1/timer";
-const char *topic_timer_status = "ecolab/socket/1/timer/status";
+const char *topic_timer = "ecolab/socket/5/timer";
+const char *topic_timer_status = "ecolab/socket/5/timer/status";
 
 // Schedule Topics (Start/Stop + Mode)
-const char *topic_schedule_start = "ecolab/socket/1/schedule/start";
-const char *topic_schedule_stop = "ecolab/socket/1/schedule/stop";
-const char *topic_schedule_mode = "ecolab/socket/1/schedule/mode";
-const char *topic_schedule_status = "ecolab/socket/1/schedule/status";
+const char *topic_schedule_start = "ecolab/socket/5/schedule/start";
+const char *topic_schedule_stop = "ecolab/socket/5/schedule/stop";
+const char *topic_schedule_mode = "ecolab/socket/5/schedule/mode";
+const char *topic_schedule_status = "ecolab/socket/5/schedule/status";
 
 // ================= TLS CERT =================
 const char *ca_cert = "";
