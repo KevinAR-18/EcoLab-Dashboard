@@ -3,7 +3,7 @@
   "start_hour": 8,
   "start_minute": 0,
   "stop_active": true,
-  "stop_hour": 21,
+  "stop_hour": 23,
   "stop_minute": 0,
   "daily_mode": true
 }

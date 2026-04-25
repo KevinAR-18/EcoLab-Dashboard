@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
-from PySide6.QtCore import Qt, QTimer, QSize
+from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
+from PySide6.QtCore import Qt, QTimer, QSize, QDateTime
 from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -71,12 +71,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Connect buttons (placeholder functions for now)
         self.connect_buttons()
-        self._setup_monitoring_ui()
-        self.refresh_monitoring_view()
 
+        # Refresh timer harus dibuat SEBELUM refresh_monitoring_view()
+        # Refresh timer hanya aktif saat recording
         self.refresh_timer = QTimer(self)
         self.refresh_timer.timeout.connect(self.refresh_monitoring_view)
-        self.refresh_timer.start(1000)
+        self.refresh_timer.stop()  # Mulai dengan timer OFF
+
+        self._setup_monitoring_ui()
+        self.refresh_monitoring_view()
 
     def mousePressEvent(self, event):
         """Handle mouse press for dragging"""
@@ -404,6 +407,14 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.btn_start_recording.setEnabled(not recording)
         self.btn_stop_recording.setEnabled(recording)
 
+        # Control refresh timer: hanya aktif saat recording
+        # Pastikan refresh_timer sudah ada sebelum diakses
+        if hasattr(self, 'refresh_timer'):
+            if recording and not self.refresh_timer.isActive():
+                self.refresh_timer.start(1000)
+            elif not recording and self.refresh_timer.isActive():
+                self.refresh_timer.stop()
+
         recording_text = "ON" if recording else "OFF"
         follow_text = "ON" if follow_schedule else "OFF"
         shown = min(len(records), self.TABLE_DISPLAY_LIMIT)
@@ -460,17 +471,41 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         series.setName(metric_label)
 
         values = []
-        for idx, record in enumerate(chart_records):
+        timestamps = []
+        for record in chart_records:
             value = self._to_float(record.get(metric))
             values.append(value)
-            series.append(idx, value)
+
+            # Parse timestamp string ke QDateTime
+            timestamp_str = record.get("timestamp", "")
+            dt = self._parse_timestamp(timestamp_str)
+            if dt:
+                timestamps.append(dt.toMSecsSinceEpoch())
+            else:
+                # Fallback: gunakan index jika timestamp invalid
+                timestamps.append(len(timestamps) * 1000)
+
+        # Plot dengan timestamp (msec since epoch)
+        for i, (ts, val) in enumerate(zip(timestamps, values)):
+            series.append(ts, val)
 
         self.chart.addSeries(series)
 
-        axis_x = QValueAxis()
-        axis_x.setTitleText("Sample")
-        axis_x.setLabelFormat("%d")
-        axis_x.setRange(0, max(1, len(chart_records) - 1))
+        # Gunakan QDateTimeAxis untuk sumbu X (waktu)
+        axis_x = QDateTimeAxis()
+        axis_x.setTitleText("Time")
+        axis_x.setFormat("HH:mm:ss")
+        axis_x.setTickCount(6)
+
+        if timestamps:
+            min_ts = min(timestamps)
+            max_ts = max(timestamps)
+            axis_x.setRange(QDateTime.fromMSecsSinceEpoch(min_ts),
+                          QDateTime.fromMSecsSinceEpoch(max_ts))
+        else:
+            # Default range jika tidak ada data
+            now = QDateTime.currentDateTime()
+            axis_x.setRange(now.addSecs(-60), now)
 
         axis_y = QValueAxis()
         axis_y.setTitleText(metric_label)
@@ -492,6 +527,24 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
     def _fmt(self, value, decimals):
         return f"{self._to_float(value):.{decimals}f}"
+
+    def _parse_timestamp(self, timestamp_str):
+        """
+        Parse timestamp string ke QDateTime
+        Format: "YYYY-MM-DD HH:MM:SS"
+        """
+        if not timestamp_str:
+            return None
+
+        try:
+            # Parse timestamp string format: "2026-04-25 14:30:45"
+            dt = QDateTime.fromString(timestamp_str, "yyyy-MM-dd HH:mm:ss")
+            if dt.isValid():
+                return dt
+        except Exception:
+            pass
+
+        return None
 
     @staticmethod
     def _to_float(value):

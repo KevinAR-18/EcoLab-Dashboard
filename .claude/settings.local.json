@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la *.md)",
+      "Bash(python -m py_compile smartsocket_popup.py)",
+      "Bash(python -c \"from smartsocket_popup import SmartSocketPopup; print\\('Import successful'\\)\")"
+    ]
+  }
+}
