@@ -66,6 +66,7 @@ from ac_setup import ACSetup
 from arrow_setup import ArrowSetup
 from smartsocket_popup import SmartSocketPopup
 from smartsocket_setup import SmartSocketSetup
+from smartsocket_recorder import SmartSocketRecorder
 
 from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
@@ -81,16 +82,17 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-MQTT_BROKER = "DESKTOP-CVPE153"
 # MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
-# MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
+# MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
+MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu
+
 class Date:
     def update_time(self, label: QLabel):
         current_time = QDateTime.currentDateTime()
@@ -139,9 +141,6 @@ class MainWindow(QMainWindow):
         if self.user_session:
             self.setup_user_features()
 
-        # SETUP SMART SOCKET (Backend akan di-connect setelah MQTT start)
-        QTimer.singleShot(1000, lambda: SmartSocketSetup.setup(self))
-
         # BACKEND: GROWATT
         self.growatt = GrowattBackend()
         self.growatt_worker = None
@@ -174,6 +173,7 @@ class MainWindow(QMainWindow):
         # BACKEND: SMART SOCKET
         self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
         self.smartsocket_manager.start()
+        self.smartsocket_recorder = SmartSocketRecorder()
 
         # Simpan format timer per socket untuk display
         self.socket_timer_formats = {}  # {socket_number: "hms" atau "seconds"}
@@ -1389,6 +1389,42 @@ class MainWindow(QMainWindow):
             if hasattr(self, "update_ac_status"):
                 self.update_ac_status(state)
 
+    # ================= SMART SOCKET RECORDING API =================
+    def start_socket_recording(self, socket_number: int, source="manual"):
+        changed = self.smartsocket_recorder.start(socket_number, source=source)
+        if changed:
+            self.log(f"[Socket {socket_number}] Recording started ({source})")
+        return changed
+
+    def stop_socket_recording(self, socket_number: int, source="manual"):
+        changed = self.smartsocket_recorder.stop(socket_number, source=source)
+        if changed:
+            self.log(f"[Socket {socket_number}] Recording stopped ({source})")
+        return changed
+
+    def set_socket_follow_schedule(self, socket_number: int, enabled: bool):
+        self.smartsocket_recorder.set_follow_schedule(socket_number, enabled)
+        state = "enabled" if enabled else "disabled"
+        self.log(f"[Socket {socket_number}] Follow schedule recording {state}")
+
+    def is_socket_recording(self, socket_number: int):
+        return self.smartsocket_recorder.is_recording(socket_number)
+
+    def is_socket_follow_schedule(self, socket_number: int):
+        return self.smartsocket_recorder.is_follow_schedule(socket_number)
+
+    def get_socket_records(self, socket_number: int):
+        return self.smartsocket_recorder.get_records(socket_number)
+
+    def clear_socket_records(self, socket_number: int):
+        self.smartsocket_recorder.clear_records(socket_number)
+        self.log(f"[Socket {socket_number}] Recording data cleared")
+
+    def export_socket_records_csv(self, socket_number: int, path: str):
+        count = self.smartsocket_recorder.export_csv(socket_number, path)
+        self.log(f"[Socket {socket_number}] Exported {count} rows to CSV")
+        return count
+
     # ================= SMART SOCKET HANDLERS =================
     def _on_socket_relay_status(self, socket_number: int, state: bool):
         """Update relay status UI untuk Smart Socket"""
@@ -1416,11 +1452,17 @@ class MainWindow(QMainWindow):
         if not data:
             return
 
-        # Cek status relay dari switch button
-        if socket_number <= len(self.switches):
+        # Cek status relay dari backend MQTT, fallback ke switch button.
+        backend = self.smartsocket_manager.get_backend(socket_number)
+        if backend and backend.relay_state is not None:
+            relay_on = backend.relay_state
+        elif socket_number <= len(self.switches):
             relay_on = self.switches[socket_number - 1].isOn()
         else:
             relay_on = False
+
+        if hasattr(self, "smartsocket_recorder"):
+            self.smartsocket_recorder.append_energy(socket_number, data, relay_on)
 
         # Get labels for this socket
         voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
@@ -1521,26 +1563,40 @@ class MainWindow(QMainWindow):
         # DEBUG: Print raw status dari hardware
         # print(f"[DEBUG Schedule UI] Socket {socket_number} received: {repr(status)}")
 
-        try:
-            data = json.loads(status)
-            mode = data.get("mode", "N/A")
-            start = data.get("start", "N/A")
-            stop = data.get("stop", "N/A")
+        if hasattr(self, "smartsocket_recorder"):
+            recording_action = self.smartsocket_recorder.handle_schedule_status(
+                socket_number, status
+            )
+            if recording_action == "started":
+                self.log(f"[Socket {socket_number}] Recording started by schedule")
+            elif recording_action == "stopped":
+                self.log(f"[Socket {socket_number}] Recording stopped by schedule")
 
-            # DEBUG: Print parsed data
-            # print(f"[DEBUG Schedule UI] Socket {socket_number} parsed - mode: {mode}, start: {start}, stop: {stop}")
+        if status == "START_TRIGGER":
+            status_text = "Start Triggered"
+        elif status == "STOP_TRIGGER":
+            status_text = "Stop Triggered"
+        else:
+            try:
+                data = json.loads(status)
+                mode = data.get("mode", "N/A")
+                start = data.get("start", "N/A")
+                stop = data.get("stop", "N/A")
 
-            if start and stop:
-                status_text = f"{mode.capitalize()}: {start}-{stop}"
-            elif start:
-                status_text = f"Start: {start}"
-            elif stop:
-                status_text = f"Stop: {stop}"
-            else:
-                status_text = "Not Set"
-        except Exception as e:
-            # print(f"[DEBUG Schedule UI] Socket {socket_number} JSON parse error: {e}")
-            status_text = status
+                # DEBUG: Print parsed data
+                # print(f"[DEBUG Schedule UI] Socket {socket_number} parsed - mode: {mode}, start: {start}, stop: {stop}")
+
+                if start and stop:
+                    status_text = f"{mode.capitalize()}: {start}-{stop}"
+                elif start:
+                    status_text = f"Start: {start}"
+                elif stop:
+                    status_text = f"Stop: {stop}"
+                else:
+                    status_text = "Not Set"
+            except Exception as e:
+                # print(f"[DEBUG Schedule UI] Socket {socket_number} JSON parse error: {e}")
+                status_text = status
 
         label = getattr(self.ui, f"label_scheduling_status{socket_number}", None)
         if label:

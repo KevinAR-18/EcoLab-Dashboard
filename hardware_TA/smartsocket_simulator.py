@@ -5,11 +5,11 @@ Menirukan ESP32 Smart Socket dengan PZEM + RTC + Timer + Schedule
 
 - Subscribe: ecolab/socket/1/control, ecolab/socket/1/timer, ecolab/socket/1/schedule/*
 - Publish: ecolab/socket/1/energy, ecolab/socket/1/relaystatus, ecolab/socket/1/timer/status
-- Publish: ecolab/socket/1/schedule/status, ecolab/socket/1/datetime/status
+- Publish: ecolab/socket/1/schedule/status
 - LWT: ecolab/socket/1/devicestatus
 
-REALISTIC MODE:
-- Saat Relay OFF: V=220-240V, I=0A, P=0W, F=50Hz, PF=0
+FIRMWARE-LIKE MODE:
+- Saat Relay OFF: V=0V, I=0A, P=0W, E=0kWh, F=0Hz, PF=0
 - Saat Relay ON: V=220-240V, I=input beban, P=V*I*PF, F=50Hz, PF=0.85-0.95
 """
 
@@ -30,8 +30,8 @@ MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "smartsocket1"
 MQTT_PASSWORD = "smart1"
-CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
-# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_CONTROL = "ecolab/socket/1/control"
@@ -44,13 +44,15 @@ TOPIC_SCHEDULE_START = "ecolab/socket/1/schedule/start"
 TOPIC_SCHEDULE_STOP = "ecolab/socket/1/schedule/stop"
 TOPIC_SCHEDULE_MODE = "ecolab/socket/1/schedule/mode"
 TOPIC_SCHEDULE_STATUS = "ecolab/socket/1/schedule/status"
-TOPIC_DATETIME_STATUS = "ecolab/socket/1/datetime/status"
 
 # ============================================================
 # STATE
 # ============================================================
 relay_state = False
 client = None
+mqtt_connected = False
+ntp_synced = True
+pzem_error = False
 
 # Timer state
 timer_active = False
@@ -69,7 +71,7 @@ last_triggered_day = None
 start_triggered = False
 stop_triggered = False
 
-# ================= REALISTIC SENSOR STATE =================
+# ================= FIRMWARE-LIKE SENSOR STATE =================
 # User input beban (dalam Ampere)
 load_current = 0.0  # Default 0A (tanpa beban)
 
@@ -87,6 +89,8 @@ running = True  # Flag untuk stop input thread
 # MQTT CALLBACKS
 # ============================================================
 def on_connect(client, userdata, flags, rc):
+    global mqtt_connected
+    mqtt_connected = rc == 0
     print(f"[MQTT] Connected with result code: {rc}")
 
     # Subscribe to all command topics
@@ -107,6 +111,8 @@ def on_connect(client, userdata, flags, rc):
     publish_status_sync()
 
 def on_disconnect(client, userdata, rc):
+    global mqtt_connected
+    mqtt_connected = False
     print(f"[MQTT] Disconnected: {rc}")
 
 def on_message(client, userdata, msg):
@@ -134,12 +140,15 @@ def on_message(client, userdata, msg):
 
     # ================= TIMER =================
     elif topic == TOPIC_TIMER:
-        duration = int(payload)
+        try:
+            duration = int(payload)
+        except ValueError:
+            duration = 0
 
         if duration == 0:
             # Cancel timer
             timer_active = False
-            publish_status_sync()
+            client.publish(TOPIC_TIMER_STATUS, "INACTIVE", retain=True)
             print("[TIMER] Cancelled")
         else:
             # Set timer (seconds to ms)
@@ -226,10 +235,11 @@ def current_millis():
     """Get current time in milliseconds (simulating Arduino millis())"""
     return int(time.time() * 1000)
 
-def send_device_status(status):
+def send_device_status(status, retain=True):
     """Publish device status (LWT)"""
-    client.publish(TOPIC_DEVICE_STATUS, status, retain=True)
-    print(f"[MQTT] Published: {TOPIC_DEVICE_STATUS} -> {status} (retain)")
+    client.publish(TOPIC_DEVICE_STATUS, status, retain=retain)
+    retain_text = "retain" if retain else "no retain"
+    print(f"[MQTT] Published: {TOPIC_DEVICE_STATUS} -> {status} ({retain_text})")
 
 def send_relay_status():
     """Publish relay status dengan retain=True"""
@@ -295,7 +305,7 @@ def load_schedule_from_file():
         print(f"[JSON] Error loading schedule: {e}")
 
 def send_energy_data():
-    """Publish PZEM energy data (REALISTIC MODE)"""
+    """Publish PZEM energy data (firmware-like mode)"""
     global accumulated_energy
 
     if relay_state:
@@ -325,23 +335,13 @@ def send_energy_data():
         energy = round(accumulated_energy, 3)
     else:
         # ================= RELAY OFF =================
-        # Voltage: TETAP terbaca (listrik masih ada)
-        voltage = round(base_voltage + random.uniform(-2, 2), 2)  # 218-242V
-
-        # Current: 0A (tidak ada beban)
+        # Mengikuti firmware smartsocket.ino: semua field dikirim 0 saat relay OFF.
+        voltage = 0.0
         current = 0.0
-
-        # Power: 0W
         power = 0.0
-
-        # Frequency: tetap ~50Hz
-        frequency = round(base_frequency + random.uniform(-0.2, 0.2), 1)
-
-        # PF: 0 (tidak ada beban)
+        energy = 0.0
+        frequency = 0.0
         pf = 0.0
-
-        # Energy: keep accumulated (tidak bertambah)
-        energy = round(accumulated_energy, 3)
 
     # Create JSON payload
     payload = {
@@ -388,14 +388,6 @@ def publish_status_sync():
 
     client.publish(TOPIC_SCHEDULE_STATUS, json.dumps(schedule_payload), retain=True)
 
-    # DateTime status (simulated NTP sync)
-    now = datetime.now()
-    datetime_str = now.strftime("%Y-%m-%d %H:%M:%S")
-    # Day of week (1=Monday, 7=Sunday)
-    day_of_week = now.isoweekday()
-    status = f"OK:NTP_SYNCED:{datetime_str} {day_of_week}"
-    client.publish(TOPIC_DATETIME_STATUS, status, retain=True)
-
 # ============================================================
 # TIMER & SCHEDULE HANDLING
 # ============================================================
@@ -411,14 +403,8 @@ def handle_timer():
 
             print("[TIMER] Timer done - Relay OFF")
 
-            # Publish relay status OFF ke MQTT
-            send_relay_status()
-
             # Publish timer status DONE
             client.publish(TOPIC_TIMER_STATUS, "TIMER_DONE")
-
-            # Publish full status sync
-            publish_status_sync()
 
 def handle_schedule():
     """Handle schedule (start/stop)"""
@@ -557,7 +543,7 @@ def input_thread():
 # ============================================================
 # LED SIMULATION (Console Output)
 # ============================================================
-def simulate_leds():
+def simulate_legacy_leds():
     """Simulate LED indicators via console"""
     status = []
 
@@ -589,6 +575,53 @@ def simulate_leds():
             status.append(f"⏹️ STOP: {sched_stop_hour:02d}:{sched_stop_minute:02d}")
 
     # Print status line (overwrite previous line)
+    status_str = " | ".join(status)
+    print(f"\r[STATUS] {status_str}    ", end="", flush=True)
+
+
+# ============================================================
+# LED SIMULATION (Console Output)
+# ============================================================
+def simulate_leds():
+    """Simulate the firmware LED concept via console output."""
+    status = []
+
+    status.append("BLUE: MQTT OK" if mqtt_connected else "BLUE: MQTT OFF")
+
+    if timer_active:
+        status.append("GREEN: TIMER BLINK")
+    elif relay_state:
+        status.append("GREEN: RELAY ON")
+    else:
+        status.append("GREEN: RELAY OFF")
+
+    if not ntp_synced:
+        status.append("RED: RTC/NTP ERROR")
+    elif pzem_error:
+        status.append("RED: PZEM ERROR")
+    else:
+        status.append("RED: OK")
+
+    if relay_state and load_current > 0:
+        status.append(f"BEBAN: {load_current}A")
+    elif relay_state:
+        status.append("BEBAN: 0A (set beban dulu)")
+    else:
+        status.append(f"BEBAN: {load_current}A (standby)")
+
+    if timer_active:
+        elapsed = current_millis() - timer_start_millis
+        remaining = max(0, timer_duration - elapsed)
+        status.append(f"TIMER: {remaining//1000}s")
+
+    if schedule_start_active or schedule_stop_active:
+        status.append("DAILY" if schedule_daily_mode else "ONETIME")
+
+        if schedule_start_active:
+            status.append(f"START: {sched_start_hour:02d}:{sched_start_minute:02d}")
+        if schedule_stop_active:
+            status.append(f"STOP: {sched_stop_hour:02d}:{sched_stop_minute:02d}")
+
     status_str = " | ".join(status)
     print(f"\r[STATUS] {status_str}    ", end="", flush=True)
 
@@ -626,13 +659,13 @@ def main():
     print("  - Relay Control (ON/OFF)")
     print("  - Timer Countdown")
     print("  - Schedule (Start/Stop) with Daily/Onetime mode")
-    print("  - PZEM Energy Monitoring (REALISTIC MODE)")
+    print("  - PZEM Energy Monitoring (FIRMWARE-LIKE MODE)")
     print("  - RTC with NTP Sync (simulated)")
     print("  - LED Indicators")
     print("  - Load Current Input (User Adjustable)")
     print("=" * 60)
-    print("\n⚠️  REALISTIC MODE:")
-    print("  - Saat Relay OFF: V=220V, I=0A, P=0W, F=50Hz, PF=0")
+    print("\nFIRMWARE-LIKE MODE:")
+    print("  - Saat Relay OFF: V=0V, I=0A, P=0W, E=0kWh, F=0Hz, PF=0")
     print("  - Saat Relay ON: V=220V, I=input beban, P=V×I×PF, F=50Hz")
     print("\n💡 Anda bisa input beban (load current) kapan saja")
     print("   melalui input thread yang terpisah.\n")
@@ -651,7 +684,7 @@ def main():
     client.on_message = on_message
 
     # Set LWT
-    client.will_set(TOPIC_DEVICE_STATUS, "OFFLINE", qos=0, retain=True)
+    client.will_set(TOPIC_DEVICE_STATUS, "OFFLINE", qos=0, retain=False)
 
     # Connect
     print(f"\n[INFO] Connecting to {MQTT_BROKER}:{MQTT_PORT}...")
@@ -729,7 +762,7 @@ def main():
             except KeyboardInterrupt:
                 print("\n\n[INFO] Shutting down...")
                 running = False  # Stop input thread
-                send_device_status("OFFLINE")
+                send_device_status("OFFLINE", retain=False)
                 client.loop_stop()
                 client.disconnect()
                 break

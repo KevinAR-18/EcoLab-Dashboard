@@ -1,9 +1,32 @@
-from PySide6.QtWidgets import QDialog
-from PySide6.QtCore import Qt
+from datetime import datetime
+
+from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis
+from PySide6.QtCore import Qt, QTimer, QSize
+from PySide6.QtGui import QPainter
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QCheckBox,
+    QComboBox,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QVBoxLayout,
+    QWidget,
+    QDialog,
+)
 from ui_smartsocket_popup import Ui_SmartSocketPopup
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
+    TABLE_DISPLAY_LIMIT = 500
+    CHART_POINT_LIMIT = 300
+
     def __init__(self, socket_number, backend, main_window, parent=None):
         super().__init__(parent)
         self.socket_number = socket_number
@@ -48,6 +71,12 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Connect buttons (placeholder functions for now)
         self.connect_buttons()
+        self._setup_monitoring_ui()
+        self.refresh_monitoring_view()
+
+        self.refresh_timer = QTimer(self)
+        self.refresh_timer.timeout.connect(self.refresh_monitoring_view)
+        self.refresh_timer.start(1000)
 
     def mousePressEvent(self, event):
         """Handle mouse press for dragging"""
@@ -78,6 +107,398 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Close button
         self.btn_close.clicked.connect(self.accept)
+
+    # ================= MONITORING UI =================
+    def _setup_monitoring_ui(self):
+        self.resize(980, 760)
+        self.setMinimumSize(QSize(900, 720))
+        self.setMaximumSize(QSize(1200, 900))
+        self.label_title.setMinimumSize(QSize(700, 55))
+        self.label_title.setMaximumSize(QSize(900, 60))
+
+        self.verticalLayout.removeWidget(self.groupBox_timer)
+        self.verticalLayout.removeWidget(self.groupBox_schedule)
+
+        self.tabs = QTabWidget(self)
+        self.tabs.setStyleSheet("""
+            QTabWidget::pane {
+                border: 1px solid #B0D6E8;
+                border-radius: 6px;
+                background: #FFFFFF;
+            }
+            QTabBar::tab {
+                background: #D8ECF8;
+                color: #1F2D3A;
+                padding: 8px 18px;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                margin-right: 2px;
+                font-weight: 600;
+            }
+            QTabBar::tab:selected {
+                background: #005C99;
+                color: white;
+            }
+        """)
+
+        self.control_tab = QWidget(self.tabs)
+        control_layout = QVBoxLayout(self.control_tab)
+        control_layout.setContentsMargins(10, 10, 10, 10)
+        control_layout.setSpacing(10)
+        control_layout.addWidget(self.groupBox_timer)
+        control_layout.addWidget(self.groupBox_schedule)
+        control_layout.addStretch()
+
+        self.data_tab = QWidget(self.tabs)
+        self.graph_tab = QWidget(self.tabs)
+        self._build_data_tab()
+        self._build_graph_tab()
+
+        self.tabs.addTab(self.control_tab, "Control")
+        self.tabs.addTab(self.data_tab, "Data")
+        self.tabs.addTab(self.graph_tab, "Graph")
+        self.verticalLayout.addWidget(self.tabs)
+
+    def _build_data_tab(self):
+        layout = QVBoxLayout(self.data_tab)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(8)
+
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(QLabel("View:"))
+        self.combo_data_socket = self._create_socket_combo()
+        top_layout.addWidget(self.combo_data_socket)
+
+        self.chk_follow_schedule = QCheckBox("Follow Schedule")
+        self.chk_follow_schedule.setToolTip(
+            "Start recording on START_TRIGGER and stop on STOP_TRIGGER."
+        )
+        top_layout.addWidget(self.chk_follow_schedule)
+        top_layout.addStretch()
+
+        self.btn_start_recording = QPushButton("Start Recording")
+        self.btn_stop_recording = QPushButton("Stop Recording")
+        self.btn_clear_records = QPushButton("Clear Data")
+        self.btn_export_csv = QPushButton("Export CSV")
+
+        self.btn_start_recording.setStyleSheet(self._button_style("#0F8B4C"))
+        self.btn_stop_recording.setStyleSheet(self._button_style("#EB5757"))
+        self.btn_clear_records.setStyleSheet(self._button_style("#6B7280"))
+        self.btn_export_csv.setStyleSheet(self._button_style("#005C99"))
+
+        top_layout.addWidget(self.btn_start_recording)
+        top_layout.addWidget(self.btn_stop_recording)
+        top_layout.addWidget(self.btn_clear_records)
+        top_layout.addWidget(self.btn_export_csv)
+        layout.addLayout(top_layout)
+
+        self.label_recording_status = QLabel("Recording: OFF")
+        self.label_recording_status.setStyleSheet(
+            "font-weight: 600; color: #1F2D3A;"
+        )
+        layout.addWidget(self.label_recording_status)
+
+        self.table_records = QTableWidget(self.data_tab)
+        self.table_records.setColumnCount(8)
+        self.table_records.setHorizontalHeaderLabels([
+            "Timestamp",
+            "Relay",
+            "Voltage",
+            "Current",
+            "Power",
+            "Energy",
+            "Frequency",
+            "PF",
+        ])
+        self.table_records.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table_records.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_records.setAlternatingRowColors(True)
+        self.table_records.verticalHeader().setVisible(False)
+        self.table_records.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents
+        )
+        self.table_records.horizontalHeader().setStretchLastSection(True)
+        layout.addWidget(self.table_records)
+
+        self.combo_data_socket.setCurrentIndex(self.socket_number - 1)
+        self.combo_data_socket.currentIndexChanged.connect(
+            self._on_data_socket_changed
+        )
+        self.chk_follow_schedule.stateChanged.connect(
+            self._on_follow_schedule_changed
+        )
+        self.btn_start_recording.clicked.connect(self.on_start_recording)
+        self.btn_stop_recording.clicked.connect(self.on_stop_recording)
+        self.btn_clear_records.clicked.connect(self.on_clear_records)
+        self.btn_export_csv.clicked.connect(self.on_export_csv)
+
+    def _build_graph_tab(self):
+        layout = QVBoxLayout(self.graph_tab)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(8)
+
+        top_layout = QHBoxLayout()
+        top_layout.addWidget(QLabel("Socket:"))
+        self.combo_graph_socket = self._create_socket_combo()
+        top_layout.addWidget(self.combo_graph_socket)
+        top_layout.addWidget(QLabel("Metric:"))
+        self.combo_graph_metric = QComboBox(self.graph_tab)
+        for key, label in self._metric_options():
+            self.combo_graph_metric.addItem(label, key)
+        top_layout.addWidget(self.combo_graph_metric)
+        top_layout.addStretch()
+        layout.addLayout(top_layout)
+
+        self.label_graph_status = QLabel("No data")
+        self.label_graph_status.setStyleSheet("font-weight: 600; color: #1F2D3A;")
+        layout.addWidget(self.label_graph_status)
+
+        self.chart = QChart()
+        self.chart.legend().hide()
+        self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart_view = QChartView(self.chart, self.graph_tab)
+        self.chart_view.setRenderHint(QPainter.Antialiasing)
+        self.chart_view.setMinimumHeight(430)
+        layout.addWidget(self.chart_view)
+
+        self.combo_graph_socket.setCurrentIndex(self.socket_number - 1)
+        self.combo_graph_socket.currentIndexChanged.connect(
+            self.refresh_monitoring_view
+        )
+        self.combo_graph_metric.currentIndexChanged.connect(
+            self.refresh_monitoring_view
+        )
+
+    def _create_socket_combo(self):
+        combo = QComboBox(self)
+        for socket_number in range(1, 6):
+            combo.addItem(f"Smart Socket {socket_number}", socket_number)
+        return combo
+
+    def _button_style(self, color):
+        return f"""
+            QPushButton {{
+                background-color: {color};
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 7px 12px;
+                font-weight: 600;
+            }}
+            QPushButton:disabled {{
+                background-color: #B8C2CC;
+                color: #F8FAFC;
+            }}
+        """
+
+    def _metric_options(self):
+        return [
+            ("voltage", "Voltage"),
+            ("current", "Current"),
+            ("power", "Power"),
+            ("energy", "Energy"),
+            ("frequency", "Frequency"),
+            ("pf", "PF"),
+        ]
+
+    def _on_data_socket_changed(self, *_):
+        socket_number = self._selected_data_socket()
+        self.combo_graph_socket.blockSignals(True)
+        self.combo_graph_socket.setCurrentIndex(socket_number - 1)
+        self.combo_graph_socket.blockSignals(False)
+        self.refresh_monitoring_view()
+
+    def _on_follow_schedule_changed(self, *_):
+        socket_number = self._selected_data_socket()
+        enabled = self.chk_follow_schedule.isChecked()
+        self.main_window.set_socket_follow_schedule(socket_number, enabled)
+        self.refresh_monitoring_view()
+
+    def _selected_data_socket(self):
+        return self.combo_data_socket.currentData() or self.socket_number
+
+    def _selected_graph_socket(self):
+        return self.combo_graph_socket.currentData() or self.socket_number
+
+    def on_start_recording(self):
+        self.main_window.start_socket_recording(self._selected_data_socket())
+        self.refresh_monitoring_view()
+
+    def on_stop_recording(self):
+        self.main_window.stop_socket_recording(self._selected_data_socket())
+        self.refresh_monitoring_view()
+
+    def on_clear_records(self):
+        socket_number = self._selected_data_socket()
+        reply = QMessageBox.question(
+            self,
+            "Clear Data",
+            f"Clear recorded data for Smart Socket {socket_number}?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply == QMessageBox.StandardButton.Yes:
+            self.main_window.clear_socket_records(socket_number)
+            self.refresh_monitoring_view()
+
+    def on_export_csv(self):
+        socket_number = self._selected_data_socket()
+        records = self.main_window.get_socket_records(socket_number)
+        if not records:
+            QMessageBox.warning(
+                self,
+                "Export CSV",
+                f"No recorded data for Smart Socket {socket_number}.",
+            )
+            return
+
+        default_name = (
+            f"smartsocket_{socket_number}_"
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        )
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Export Smart Socket CSV",
+            default_name,
+            "CSV Files (*.csv)",
+        )
+        if not path:
+            return
+        if not path.lower().endswith(".csv"):
+            path += ".csv"
+
+        try:
+            count = self.main_window.export_socket_records_csv(socket_number, path)
+            QMessageBox.information(
+                self,
+                "Export CSV",
+                f"Exported {count} rows for Smart Socket {socket_number}.",
+            )
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Export CSV",
+                f"Failed to export CSV:\n{exc}",
+            )
+
+    def refresh_monitoring_view(self, *_):
+        if not hasattr(self.main_window, "smartsocket_recorder"):
+            return
+
+        data_socket = self._selected_data_socket()
+        graph_socket = self._selected_graph_socket()
+
+        self._refresh_recording_controls(data_socket)
+        self._refresh_table(data_socket)
+        self._refresh_chart(graph_socket)
+
+    def _refresh_recording_controls(self, socket_number):
+        recording = self.main_window.is_socket_recording(socket_number)
+        follow_schedule = self.main_window.is_socket_follow_schedule(socket_number)
+        records = self.main_window.get_socket_records(socket_number)
+
+        self.chk_follow_schedule.blockSignals(True)
+        self.chk_follow_schedule.setChecked(follow_schedule)
+        self.chk_follow_schedule.blockSignals(False)
+
+        self.btn_start_recording.setEnabled(not recording)
+        self.btn_stop_recording.setEnabled(recording)
+
+        recording_text = "ON" if recording else "OFF"
+        follow_text = "ON" if follow_schedule else "OFF"
+        shown = min(len(records), self.TABLE_DISPLAY_LIMIT)
+        self.label_recording_status.setText(
+            f"Smart Socket {socket_number} | Recording: {recording_text} | "
+            f"Follow Schedule: {follow_text} | Rows: {len(records)} "
+            f"(showing last {shown})"
+        )
+
+    def _refresh_table(self, socket_number):
+        records = self.main_window.get_socket_records(socket_number)
+        display_records = records[-self.TABLE_DISPLAY_LIMIT:]
+        self.table_records.setRowCount(len(display_records))
+
+        for row, record in enumerate(display_records):
+            values = [
+                record.get("timestamp", ""),
+                record.get("relay_state", ""),
+                self._fmt(record.get("voltage"), 2),
+                self._fmt(record.get("current"), 3),
+                self._fmt(record.get("power"), 2),
+                self._fmt(record.get("energy"), 3),
+                self._fmt(record.get("frequency"), 1),
+                self._fmt(record.get("pf"), 2),
+            ]
+            for col, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                if col >= 2:
+                    item.setTextAlignment(Qt.AlignRight | Qt.AlignVCenter)
+                self.table_records.setItem(row, col, item)
+
+        if display_records:
+            self.table_records.scrollToBottom()
+
+    def _refresh_chart(self, socket_number):
+        records = self.main_window.get_socket_records(socket_number)
+        metric = self.combo_graph_metric.currentData() or "power"
+        metric_label = self.combo_graph_metric.currentText() or "Power"
+        chart_records = records[-self.CHART_POINT_LIMIT:]
+
+        self.chart.removeAllSeries()
+        for axis in list(self.chart.axes()):
+            self.chart.removeAxis(axis)
+
+        self.chart.setTitle(
+            f"Smart Socket {socket_number} - {metric_label} "
+            f"({len(records)} rows)"
+        )
+        self.label_graph_status.setText(
+            f"Showing last {len(chart_records)} of {len(records)} samples"
+        )
+
+        series = QLineSeries()
+        series.setName(metric_label)
+
+        values = []
+        for idx, record in enumerate(chart_records):
+            value = self._to_float(record.get(metric))
+            values.append(value)
+            series.append(idx, value)
+
+        self.chart.addSeries(series)
+
+        axis_x = QValueAxis()
+        axis_x.setTitleText("Sample")
+        axis_x.setLabelFormat("%d")
+        axis_x.setRange(0, max(1, len(chart_records) - 1))
+
+        axis_y = QValueAxis()
+        axis_y.setTitleText(metric_label)
+        if values:
+            min_value = min(values)
+            max_value = max(values)
+            if min_value == max_value:
+                padding = abs(min_value) * 0.1 or 1.0
+            else:
+                padding = (max_value - min_value) * 0.1
+            axis_y.setRange(min_value - padding, max_value + padding)
+        else:
+            axis_y.setRange(0, 1)
+
+        self.chart.addAxis(axis_x, Qt.AlignBottom)
+        self.chart.addAxis(axis_y, Qt.AlignLeft)
+        series.attachAxis(axis_x)
+        series.attachAxis(axis_y)
+
+    def _fmt(self, value, decimals):
+        return f"{self._to_float(value):.{decimals}f}"
+
+    @staticmethod
+    def _to_float(value):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return 0.0
 
     # ================= TIMER HANDLERS =================
     def on_start_timer(self):

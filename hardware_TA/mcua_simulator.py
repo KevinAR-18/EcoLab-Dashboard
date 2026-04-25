@@ -20,8 +20,8 @@ import os
 # ============================================================
 # CONFIG
 # ============================================================
-MQTT_BROKER = "DESKTOP-CVPE153"  # Ganti dengan IP broker
 # MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"  # Broker laptop
 MQTT_PORT = 8883  # TLS
 MQTT_USERNAME = "mcua"
 MQTT_PASSWORD = "mcua123"

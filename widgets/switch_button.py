@@ -14,8 +14,8 @@ class SwitchButton(QWidget):
     Tombol Switch KCD dengan animasi
     - Kotak dengan sudut rounded
     - Dalam merah
-    - ON: Merah terang + symbol O + pulse animation
-    - OFF: Merah redup + symbol I
+    - ON: Merah terang + symbol I + pulse animation
+    - OFF: Merah redup + symbol O
     - Safety cover: harus buka casing dulu sebelum klik tombol
     """
 
@@ -281,13 +281,13 @@ class SwitchButton(QWidget):
         p.setBrush(Qt.NoBrush)
 
         if self._is_on or self._led_alpha > 0.5:
-            # Symbol O (lingkaran) - saat ON/close
-            p.drawEllipse(QPointF(cx, cy), symbol_size, symbol_size)
-        else:
-            # Symbol I (garis vertikal) - saat OFF/open
+            # Symbol I (garis vertikal) - saat ON/close
             line_top = cy - symbol_size + 6
             line_bottom = cy + symbol_size - 6
             p.drawLine(QPointF(cx, line_top), QPointF(cx, line_bottom))
+        else:
+            # Symbol O (lingkaran) - saat OFF/open
+            p.drawEllipse(QPointF(cx, cy), symbol_size, symbol_size)
 
         # ================= SAFETY COVER (Kaca Penutup) =================
         if self._cover_angle < 90:

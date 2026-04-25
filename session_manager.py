@@ -19,19 +19,25 @@ class SessionManager:
 
     def _get_session_file_path(self):
         """
-        Tentukan lokasi session file berdasarkan mode running (EXE vs script)
+        Tentukan lokasi session file persisten di AppData user.
 
         Returns:
             Path: Lokasi session file yang persisten
         """
-        # Cek apakah running dari EXE (PyInstaller)
-        if getattr(sys, 'frozen', False):
-            # Running dari EXE - simpan di folder yang sama dengan EXE
-            exe_dir = Path(sys.executable).parent
-            session_file = exe_dir / "ecolab_session.json"
+        appdata_dir = os.getenv("APPDATA")
+
+        if appdata_dir:
+            session_dir = Path(appdata_dir) / "EcoLab Dashboard"
         else:
-            # Running dari script - simpan di project folder
-            session_file = Path(__file__).parent / "ecolab_session.json"
+            # Fallback kalau APPDATA tidak tersedia
+            if getattr(sys, 'frozen', False):
+                base_dir = Path.home() / ".ecolab_dashboard"
+            else:
+                base_dir = Path(__file__).parent / ".ecolab_dashboard"
+            session_dir = base_dir
+
+        session_dir.mkdir(parents=True, exist_ok=True)
+        session_file = session_dir / "ecolab_session.json"
 
         # Debug print
         print(f"DEBUG: Session file location: {session_file}")
