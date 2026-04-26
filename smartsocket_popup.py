@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
-from PySide6.QtCore import Qt, QTimer, QSize, QDateTime
+from PySide6.QtCore import Qt, QTimer, QSize, QDateTime, QPoint
 from PySide6.QtGui import (
     QColor,
     QIcon,
@@ -30,9 +30,83 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QDialog,
+    QProxyStyle,
+    QStyle,
 )
 from ui_smartsocket_popup import Ui_SmartSocketPopup
 from ui_theme_helper import apply_light_theme_to_widget
+
+
+class _ComboArrowStyle(QProxyStyle):
+    """Draw a consistent down-arrow regardless of Windows dark mode/palette."""
+
+    ARROW_COLOR = QColor("#005C99")
+
+    def drawComplexControl(self, control, option, painter, widget=None):
+        super().drawComplexControl(control, option, painter, widget)
+
+        if control != QStyle.ComplexControl.CC_ComboBox or painter is None:
+            return
+
+        try:
+            arrow_rect = self.subControlRect(
+                QStyle.ComplexControl.CC_ComboBox,
+                option,
+                QStyle.SubControl.SC_ComboBoxArrow,
+                widget,
+            )
+        except Exception:
+            return
+
+        r = arrow_rect.adjusted(0, 0, -1, -1)
+        if r.width() <= 6 or r.height() <= 6:
+            return
+
+        w = max(8, min(r.width() - 8, 14))
+        h = max(6, min(r.height() - 8, 10))
+        cx = r.center().x()
+        cy = r.center().y()
+
+        points = [
+            QPoint(cx - w // 2, cy - h // 3),
+            QPoint(cx + w // 2, cy - h // 3),
+            QPoint(cx, cy + h // 2),
+        ]
+
+        painter.save()
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(self.ARROW_COLOR)
+        painter.drawPolygon(points)
+        painter.restore()
+
+    def drawPrimitive(self, element, option, painter, widget=None):
+        if element == QStyle.PrimitiveElement.PE_IndicatorArrowDown:
+            if painter is None:
+                return
+
+            r = option.rect
+            # Draw a filled triangle centered in rect
+            w = max(6, min(r.width(), 12))
+            h = max(4, min(r.height(), 8))
+            cx = r.center().x()
+            cy = r.center().y()
+
+            points = [
+                QPoint(cx - w // 2, cy - h // 2),
+                QPoint(cx + w // 2, cy - h // 2),
+                QPoint(cx, cy + h // 2),
+            ]
+
+            painter.save()
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(self.ARROW_COLOR)
+            painter.drawPolygon(points)
+            painter.restore()
+            return
+
+        super().drawPrimitive(element, option, painter, widget)
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
@@ -48,6 +122,10 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.backend = backend  # SmartSocketBackend instance
         self.main_window = main_window  # Reference ke MainWindow untuk simpan format
         self.setupUi(self)
+
+        # Ensure dropdown arrows are visible even under Windows 11 dark mode.
+        for combo in self.findChildren(QComboBox):
+            combo.setStyle(_ComboArrowStyle(combo.style()))
 
         # Override the .ui fixed size so Data tab buttons don't get clipped.
         self.setMinimumSize(QSize(self.WINDOW_WIDTH_PX, self.WINDOW_HEIGHT_PX))
@@ -296,6 +374,18 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
                 border-radius: 5px;
                 padding: 4px 8px;
             }
+            QComboBox {
+                padding-right: 28px;
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 24px;
+                border-left: 1px solid #B8D4E3;
+                background: #F3F9FD;
+                border-top-right-radius: 5px;
+                border-bottom-right-radius: 5px;
+            }
             QComboBox QAbstractItemView {
                 color: #1F2D3A;
                 background: #FFFFFF;
@@ -458,6 +548,16 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
                 border: 1px solid #B8D4E3;
                 border-radius: 5px;
                 padding: 4px 8px;
+                padding-right: 28px;
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 24px;
+                border-left: 1px solid #B8D4E3;
+                background: #F3F9FD;
+                border-top-right-radius: 5px;
+                border-bottom-right-radius: 5px;
             }
             QComboBox QAbstractItemView {
                 color: #1F2D3A;

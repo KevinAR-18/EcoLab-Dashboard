@@ -71,3 +71,6 @@ credentials/firebase_service_accountold.json
 panduan_pengujian_wireshark_smartsocket.txt
 hardware_TA/vokaai.zip
 hardware_TA/vokta.py
+esp32c3_local_http/README.md
+esp32c3_local_http/firmware/esp32c3_smartsocket_http.ino
+esp32c3_local_http/python/esp32c3_http_client.py

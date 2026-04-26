@@ -24,7 +24,6 @@ const int   daylightOffset_sec = 0;    // Tidak ada daylight saving di Indonesia
 // ================= MQTT =================
 const char *mqtt_server = "10.33.11.148";
 const int mqtt_port = 8883;
-
 const char *mqtt_user = "smartsocket5";
 const char *mqtt_pass = "smart5";
 
@@ -45,32 +44,7 @@ const char *topic_schedule_start = "ecolab/socket/5/schedule/start";
 const char *topic_schedule_stop = "ecolab/socket/5/schedule/stop";
 const char *topic_schedule_mode = "ecolab/socket/5/schedule/mode";
 const char *topic_schedule_status = "ecolab/socket/5/schedule/status";
-
-// ================= TLS CERT =================
-const char *ca_cert = R"EOF(
------BEGIN CERTIFICATE-----
-MIIDrTCCApWgAwIBAgIUKFYwJQFQ7JDUKBtRlbyz+MkxL1wwDQYJKoZIhvcNAQEL
-BQAwZjELMAkGA1UEBhMCSUQxDDAKBgNVBAgMA0RJWTETMBEGA1UEBwwKWW9neWFr
-YXJ0YTEPMA0GA1UECgwGRWNvTGFiMQ8wDQYDVQQLDAZFY29MYWIxEjAQBgNVBAMM
-CUVjb2xhYi1DQTAeFw0yNjAzMzEwODM0NTlaFw0zNjAzMjgwODM0NTlaMGYxCzAJ
-BgNVBAYTAklEMQwwCgYDVQQIDANESVkxEzARBgNVBAcMCllvZ3lha2FydGExDzAN
-BgNVBAoMBkVjb0xhYjEPMA0GA1UECwwGRWNvTGFiMRIwEAYDVQQDDAlFY29sYWIt
-Q0EwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDJMVvFYOUG7zs4w/sC
-dvblP5v0MmumansCh3wWEAjFcLXFDC4kS0hERHw661asm4TNYl1K8XUj8uCvqN8G
-Rpgqh3qnld9JEUY8tVrmLZxh0sd/B3bJ+2sQTLZTznk/N1mJS4UIatu+KYAusv/Q
-QHRgtQM42rpMZpFaq3+qsTWx/cTZV3WwQWMEY6Ypr3lMI+naSB18jg7Ac321escd
-K+GW20/5ScJQhrSd5g0iUETOvRzoKrqhHq4sZ1xBa0W4CGLF4UV8IGP7C118skIQ
-nJajJ79obXTyAqzqzKrLIM0zc5Xxt/mbaapghsk7+/IvZUEAizwPQmU1Uj9Pr5er
-4SbnAgMBAAGjUzBRMB0GA1UdDgQWBBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAfBgNV
-HSMEGDAWgBQlQOdG4wFtYT3+0hXWfTaSnS6I5DAPBgNVHRMBAf8EBTADAQH/MA0G
-CSqGSIb3DQEBCwUAA4IBAQAk2RsxuzFzWT3WbVghHtcczDjR1u28TWFYY7jGTvgy
-ZvyYWxi0PnFl8Ht/6liNvWoxVdXc0MOauIQTfq29RKLz99U9xMIqT4Vz0V/7n+Mb
-sk1KwWIPbQrGe0aQaZUNtq1+0DA2BDyOpbaAxJKCqu02df5LXcHE+ZxMlIHjboHt
-a+xJtxrLkMcqU0oislf/IGrs6155Sb9yszaXt9Rk1Dugrzz/QQmhXHBLyQTjxy9Q
-5BwkMG4ysoqz6SrySg+s7USvNuOa4f3u2mglLwRPWNLljkf55EN22OvRN6yDL2qa
-MlQOy/la90QK6a7W969cM6ZpdVh3OwthHG1/5VpwonBO
------END CERTIFICATE-----
-)EOF";
+const char *ca_cert = "";
 
 // ================= PZEM =================
 #define PZEM_RX_PIN 5
@@ -110,6 +84,7 @@ unsigned long lastWiFiRetry = 0;
 unsigned long lastMQTTRetry = 0;
 bool relayState = false;
 bool ntpSynced = false;
+bool pzemError = false;
 
 // ================= TIMER =================
 bool timerActive = false;
@@ -182,6 +157,53 @@ void blinkDualLED(int times)
     }
 }
 
+// ================= LED STATUS (NON-BLOCKING) =================
+void updateLEDIndicators()
+{
+    unsigned long now = millis();
+
+    // Biru: koneksi
+    // OFF = WiFi putus, blink = WiFi OK tapi MQTT belum connect, ON = WiFi + MQTT OK
+    if (WiFi.status() != WL_CONNECTED)
+    {
+        digitalWrite(BLUE_LED_PIN, LOW);
+    }
+    else if (client.connected())
+    {
+        digitalWrite(BLUE_LED_PIN, HIGH);
+    }
+    else
+    {
+        digitalWrite(BLUE_LED_PIN, ((now / 500) % 2) ? HIGH : LOW);
+    }
+
+    // Hijau: output socket
+    // Blink saat timer aktif, selain itu mengikuti status relay
+    if (timerActive)
+    {
+        digitalWrite(GREEN_LED_PIN, ((now / 500) % 2) ? HIGH : LOW);
+    }
+    else
+    {
+        digitalWrite(GREEN_LED_PIN, relayState ? HIGH : LOW);
+    }
+
+    // Merah: error
+    // Prioritas blink cepat untuk RTC/NTP belum sync, blink pelan untuk PZEM error
+    if (!ntpSynced)
+    {
+        digitalWrite(RED_LED_PIN, ((now / 250) % 2) ? HIGH : LOW);
+    }
+    else if (pzemError)
+    {
+        digitalWrite(RED_LED_PIN, ((now / 750) % 2) ? HIGH : LOW);
+    }
+    else
+    {
+        digitalWrite(RED_LED_PIN, LOW);
+    }
+}
+
 // ================= NTP TO RTC =================
 void syncNTPtoRTC() {
     Serial.println("Syncing NTP time to RTC...");
@@ -199,11 +221,11 @@ void syncNTPtoRTC() {
     }
 
     if (retry >= 10) {
-        Serial.println("\n❌ NTP Sync FAILED! RTC not set.");
+        Serial.println("\n??? NTP Sync FAILED! RTC not set.");
         return;
     }
 
-    Serial.println("\n✅ NTP Sync successful!");
+    Serial.println("\n??? NTP Sync successful!");
 
     // Convert tm ke Time format untuk DS1302
     // tm_year: tahun sejak 1900 (2026 = 126)
@@ -269,15 +291,11 @@ void start_wifi()
     {
         Serial.println("\nWiFi connected");
         Serial.println(WiFi.localIP());
-
-        blinkLED(BLUE_LED_PIN, 3, 200);
-        digitalWrite(BLUE_LED_PIN, HIGH);
         syncNTPtoRTC();
     }
     else
     {
         Serial.println("\nWiFi not connected, continuing in offline mode");
-        digitalWrite(BLUE_LED_PIN, LOW);
     }
 }
 
@@ -285,16 +303,12 @@ void ensureWiFiConnection()
 {
     if (WiFi.status() == WL_CONNECTED)
     {
-        digitalWrite(BLUE_LED_PIN, HIGH);
-
         if (!ntpSynced)
         {
             syncNTPtoRTC();
         }
         return;
     }
-
-    digitalWrite(BLUE_LED_PIN, LOW);
 
     if (millis() - lastWiFiRetry < 10000)
     {
@@ -333,6 +347,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         {
             digitalWrite(RELAY_PIN, LOW);
             relayState = false;
+            pzemError = false;
             saveManualRelayStateToEEPROM();
             client.publish(topic_statusrelay, "OFF");
         }
@@ -353,7 +368,7 @@ void callback(char *topic, byte *payload, unsigned int length)
         else
         {
             // Set timer normal
-            timerDuration = duration * 1000; // detik → ms
+            timerDuration = duration * 1000; // detik ??? ms
             timerStartMillis = millis();
             timerActive = true;
 
@@ -550,6 +565,7 @@ void handleTimer()
 
             digitalWrite(RELAY_PIN, LOW);
             relayState = false;
+            pzemError = false;
 
             client.publish(topic_timer_status, "TIMER_DONE");
         }
@@ -608,6 +624,7 @@ void handleSchedule()
 
                 digitalWrite(RELAY_PIN, LOW);
                 relayState = false;
+                pzemError = false;
 
                 client.publish(topic_statusrelay, "OFF");
                 client.publish(topic_schedule_status, "STOP_TRIGGER");
@@ -777,6 +794,11 @@ void setup()
     digitalWrite(GREEN_LED_PIN, LOW);
     digitalWrite(BLUE_LED_PIN, LOW);
 
+    // ===== RTC INIT =====
+    // RTC harus siap sebelum WiFi connect karena start_wifi() akan sync NTP ke RTC.
+    rtc.writeProtect(false);
+    rtc.halt(false);
+
     start_wifi();
 
     espClient.setCACert(ca_cert);
@@ -785,11 +807,6 @@ void setup()
     client.setCallback(callback);
     client.setKeepAlive(10);  // 10 detik keepalive
 
-    // ===== RTC INIT =====
-    // RTC akan diset dari NTP setelah WiFi connect (di start_wifi())
-    rtc.writeProtect(false);
-    rtc.halt(false);
-
     // ===== PZEM INIT =====
     PZEMSerial.begin(9600, SERIAL_8N1, PZEM_RX_PIN, PZEM_TX_PIN);
 
@@ -797,6 +814,7 @@ void setup()
     EEPROM.begin(EEPROM_SIZE);
     loadScheduleFromEEPROM();  // Load schedule yang tersimpan
     restoreManualRelayStateFromEEPROM();
+    updateLEDIndicators();
 }
 
 // ================= LOOP =================
@@ -842,8 +860,9 @@ void loop()
             frequency = pzem.frequency();
             pf = pzem.pf();
             // Kalau PZEM error, kirim 0
-            if (isnan(voltage))
+            if (isnan(voltage) || isnan(current) || isnan(power) || isnan(energy) || isnan(frequency) || isnan(pf))
             {
+                pzemError = true;
                 voltage = 0;
                 current = 0;
                 power = 0;
@@ -852,10 +871,15 @@ void loop()
                 pf = 0;
                 Serial.println("PZEM not responding, sending 0");
             }
+            else
+            {
+                pzemError = false;
+            }
         }
         else
         {
             // Relay OFF ??? Kirim semua 0
+            pzemError = false;
             voltage = 0;
             current = 0;
             power = 0;
@@ -891,4 +915,6 @@ void loop()
     }
     handleTimer();
     handleSchedule();
+    updateLEDIndicators();
 }
+
