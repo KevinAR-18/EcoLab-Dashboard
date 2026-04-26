@@ -82,13 +82,13 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-# MQTT_BROKER = "10.33.11.148"
-MQTT_BROKER = "DESKTOP-CVPE153"
+MQTT_BROKER = "10.33.11.148"
+# MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
 MQTT_USERNAME = "dashboard"
 MQTT_PASSWORD = "ecolab321"
-# MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
-MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
+MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
+# MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
 MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
 
 # Class untuk mengatur Hari dan Waktu
@@ -222,10 +222,10 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
-        # SEMENTARA: DRAG BG APP (seluruh background)
-        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        # # SEMENTARA: DRAG BG APP (seluruh background)
+        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOGGLE LEFT MENU
         self.ui.toggleButton.clicked.connect(
