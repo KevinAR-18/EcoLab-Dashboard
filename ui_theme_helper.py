@@ -24,11 +24,14 @@ def get_light_theme_stylesheet():
     /* ALL WIDGETS - Force default text color */
     * {
         color: #000000;
+        selection-background-color: #2b6cb0;
+        selection-color: #FFFFFF;
     }
 
     /* LABEL - Force black text (most common) */
     QLabel {
         color: #000000;
+        background-color: transparent;
     }
 
     /* WHITE LABEL - Special property for white text on dark background */
@@ -52,6 +55,9 @@ def get_light_theme_stylesheet():
     QLineEdit {
         color: #000000;
         background-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
+        selection-background-color: #2b6cb0;
+        selection-color: #FFFFFF;
     }
 
     QLineEdit::placeholder {
@@ -62,18 +68,22 @@ def get_light_theme_stylesheet():
     QTextEdit {
         color: #000000;
         background-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
     }
 
     /* PLAIN TEXT EDIT */
     QPlainTextEdit {
         color: #000000;
         background-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
     }
 
     /* COMBO BOX - Force black text on white background */
     QComboBox {
         color: #000000;
         background-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
+        padding: 4px 8px;
     }
 
     QComboBox QAbstractItemView {
@@ -81,6 +91,7 @@ def get_light_theme_stylesheet():
         background-color: #FFFFFF;
         selection-background-color: #2b6cb0;
         selection-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
     }
 
     QComboBox::drop-down {
@@ -109,6 +120,7 @@ def get_light_theme_stylesheet():
     QDateTimeEdit {
         color: #000000;
         background-color: #FFFFFF;
+        border: 1px solid #cfd8e3;
     }
 
     /* TABLE WIDGET - Force black text on white background */
@@ -118,6 +130,7 @@ def get_light_theme_stylesheet():
         background-color: #FFFFFF;
         gridline-color: #D9E9F6;
         alternate-background-color: #F5F9FC;
+        border: 1px solid #D9E9F6;
     }
 
     QTableWidget::item,
@@ -204,6 +217,7 @@ def get_light_theme_stylesheet():
     /* GROUP BOX - Force black title */
     QGroupBox {
         color: #000000;
+        background-color: transparent;
         border: 1px solid #D9E9F6;
         border-radius: 5px;
         margin-top: 10px;
@@ -360,6 +374,32 @@ def get_light_theme_stylesheet():
     /* DIALOG */
     QDialog {
         color: #000000;
+        background-color: #FFFFFF;
+    }
+
+    QWidget {
+        color: #000000;
+    }
+
+    QFrame {
+        color: #000000;
+        background-color: transparent;
+    }
+
+    QListView {
+        color: #000000;
+        background-color: #FFFFFF;
+    }
+
+    QAbstractItemView {
+        color: #000000;
+        background-color: #FFFFFF;
+        selection-background-color: #2b6cb0;
+        selection-color: #FFFFFF;
+    }
+
+    QChartView {
+        background: #FFFFFF;
     }
 
     /* MESSAGE BOX - Fix Dark Mode interference on popups */

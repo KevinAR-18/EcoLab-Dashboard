@@ -2,7 +2,17 @@ from datetime import datetime
 
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
 from PySide6.QtCore import Qt, QTimer, QSize, QDateTime
-from PySide6.QtGui import QPainter
+from PySide6.QtGui import (
+    QColor,
+    QIcon,
+    QLinearGradient,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPixmap,
+    QRegion,
+    QIntValidator,
+)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -13,6 +23,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
     QPushButton,
+    QLineEdit,
     QTableWidget,
     QTableWidgetItem,
     QTabWidget,
@@ -21,11 +32,15 @@ from PySide6.QtWidgets import (
     QDialog,
 )
 from ui_smartsocket_popup import Ui_SmartSocketPopup
+from ui_theme_helper import apply_light_theme_to_widget
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     TABLE_DISPLAY_LIMIT = 500
     CHART_POINT_LIMIT = 300
+    WINDOW_RADIUS_PX = 10
+    WINDOW_WIDTH_PX = 1024
+    WINDOW_HEIGHT_PX = 650
 
     def __init__(self, socket_number, backend, main_window, parent=None):
         super().__init__(parent)
@@ -34,22 +49,42 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.main_window = main_window  # Reference ke MainWindow untuk simpan format
         self.setupUi(self)
 
+        # Override the .ui fixed size so Data tab buttons don't get clipped.
+        self.setMinimumSize(QSize(self.WINDOW_WIDTH_PX, self.WINDOW_HEIGHT_PX))
+        self.setMaximumSize(QSize(self.WINDOW_WIDTH_PX, self.WINDOW_HEIGHT_PX))
+
+        # Match app icon (used in Login/Main window).
+        try:
+            pixmap = QPixmap(self.main_window.resource_path("icon\\logoecolab.ico"))
+            if not pixmap.isNull():
+                icon = QIcon(
+                    pixmap.scaled(
+                        64,
+                        64,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                )
+                self.setWindowIcon(icon)
+        except Exception:
+            pass
+
         # Set borderless window with rounded corners
         self.setWindowFlags(Qt.FramelessWindowHint)
+        # Needed for true rounded corners on a frameless window.
+        # Without this, the stylesheet may look rounded but the native window
+        # surface is still rectangular (corners look "siku-siku").
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
 
         # Setup drag functionality
         self._old_pos = None
 
-        # Apply rounded corners to dialog
-        self.setStyleSheet("#SmartSocketPopup{"
-                          "    background: qlineargradient("
-                          "        x1:0, y1:0, x2:0, y2:1,"
-                          "        stop:0 #E1F2FB,"
-                          "        stop:1 #F1F9F9"
-                          "    );"
-                          "    border: 2px solid #005C99;"
-                          "    border-radius: 10px;"
-                          "}")
+        # NOTE:
+        # We draw the dialog background manually in paintEvent so the window can
+        # be truly rounded (with WA_TranslucentBackground) without turning the
+        # content area transparent.
+        self.setStyleSheet("#SmartSocketPopup{ background: transparent; }")
+        apply_light_theme_to_widget(self)
 
         # Set dynamic title based on socket number
         self.label_title.setText(f"⚡ Smart Socket {self.socket_number} Control")
@@ -78,8 +113,62 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.refresh_timer.timeout.connect(self.refresh_monitoring_view)
         self.refresh_timer.stop()  # Mulai dengan timer OFF
 
+        if hasattr(self.main_window, "socket_recording_state_changed"):
+            self.main_window.socket_recording_state_changed.connect(
+                self._on_recording_state_changed
+            )
+
         self._setup_monitoring_ui()
         self.refresh_monitoring_view()
+        self._update_rounded_mask()
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        # Paint rounded gradient background + border.
+        r = float(self.WINDOW_RADIUS_PX)
+        rect = self.rect().adjusted(1, 1, -1, -1)
+        if rect.width() <= 2 or rect.height() <= 2:
+            return
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        path = QPainterPath()
+        path.addRoundedRect(rect, r, r)
+
+        grad = QLinearGradient(rect.left(), rect.top(), rect.left(), rect.bottom())
+        grad.setColorAt(0.0, QColor("#E1F2FB"))
+        grad.setColorAt(1.0, QColor("#F1F9F9"))
+
+        painter.fillPath(path, grad)
+
+        pen = QPen(QColor("#005C99"))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        painter.drawPath(path)
+
+    def _update_rounded_mask(self):
+        """Make the actual window shape rounded (not only the border)."""
+        r = int(self.WINDOW_RADIUS_PX)
+        if r <= 0:
+            self.clearMask()
+            return
+
+        rect = self.rect()
+        path = QPainterPath()
+        # -1 to avoid occasional 1px artifacts on the bottom/right edge
+        path.addRoundedRect(rect.adjusted(0, 0, -1, -1), r, r)
+        region = QRegion(path.toFillPolygon().toPolygon())
+        self.setMask(region)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_rounded_mask()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._update_rounded_mask()
 
     def mousePressEvent(self, event):
         """Handle mouse press for dragging"""
@@ -97,6 +186,16 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         """Handle mouse release"""
         if event.button() == Qt.LeftButton:
             self._old_pos = None
+
+    def closeEvent(self, event):
+        if hasattr(self.main_window, "socket_recording_state_changed"):
+            try:
+                self.main_window.socket_recording_state_changed.disconnect(
+                    self._on_recording_state_changed
+                )
+            except (RuntimeError, TypeError):
+                pass
+        super().closeEvent(event)
 
     def connect_buttons(self):
         """Connect all buttons to their handlers"""
@@ -166,6 +265,45 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         layout = QVBoxLayout(self.data_tab)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
+        self.data_tab.setStyleSheet("""
+            QWidget {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QLabel {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QCheckBox {
+                color: #1F2D3A;
+                spacing: 6px;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                border: 1px solid #A8C7DC;
+                border-radius: 4px;
+                background: #FFFFFF;
+            }
+            QCheckBox::indicator:checked {
+                background: #005C99;
+                border-color: #005C99;
+            }
+            QLineEdit, QComboBox {
+                color: #1F2D3A;
+                background: #FFFFFF;
+                border: 1px solid #B8D4E3;
+                border-radius: 5px;
+                padding: 4px 8px;
+            }
+            QComboBox QAbstractItemView {
+                color: #1F2D3A;
+                background: #FFFFFF;
+                selection-background-color: #005C99;
+                selection-color: #FFFFFF;
+                border: 1px solid #B8D4E3;
+            }
+        """)
 
         top_layout = QHBoxLayout()
         top_layout.addWidget(QLabel("View:"))
@@ -177,6 +315,32 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             "Start recording on START_TRIGGER and stop on STOP_TRIGGER."
         )
         top_layout.addWidget(self.chk_follow_schedule)
+
+        top_layout.addWidget(QLabel("Interval (s):"))
+        self.input_record_interval = QLineEdit(self.data_tab)
+        self.input_record_interval.setFixedWidth(56)
+        self.input_record_interval.setAlignment(Qt.AlignCenter)
+        self.input_record_interval.setValidator(QIntValidator(1, 3600, self))
+        self.input_record_interval.setToolTip(
+            "Interval pengambilan data saat recording (detik)."
+        )
+        try:
+            seconds = int(round(self.main_window.get_socket_record_interval_seconds(self.socket_number)))
+        except Exception:
+            seconds = 5
+        self.input_record_interval.setText(str(max(1, seconds)))
+        top_layout.addWidget(self.input_record_interval)
+
+        self.chk_autosave = QCheckBox("Autosave")
+        self.chk_autosave.setToolTip(
+            "Autosave CSV when schedule recording stops (STOP_TRIGGER)."
+        )
+        top_layout.addWidget(self.chk_autosave)
+
+        self.btn_autosave_folder = QPushButton("Folder...")
+        self.btn_autosave_folder.setToolTip("Set autosave folder")
+        self.btn_autosave_folder.setStyleSheet(self._button_style("#6B7280"))
+        top_layout.addWidget(self.btn_autosave_folder)
         top_layout.addStretch()
 
         self.btn_start_recording = QPushButton("Start Recording")
@@ -217,10 +381,45 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.table_records.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table_records.setAlternatingRowColors(True)
         self.table_records.verticalHeader().setVisible(False)
-        self.table_records.horizontalHeader().setSectionResizeMode(
-            QHeaderView.ResizeToContents
-        )
-        self.table_records.horizontalHeader().setStretchLastSection(True)
+        self.table_records.setStyleSheet("""
+            QTableWidget {
+                background: #F8FCFF;
+                alternate-background-color: #EEF6FC;
+                border: 1px solid #C7DCEC;
+                border-radius: 6px;
+                gridline-color: #D8E6F2;
+                color: #1F2D3A;
+                selection-background-color: #DCEEFF;
+                selection-color: #1F2D3A;
+                font-size: 10.5pt;
+            }
+            QHeaderView::section {
+                background: #005C99;
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 6px 8px;
+            }
+        """)
+
+        header = self.table_records.horizontalHeader()
+        header.setDefaultAlignment(Qt.AlignCenter)
+        header.setStretchLastSection(False)
+
+        # Timestamp menyerap sisa ruang; kolom angka dibuat stabil agar PF tidak melebar.
+        header.setSectionResizeMode(0, QHeaderView.Stretch)
+        column_widths = {
+            1: 78,
+            2: 92,
+            3: 92,
+            4: 92,
+            5: 92,
+            6: 104,
+            7: 70,
+        }
+        for index, width in column_widths.items():
+            header.setSectionResizeMode(index, QHeaderView.Fixed)
+            self.table_records.setColumnWidth(index, width)
         layout.addWidget(self.table_records)
 
         self.combo_data_socket.setCurrentIndex(self.socket_number - 1)
@@ -230,6 +429,11 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.chk_follow_schedule.stateChanged.connect(
             self._on_follow_schedule_changed
         )
+        self.input_record_interval.editingFinished.connect(
+            self._on_record_interval_changed
+        )
+        self.chk_autosave.stateChanged.connect(self._on_autosave_changed)
+        self.btn_autosave_folder.clicked.connect(self._on_pick_autosave_folder)
         self.btn_start_recording.clicked.connect(self.on_start_recording)
         self.btn_stop_recording.clicked.connect(self.on_stop_recording)
         self.btn_clear_records.clicked.connect(self.on_clear_records)
@@ -239,6 +443,35 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         layout = QVBoxLayout(self.graph_tab)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
+        self.graph_tab.setStyleSheet("""
+            QWidget {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QLabel {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QComboBox {
+                color: #1F2D3A;
+                background: #FFFFFF;
+                border: 1px solid #B8D4E3;
+                border-radius: 5px;
+                padding: 4px 8px;
+            }
+            QComboBox QAbstractItemView {
+                color: #1F2D3A;
+                background: #FFFFFF;
+                selection-background-color: #005C99;
+                selection-color: #FFFFFF;
+                border: 1px solid #B8D4E3;
+            }
+            QChartView {
+                background: #FFFFFF;
+                border: 1px solid #C7DCEC;
+                border-radius: 6px;
+            }
+        """)
 
         top_layout = QHBoxLayout()
         top_layout.addWidget(QLabel("Socket:"))
@@ -259,6 +492,11 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.chart = QChart()
         self.chart.legend().hide()
         self.chart.setAnimationOptions(QChart.SeriesAnimations)
+        self.chart.setBackgroundVisible(True)
+        self.chart.setBackgroundBrush(QColor("#FFFFFF"))
+        self.chart.setPlotAreaBackgroundVisible(True)
+        self.chart.setPlotAreaBackgroundBrush(QColor("#FFFFFF"))
+        self.chart.setTitleBrush(QColor("#1F2D3A"))
         self.chart_view = QChartView(self.chart, self.graph_tab)
         self.chart_view.setRenderHint(QPainter.Antialiasing)
         self.chart_view.setMinimumHeight(430)
@@ -282,11 +520,17 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         return f"""
             QPushButton {{
                 background-color: {color};
-                color: white;
+                color: #FFFFFF;
                 border: none;
                 border-radius: 5px;
                 padding: 7px 12px;
                 font-weight: 600;
+            }}
+            QPushButton:hover {{
+                color: #FFFFFF;
+            }}
+            QPushButton:pressed {{
+                color: #FFFFFF;
             }}
             QPushButton:disabled {{
                 background-color: #B8C2CC;
@@ -304,24 +548,124 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             ("pf", "PF"),
         ]
 
+    def _metric_unit(self, metric):
+        return {
+            "voltage": "V",
+            "current": "A",
+            "power": "W",
+            "energy": "kWh",
+            "frequency": "Hz",
+            "pf": "",
+        }.get(metric, "")
+
     def _on_data_socket_changed(self, *_):
         socket_number = self._selected_data_socket()
         self.combo_graph_socket.blockSignals(True)
         self.combo_graph_socket.setCurrentIndex(socket_number - 1)
         self.combo_graph_socket.blockSignals(False)
+        # Sync interval field to selected socket
+        if hasattr(self, "input_record_interval"):
+            try:
+                seconds = int(round(self.main_window.get_socket_record_interval_seconds(socket_number)))
+            except Exception:
+                seconds = 5
+            self.input_record_interval.setText(str(max(1, seconds)))
+        if hasattr(self, "chk_autosave"):
+            try:
+                enabled = bool(self.main_window.is_socket_autosave_enabled(socket_number))
+            except Exception:
+                enabled = False
+            self.chk_autosave.blockSignals(True)
+            self.chk_autosave.setChecked(enabled)
+            self.chk_autosave.blockSignals(False)
         self.refresh_monitoring_view()
 
     def _on_follow_schedule_changed(self, *_):
         socket_number = self._selected_data_socket()
         enabled = self.chk_follow_schedule.isChecked()
         self.main_window.set_socket_follow_schedule(socket_number, enabled)
+        if enabled:
+            self.main_window.start_socket_recording(socket_number, source="schedule")
         self.refresh_monitoring_view()
+
+    def _on_record_interval_changed(self):
+        socket_number = self._selected_data_socket()
+        text = (self.input_record_interval.text() if hasattr(self, "input_record_interval") else "").strip()
+        try:
+            seconds = int(text)
+        except ValueError:
+            seconds = 5
+        seconds = max(1, seconds)
+        if hasattr(self, "input_record_interval"):
+            self.input_record_interval.setText(str(seconds))
+
+        if hasattr(self.main_window, "set_socket_record_interval_seconds"):
+            self.main_window.set_socket_record_interval_seconds(socket_number, float(seconds))
+
+        # Update refresh cadence if recording is active.
+        self._update_refresh_timer_state()
+
+    def _on_pick_autosave_folder(self):
+        socket_number = self._selected_data_socket()
+        try:
+            current_dir = self.main_window.get_socket_autosave_dir(socket_number)
+        except Exception:
+            current_dir = ""
+
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Autosave Folder",
+            current_dir or "",
+        )
+        if not directory:
+            return
+
+        if hasattr(self.main_window, "set_socket_autosave_dir"):
+            self.main_window.set_socket_autosave_dir(socket_number, directory)
+        # If user set folder, allow enabling autosave without warning
+        if hasattr(self, "chk_autosave") and not self.chk_autosave.isChecked():
+            self.chk_autosave.setChecked(True)
+
+    def _on_autosave_changed(self, *_):
+        socket_number = self._selected_data_socket()
+        enabled = self.chk_autosave.isChecked() if hasattr(self, "chk_autosave") else False
+        if enabled:
+            try:
+                directory = self.main_window.get_socket_autosave_dir(socket_number)
+            except Exception:
+                directory = ""
+            if not directory:
+                # Force user to pick folder first.
+                self._on_pick_autosave_folder()
+                try:
+                    directory = self.main_window.get_socket_autosave_dir(socket_number)
+                except Exception:
+                    directory = ""
+                if not directory:
+                    self.chk_autosave.blockSignals(True)
+                    self.chk_autosave.setChecked(False)
+                    self.chk_autosave.blockSignals(False)
+                    return
+
+        if hasattr(self.main_window, "set_socket_autosave_enabled"):
+            self.main_window.set_socket_autosave_enabled(socket_number, enabled)
 
     def _selected_data_socket(self):
         return self.combo_data_socket.currentData() or self.socket_number
 
     def _selected_graph_socket(self):
         return self.combo_graph_socket.currentData() or self.socket_number
+
+    def _refresh_interval_ms(self):
+        sockets = {self._selected_data_socket(), self._selected_graph_socket()}
+        intervals = []
+        for s in sockets:
+            try:
+                intervals.append(float(self.main_window.get_socket_record_interval_seconds(s)))
+            except Exception:
+                intervals.append(5.0)
+        seconds = max(1.0, min(intervals) if intervals else 5.0)
+        return int(seconds * 1000)
 
     def on_start_recording(self):
         self.main_window.start_socket_recording(self._selected_data_socket())
@@ -398,22 +742,31 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _refresh_recording_controls(self, socket_number):
         recording = self.main_window.is_socket_recording(socket_number)
         follow_schedule = self.main_window.is_socket_follow_schedule(socket_number)
+        try:
+            autosave_enabled = bool(self.main_window.is_socket_autosave_enabled(socket_number))
+        except Exception:
+            autosave_enabled = False
+        try:
+            interval_seconds = int(round(self.main_window.get_socket_record_interval_seconds(socket_number)))
+        except Exception:
+            interval_seconds = 5
         records = self.main_window.get_socket_records(socket_number)
 
         self.chk_follow_schedule.blockSignals(True)
         self.chk_follow_schedule.setChecked(follow_schedule)
         self.chk_follow_schedule.blockSignals(False)
 
+        if hasattr(self, "chk_autosave"):
+            self.chk_autosave.blockSignals(True)
+            self.chk_autosave.setChecked(autosave_enabled)
+            self.chk_autosave.blockSignals(False)
+        if hasattr(self, "input_record_interval"):
+            self.input_record_interval.blockSignals(True)
+            self.input_record_interval.setText(str(max(1, interval_seconds)))
+            self.input_record_interval.blockSignals(False)
+
         self.btn_start_recording.setEnabled(not recording)
         self.btn_stop_recording.setEnabled(recording)
-
-        # Control refresh timer: hanya aktif saat recording
-        # Pastikan refresh_timer sudah ada sebelum diakses
-        if hasattr(self, 'refresh_timer'):
-            if recording and not self.refresh_timer.isActive():
-                self.refresh_timer.start(1000)
-            elif not recording and self.refresh_timer.isActive():
-                self.refresh_timer.stop()
 
         recording_text = "ON" if recording else "OFF"
         follow_text = "ON" if follow_schedule else "OFF"
@@ -423,6 +776,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             f"Follow Schedule: {follow_text} | Rows: {len(records)} "
             f"(showing last {shown})"
         )
+        self._update_refresh_timer_state()
 
     def _refresh_table(self, socket_number):
         records = self.main_window.get_socket_records(socket_number)
@@ -453,6 +807,10 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         records = self.main_window.get_socket_records(socket_number)
         metric = self.combo_graph_metric.currentData() or "power"
         metric_label = self.combo_graph_metric.currentText() or "Power"
+        metric_unit = self._metric_unit(metric)
+        axis_label = (
+            f"{metric_label} ({metric_unit})" if metric_unit else metric_label
+        )
         chart_records = records[-self.CHART_POINT_LIMIT:]
 
         self.chart.removeAllSeries()
@@ -460,7 +818,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.chart.removeAxis(axis)
 
         self.chart.setTitle(
-            f"Smart Socket {socket_number} - {metric_label} "
+            f"Smart Socket {socket_number} - {axis_label} "
             f"({len(records)} rows)"
         )
         self.label_graph_status.setText(
@@ -468,7 +826,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         )
 
         series = QLineSeries()
-        series.setName(metric_label)
+        series.setName(axis_label)
 
         values = []
         timestamps = []
@@ -496,6 +854,10 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         axis_x.setTitleText("Time")
         axis_x.setFormat("HH:mm:ss")
         axis_x.setTickCount(6)
+        axis_x.setLabelsColor(QColor("#1F2D3A"))
+        axis_x.setTitleBrush(QColor("#1F2D3A"))
+        axis_x.setGridLineColor(QColor("#D8E6F2"))
+        axis_x.setLinePenColor(QColor("#8FB7CF"))
 
         if timestamps:
             min_ts = min(timestamps)
@@ -508,7 +870,11 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             axis_x.setRange(now.addSecs(-60), now)
 
         axis_y = QValueAxis()
-        axis_y.setTitleText(metric_label)
+        axis_y.setTitleText(axis_label)
+        axis_y.setLabelsColor(QColor("#1F2D3A"))
+        axis_y.setTitleBrush(QColor("#1F2D3A"))
+        axis_y.setGridLineColor(QColor("#D8E6F2"))
+        axis_y.setLinePenColor(QColor("#8FB7CF"))
         if values:
             min_value = min(values)
             max_value = max(values)
@@ -524,6 +890,36 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.chart.addAxis(axis_y, Qt.AlignLeft)
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
+
+    def _update_refresh_timer_state(self):
+        if not hasattr(self, "refresh_timer"):
+            return
+
+        active_socket_numbers = {
+            self._selected_data_socket(),
+            self._selected_graph_socket(),
+        }
+        should_refresh = any(
+            self.main_window.is_socket_recording(socket_number)
+            for socket_number in active_socket_numbers
+        )
+
+        if should_refresh:
+            interval_ms = self._refresh_interval_ms()
+            if (not self.refresh_timer.isActive()) or (self.refresh_timer.interval() != interval_ms):
+                self.refresh_timer.start(interval_ms)
+        elif self.refresh_timer.isActive():
+            self.refresh_timer.stop()
+
+    def _on_recording_state_changed(self, socket_number, is_recording):
+        selected_sockets = {
+            self._selected_data_socket(),
+            self._selected_graph_socket(),
+        }
+        if socket_number in selected_sockets:
+            self.refresh_monitoring_view()
+        else:
+            self._update_refresh_timer_state()
 
     def _fmt(self, value, decimals):
         return f"{self._to_float(value):.{decimals}f}"

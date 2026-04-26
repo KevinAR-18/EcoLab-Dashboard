@@ -13,6 +13,13 @@ from PySide6.QtWidgets import (
 
 # Import Auth Service untuk Firebase
 from auth_service import TrialLoginService
+from ui_theme_helper import (
+    apply_light_theme_to_widget,
+    show_styled_critical,
+    show_styled_information,
+    show_styled_question,
+    show_styled_warning,
+)
 
 # ============================================================
 # PRIMARY ADMIN EMAIL
@@ -189,6 +196,7 @@ class UserActionDialog(QDialog):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(container)
+        apply_light_theme_to_widget(self)
 
         # Disable update password untuk Google auth
         if self.user_data.get('auth_provider') == 'google':
@@ -274,6 +282,7 @@ class AdminPanelWindow(QMainWindow):
         pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.setWindowIcon(icon)
+        apply_light_theme_to_widget(self)
 
         # Connect signals
         self.ui.minimizeAppBtn.clicked.connect(self.showMinimized)
@@ -408,7 +417,7 @@ class AdminPanelWindow(QMainWindow):
 
         except Exception as e:
             print(f"Error loading Firebase data: {e}")
-            QMessageBox.critical(self, "Error", f"Failed to load data:\n{str(e)}")
+            show_styled_critical(self, "Error", f"Failed to load data:\n{str(e)}")
 
     def populate_table(self, users):
         """Populate tabel dengan user data"""
@@ -600,13 +609,13 @@ class AdminPanelWindow(QMainWindow):
                     break
 
             if not user_data:
-                QMessageBox.critical(self, "Error", "❌ User data not found!")
+                show_styled_critical(self, "Error", "❌ User data not found!")
                 self.load_firebase_data()
                 return
 
             # VALIDASI: Cek apakah user adalah PRIMARY ADMIN
             if self._is_primary_admin(user_data["email"]):
-                QMessageBox.warning(
+                show_styled_warning(
                     self,
                     "Role Change Restricted",
                     f"⛔ CANNOT CHANGE PRIMARY ADMIN ROLE!\n\n"
@@ -622,14 +631,12 @@ class AdminPanelWindow(QMainWindow):
                 return
 
             # Confirm dialog
-            reply = QMessageBox.question(
+            reply = show_styled_question(
                 self,
                 "Confirm Role Change",
                 f"Are you sure you want to change this user's role to '{new_role}'?\n\n"
                 f"Email: {user_data['email']}\n"
-                f"Username: {user_data['username']}",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.No
+                f"Username: {user_data['username']}"
             )
 
             if reply == QMessageBox.StandardButton.Yes:
@@ -637,17 +644,17 @@ class AdminPanelWindow(QMainWindow):
                 result = self.auth_service.update_user_role(uid, new_role)
 
                 if result["status"] == "success":
-                    QMessageBox.information(self, "Success", "✅ Role updated successfully!")
+                    show_styled_information(self, "Success", "✅ Role updated successfully!")
                     # Refresh data
                     self.load_firebase_data()
                 else:
-                    QMessageBox.critical(self, "Error", f"❌ Failed to update role:\n{result['message']}")
+                    show_styled_critical(self, "Error", f"❌ Failed to update role:\n{result['message']}")
             else:
                 # Refresh table untuk revert dropdown
                 self.load_firebase_data()
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"❌ Error changing role:\n{str(e)}")
+            show_styled_critical(self, "Error", f"❌ Error changing role:\n{str(e)}")
             self.load_firebase_data()
 
     def show_action_dialog(self, user):
@@ -668,34 +675,65 @@ class AdminPanelWindow(QMainWindow):
                 # Approve account
                 result = self.auth_service.approve_user(uid)
                 if result["status"] == "success":
-                    QMessageBox.information(self, "Success", f"✅ User '{username}' approved successfully!")
+                    show_styled_information(self, "Success", f"✅ User '{username}' approved successfully!")
                 else:
-                    QMessageBox.critical(self, "Error", f"❌ Failed to approve:\n{result['message']}")
+                    show_styled_critical(self, "Error", f"❌ Failed to approve:\n{result['message']}")
 
             elif action == "update_password":
                 # Update password (hanya untuk non-Google auth)
                 if user.get("auth_provider") == "google":
-                    QMessageBox.warning(self, "Not Available", "Cannot update password for Google accounts.")
+                    show_styled_warning(self, "Not Available", "Cannot update password for Google accounts.")
                     return
 
-                # Input dialog untuk password baru
-                new_password, ok = QInputDialog.getText(
-                    self,
-                    "Update Password",
-                    f"Enter new password for '{username}':",
-                    QLineEdit.EchoMode.Password
-                )
+                # Use explicit dialog styling to avoid Windows dark mode palette issues.
+                password_dialog = QInputDialog(self)
+                password_dialog.setWindowTitle("Update Password")
+                password_dialog.setLabelText(f"Enter new password for '{username}':")
+                password_dialog.setTextEchoMode(QLineEdit.EchoMode.Password)
+                password_dialog.setOkButtonText("OK")
+                password_dialog.setCancelButtonText("Cancel")
+                password_dialog.setStyleSheet("""
+                    QInputDialog, QWidget {
+                        background-color: #FFFFFF;
+                        color: #000000;
+                    }
+                    QLabel {
+                        color: #000000;
+                        background-color: transparent;
+                    }
+                    QLineEdit {
+                        color: #000000;
+                        background-color: #FFFFFF;
+                        border: 1px solid #cfd8e3;
+                        border-radius: 4px;
+                        padding: 6px 8px;
+                    }
+                    QPushButton {
+                        color: #000000;
+                        background-color: #F0F0F0;
+                        border: 1px solid #cfd8e3;
+                        border-radius: 4px;
+                        padding: 6px 12px;
+                        min-width: 80px;
+                    }
+                    QPushButton:hover {
+                        background-color: #E1F2FB;
+                        border: 1px solid #2b6cb0;
+                    }
+                """)
+                ok = password_dialog.exec() == QDialog.DialogCode.Accepted
+                new_password = password_dialog.textValue()
 
                 if ok and new_password:
                     if len(new_password) < 6:
-                        QMessageBox.warning(self, "Invalid Password", "Password must be at least 6 characters!")
+                        show_styled_warning(self, "Invalid Password", "Password must be at least 6 characters!")
                         return
 
                     result = self.auth_service.set_user_password(uid, new_password)
                     if result["status"] == "success":
-                        QMessageBox.information(self, "Success", f"✅ Password updated for '{username}'!")
+                        show_styled_information(self, "Success", f"✅ Password updated for '{username}'!")
                     else:
-                        QMessageBox.critical(self, "Error", f"❌ Failed to update password:\n{result['message']}")
+                        show_styled_critical(self, "Error", f"❌ Failed to update password:\n{result['message']}")
 
             elif action == "block_unblock":
                 # Toggle block/unblock
@@ -704,30 +742,26 @@ class AdminPanelWindow(QMainWindow):
 
                 confirm_msg = f"Are you sure you want to {'block' if new_status == 'blocked' else 'unblock'} '{username}'?"
 
-                reply = QMessageBox.question(
+                reply = show_styled_question(
                     self,
                     f"{'Block' if new_status == 'blocked' else 'Unblock'} Account",
-                    confirm_msg,
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No
+                    confirm_msg
                 )
 
                 if reply == QMessageBox.StandardButton.Yes:
                     result = self.auth_service.update_user_status(uid, new_status)
                     if result["status"] == "success":
                         action_text = "blocked" if new_status == "blocked" else "unblocked"
-                        QMessageBox.information(self, "Success", f"✅ User '{username}' {action_text} successfully!")
+                        show_styled_information(self, "Success", f"✅ User '{username}' {action_text} successfully!")
                     else:
-                        QMessageBox.critical(self, "Error", f"❌ Failed to update status:\n{result['message']}")
+                        show_styled_critical(self, "Error", f"❌ Failed to update status:\n{result['message']}")
 
             elif action == "delete":
                 # Delete user
-                reply = QMessageBox.question(
+                reply = show_styled_question(
                     self,
                     "Delete User",
-                    f"⚠️ Are you sure you want to delete '{username}'?\n\nThis action CANNOT be undone!",
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-                    QMessageBox.StandardButton.No
+                    f"⚠️ Are you sure you want to delete '{username}'?\n\nThis action CANNOT be undone!"
                 )
 
                 if reply == QMessageBox.StandardButton.Yes:
@@ -735,7 +769,7 @@ class AdminPanelWindow(QMainWindow):
                     if result["status"] == "success":
                         # Cek jika ini Google user
                         if result.get("warning") == "google_auth":
-                            QMessageBox.warning(
+                            show_styled_warning(
                                 self,
                                 "Partial Success",
                                 f"⚠️ User '{username}' removed from database!\n\n"
@@ -744,15 +778,15 @@ class AdminPanelWindow(QMainWindow):
                                 f"To permanently block, use 'Block Account' instead."
                             )
                         else:
-                            QMessageBox.information(self, "Success", f"✅ User '{username}' deleted successfully!")
+                            show_styled_information(self, "Success", f"✅ User '{username}' deleted successfully!")
                     else:
-                        QMessageBox.critical(self, "Error", f"❌ Failed to delete user:\n{result['message']}")
+                        show_styled_critical(self, "Error", f"❌ Failed to delete user:\n{result['message']}")
 
             # Refresh data setelah action
             self.load_firebase_data()
 
         except Exception as e:
-            QMessageBox.critical(self, "Error", f"❌ Error performing action:\n{str(e)}")
+            show_styled_critical(self, "Error", f"❌ Error performing action:\n{str(e)}")
 
     def go_back_to_selection(self):
         """Kembali ke dashboard utama (bukan ke popup selection)"""

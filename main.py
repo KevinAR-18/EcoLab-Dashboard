@@ -106,6 +106,7 @@ class Date:
 class MainWindow(QMainWindow):
     # Signal untuk notify launcher saat logout terjadi
     logout_signal = Signal()
+    socket_recording_state_changed = Signal(int, bool)
 
     # APP VERSION
     APP_VERSION = "v2.0"
@@ -1394,18 +1395,42 @@ class MainWindow(QMainWindow):
         changed = self.smartsocket_recorder.start(socket_number, source=source)
         if changed:
             self.log(f"[Socket {socket_number}] Recording started ({source})")
+            self.socket_recording_state_changed.emit(socket_number, True)
         return changed
 
     def stop_socket_recording(self, socket_number: int, source="manual"):
         changed = self.smartsocket_recorder.stop(socket_number, source=source)
         if changed:
             self.log(f"[Socket {socket_number}] Recording stopped ({source})")
+            self.socket_recording_state_changed.emit(socket_number, False)
         return changed
 
     def set_socket_follow_schedule(self, socket_number: int, enabled: bool):
         self.smartsocket_recorder.set_follow_schedule(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
         self.log(f"[Socket {socket_number}] Follow schedule recording {state}")
+
+    def set_socket_record_interval_seconds(self, socket_number: int, seconds: float):
+        self.smartsocket_recorder.set_record_interval_seconds(socket_number, seconds)
+        self.log(f"[Socket {socket_number}] Record interval set to {seconds}s")
+
+    def get_socket_record_interval_seconds(self, socket_number: int):
+        return self.smartsocket_recorder.get_record_interval_seconds(socket_number)
+
+    def set_socket_autosave_enabled(self, socket_number: int, enabled: bool):
+        self.smartsocket_recorder.set_autosave_enabled(socket_number, enabled)
+        state = "enabled" if enabled else "disabled"
+        self.log(f"[Socket {socket_number}] Autosave {state}")
+
+    def is_socket_autosave_enabled(self, socket_number: int):
+        return self.smartsocket_recorder.is_autosave_enabled(socket_number)
+
+    def set_socket_autosave_dir(self, socket_number: int, directory: str):
+        self.smartsocket_recorder.set_autosave_dir(socket_number, directory)
+        self.log(f"[Socket {socket_number}] Autosave dir: {directory}")
+
+    def get_socket_autosave_dir(self, socket_number: int):
+        return self.smartsocket_recorder.get_autosave_dir(socket_number)
 
     def is_socket_recording(self, socket_number: int):
         return self.smartsocket_recorder.is_recording(socket_number)
@@ -1559,18 +1584,43 @@ class MainWindow(QMainWindow):
     def _on_socket_schedule_status(self, socket_number: int, status: str):
         """Update schedule status UI untuk Smart Socket"""
         import json
+        import os
+        from datetime import datetime
 
         # DEBUG: Print raw status dari hardware
         # print(f"[DEBUG Schedule UI] Socket {socket_number} received: {repr(status)}")
 
         if hasattr(self, "smartsocket_recorder"):
-            recording_action = self.smartsocket_recorder.handle_schedule_status(
-                socket_number, status
-            )
-            if recording_action == "started":
-                self.log(f"[Socket {socket_number}] Recording started by schedule")
-            elif recording_action == "stopped":
-                self.log(f"[Socket {socket_number}] Recording stopped by schedule")
+            if (
+                self.smartsocket_recorder.is_follow_schedule(socket_number)
+                and status == "START_TRIGGER"
+            ):
+                self.start_socket_recording(socket_number, source="schedule")
+            elif (
+                self.smartsocket_recorder.is_follow_schedule(socket_number)
+                and status == "STOP_TRIGGER"
+            ):
+                self.stop_socket_recording(socket_number, source="schedule")
+
+                # Autosave when schedule recording ends (user may not be watching).
+                try:
+                    if self.smartsocket_recorder.is_autosave_enabled(socket_number):
+                        autosave_dir = self.smartsocket_recorder.get_autosave_dir(socket_number)
+                        if autosave_dir:
+                            records = self.smartsocket_recorder.get_records(socket_number)
+                            if records:
+                                os.makedirs(autosave_dir, exist_ok=True)
+                                filename = (
+                                    f"smartsocket_{socket_number}_schedule_"
+                                    f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                                )
+                                path = os.path.join(autosave_dir, filename)
+                                count = self.export_socket_records_csv(socket_number, path)
+                                self.log(f"[Socket {socket_number}] Autosaved {count} rows to {path}")
+                        else:
+                            self.log(f"[Socket {socket_number}] Autosave enabled but no folder set")
+                except Exception as exc:
+                    self.log(f"[Socket {socket_number}] Autosave failed: {exc}")
 
         if status == "START_TRIGGER":
             status_text = "Start Triggered"

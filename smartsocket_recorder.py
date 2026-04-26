@@ -5,6 +5,9 @@ from datetime import datetime
 class SmartSocketRecorder:
     """In-memory recorder for Smart Socket monitoring samples."""
 
+    # Default sampling interval for recording (seconds). Can be overridden per socket.
+    DEFAULT_RECORD_INTERVAL_SECONDS = 5
+
     FIELD_NAMES = [
         "timestamp",
         "socket",
@@ -31,8 +34,12 @@ class SmartSocketRecorder:
             socket_number: {
                 "recording": False,
                 "follow_schedule": False,
+                "autosave_enabled": False,
+                "autosave_dir": "",
                 "records": [],
                 "last_source": None,
+                "last_record_at": None,  # datetime of last saved sample
+                "record_interval_seconds": float(self.DEFAULT_RECORD_INTERVAL_SECONDS),
             }
             for socket_number in range(1, socket_count + 1)
         }
@@ -47,6 +54,7 @@ class SmartSocketRecorder:
         changed = not state["recording"]
         state["recording"] = True
         state["last_source"] = source
+        state["last_record_at"] = None
         return changed
 
     def stop(self, socket_number, source="manual"):
@@ -64,6 +72,27 @@ class SmartSocketRecorder:
 
     def is_follow_schedule(self, socket_number):
         return self._state(socket_number)["follow_schedule"]
+
+    def set_autosave_enabled(self, socket_number, enabled):
+        self._state(socket_number)["autosave_enabled"] = bool(enabled)
+
+    def is_autosave_enabled(self, socket_number):
+        return bool(self._state(socket_number)["autosave_enabled"])
+
+    def set_autosave_dir(self, socket_number, directory):
+        self._state(socket_number)["autosave_dir"] = (directory or "").strip()
+
+    def get_autosave_dir(self, socket_number):
+        return self._state(socket_number)["autosave_dir"] or ""
+
+    def set_record_interval_seconds(self, socket_number, seconds):
+        seconds = float(seconds)
+        if seconds <= 0:
+            raise ValueError("record interval must be > 0 seconds")
+        self._state(socket_number)["record_interval_seconds"] = seconds
+
+    def get_record_interval_seconds(self, socket_number):
+        return float(self._state(socket_number)["record_interval_seconds"])
 
     def handle_schedule_status(self, socket_number, status):
         state = self._state(socket_number)
@@ -85,8 +114,16 @@ class SmartSocketRecorder:
         if not state["recording"]:
             return None
 
+        now = datetime.now()
+        last = state.get("last_record_at")
+        interval = float(state.get("record_interval_seconds") or self.DEFAULT_RECORD_INTERVAL_SECONDS)
+        if last is not None:
+            elapsed = (now - last).total_seconds()
+            if elapsed < interval:
+                return None
+
         record = {
-            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "timestamp": now.strftime("%Y-%m-%d %H:%M:%S"),
             "socket": socket_number,
             "relay_state": "ON" if relay_state else "OFF",
             "voltage": self._to_float(data.get("voltage")),
@@ -96,6 +133,7 @@ class SmartSocketRecorder:
             "frequency": self._to_float(data.get("frequency")),
             "pf": self._to_float(data.get("pf")),
         }
+        state["last_record_at"] = now
         state["records"].append(record)
         return record
 

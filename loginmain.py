@@ -29,6 +29,13 @@ from session_manager import SessionManager
 # Import Role Selection Dialog dan Admin Window
 from ui_role_selection import RoleSelectionDialog
 from admin_window import AdminPanelWindow
+from ui_theme_helper import (
+    apply_light_theme_to_widget,
+    show_styled_critical,
+    show_styled_information,
+    show_styled_question,
+    show_styled_warning,
+)
 
 
 class LoginWindow(QMainWindow):
@@ -63,6 +70,7 @@ class LoginWindow(QMainWindow):
         pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.setWindowIcon(icon)
+        apply_light_theme_to_widget(self)
 
         # Center window on screen
         self.center_window()
@@ -227,19 +235,11 @@ class LoginWindow(QMainWindow):
             return
 
         # Konfirmasi sebelum kirim
-        msg_box = QMessageBox(self)
-        msg_box.setIcon(QMessageBox.Icon.Question)
-        msg_box.setWindowTitle("Send Reset Email")
-        msg_box.setText(f"Send password reset email to:\n\n{email}\n\nCheck your inbox/spam folder.")
-        msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-        msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
-
-        # Set icon EcoLab
-        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
-        icon = QIcon(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        msg_box.setWindowIcon(icon)
-
-        reply = msg_box.exec()
+        reply = show_styled_question(
+            self,
+            "Send Reset Email",
+            f"Send password reset email to:\n\n{email}\n\nCheck your inbox/spam folder.",
+        )
 
         if reply == QMessageBox.StandardButton.Yes:
             # Kirim reset email via Firebase
@@ -662,17 +662,16 @@ class LoginWindow(QMainWindow):
             title: Judul message box
             text: Isi pesan
         """
-        msg_box = QMessageBox(self)
-        msg_box.setIcon(getattr(QMessageBox.Icon, icon_type.capitalize()))
-        msg_box.setWindowTitle(title)
-        msg_box.setText(text)
-
-        # Set icon EcoLab
-        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
-        icon = QIcon(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        msg_box.setWindowIcon(icon)
-
-        msg_box.exec()
+        if icon_type == "information":
+            show_styled_information(self, title, text)
+        elif icon_type == "warning":
+            show_styled_warning(self, title, text)
+        elif icon_type == "critical":
+            show_styled_critical(self, title, text)
+        elif icon_type == "question":
+            show_styled_question(self, title, text)
+        else:
+            show_styled_information(self, title, text)
 
 
 def main():
