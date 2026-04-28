@@ -45,7 +45,10 @@ const char *topic_schedule_start = "ecolab/socket/1/schedule/start";
 const char *topic_schedule_stop = "ecolab/socket/1/schedule/stop";
 const char *topic_schedule_mode = "ecolab/socket/1/schedule/mode";
 const char *topic_schedule_status = "ecolab/socket/1/schedule/status";
-const char *ca_cert = "";
+const char *ca_cert = R"EOF(
+-----BEGIN CERTIFICATE-----
+-----END CERTIFICATE-----
+)EOF";
 
 // ================= PZEM =================
 #define PZEM_RX_PIN 5
@@ -108,6 +111,33 @@ int lastTriggeredDay = 0;
 bool startTriggered = false;
 bool stopTriggered = false;
 
+bool isWithinScheduledOnWindow(const Time &timeRTC)
+{
+    if (!scheduleStartActive || !scheduleStopActive)
+    {
+        return false;
+    }
+
+    int nowMinutes = timeRTC.hr * 60 + timeRTC.min;
+    int startMinutes = schedStartHour * 60 + schedStartMinute;
+    int stopMinutes = schedStopHour * 60 + schedStopMinute;
+
+    // Jika start == stop, anggap tidak ada rentang aktif yang valid.
+    if (startMinutes == stopMinutes)
+    {
+        return false;
+    }
+
+    // Schedule normal: start < stop.
+    if (startMinutes < stopMinutes)
+    {
+        return nowMinutes >= startMinutes && nowMinutes < stopMinutes;
+    }
+
+    // Schedule melewati tengah malam: contoh 23:00 - 02:00.
+    return nowMinutes >= startMinutes || nowMinutes < stopMinutes;
+}
+
 void saveManualRelayStateToEEPROM()
 {
     EEPROM.write(ADDR_MANUAL_RELAY_STATE, relayState ? 1 : 0);
@@ -120,10 +150,28 @@ void restoreManualRelayStateFromEEPROM()
 {
     bool savedRelayState = EEPROM.read(ADDR_MANUAL_RELAY_STATE) == 1;
 
+    if (scheduleStartActive && scheduleStopActive)
+    {
+        Time timeRTC = rtc.time();
+
+        if (isWithinScheduledOnWindow(timeRTC))
+        {
+            relayState = true;
+            digitalWrite(RELAY_PIN, HIGH);
+            Serial.println("Relay restored from active schedule window: ON");
+        }
+        else
+        {
+            relayState = false;
+            digitalWrite(RELAY_PIN, LOW);
+            Serial.println("Relay restored from schedule window: OFF");
+        }
+        return;
+    }
+
     if (scheduleStartActive || scheduleStopActive)
     {
-        Serial.println("Manual relay restore skipped because schedule is active");
-        return;
+        Serial.println("Schedule partially active, fallback to saved manual relay state");
     }
 
     relayState = savedRelayState;
@@ -162,24 +210,32 @@ void blinkDualLED(int times)
 void updateLEDIndicators()
 {
     unsigned long now = millis();
+    bool outputActive = (timerActive || relayState);
 
-    // Biru: koneksi
-    // OFF = WiFi putus, blink = WiFi OK tapi MQTT belum connect, ON = WiFi + MQTT OK
-    if (WiFi.status() != WL_CONNECTED)
+    // Merah: error
+    // Prioritas blink cepat untuk RTC/NTP belum sync, blink pelan untuk PZEM error.
+    // Saat error, indikator biru dan hijau dimatikan agar fault lebih jelas.
+    if (!ntpSynced)
     {
         digitalWrite(BLUE_LED_PIN, LOW);
+        digitalWrite(GREEN_LED_PIN, LOW);
+        digitalWrite(RED_LED_PIN, ((now / 250) % 2) ? HIGH : LOW);
+        return;
     }
-    else if (client.connected())
+    else if (pzemError)
     {
-        digitalWrite(BLUE_LED_PIN, HIGH);
+        digitalWrite(BLUE_LED_PIN, LOW);
+        digitalWrite(GREEN_LED_PIN, LOW);
+        digitalWrite(RED_LED_PIN, ((now / 750) % 2) ? HIGH : LOW);
+        return;
     }
     else
     {
-        digitalWrite(BLUE_LED_PIN, ((now / 500) % 2) ? HIGH : LOW);
+        digitalWrite(RED_LED_PIN, LOW);
     }
 
     // Hijau: output socket
-    // Blink saat timer aktif, selain itu mengikuti status relay
+    // Blink saat timer aktif, selain itu mengikuti status relay.
     if (timerActive)
     {
         digitalWrite(GREEN_LED_PIN, ((now / 500) % 2) ? HIGH : LOW);
@@ -189,19 +245,26 @@ void updateLEDIndicators()
         digitalWrite(GREEN_LED_PIN, relayState ? HIGH : LOW);
     }
 
-    // Merah: error
-    // Prioritas blink cepat untuk RTC/NTP belum sync, blink pelan untuk PZEM error
-    if (!ntpSynced)
+    // Biru: koneksi
+    // OFF = WiFi putus
+    // Blink = WiFi OK tapi MQTT belum connect
+    // ON = WiFi + MQTT OK saat idle
+    // Pulse singkat tiap 15 detik = WiFi + MQTT OK saat output aktif
+    if (WiFi.status() != WL_CONNECTED)
     {
-        digitalWrite(RED_LED_PIN, ((now / 250) % 2) ? HIGH : LOW);
+        digitalWrite(BLUE_LED_PIN, LOW);
     }
-    else if (pzemError)
+    else if (!client.connected())
     {
-        digitalWrite(RED_LED_PIN, ((now / 750) % 2) ? HIGH : LOW);
+        digitalWrite(BLUE_LED_PIN, ((now / 500) % 2) ? HIGH : LOW);
+    }
+    else if (outputActive)
+    {
+        digitalWrite(BLUE_LED_PIN, (now % 15000UL) < 300UL ? HIGH : LOW);
     }
     else
     {
-        digitalWrite(RED_LED_PIN, LOW);
+        digitalWrite(BLUE_LED_PIN, HIGH);
     }
 }
 
@@ -680,23 +743,7 @@ void handleSchedule()
         if (scheduleStartActive && scheduleStopActive)
         {
             // Cek apakah sekarang dalam rentang schedule
-            int nowMinutes = timeRTC.hr * 60 + timeRTC.min;
-            int startMinutes = schedStartHour * 60 + schedStartMinute;
-            int stopMinutes = schedStopHour * 60 + schedStopMinute;
-
-            bool should_be_on = false;
-
-            // Untuk schedule yang melewati tengah malam (misal 23:00 - 02:00)
-            if (startMinutes < stopMinutes)
-            {
-                // Normal: 07:00 - 20:00
-                should_be_on = (nowMinutes >= startMinutes && nowMinutes < stopMinutes);
-            }
-            else
-            {
-                // Lewat tengah malam: 23:00 - 02:00
-                should_be_on = (nowMinutes >= startMinutes || nowMinutes < stopMinutes);
-            }
+            bool should_be_on = isWithinScheduledOnWindow(timeRTC);
 
             // Recovery: Nyalakan jika seharusnya ON tapi sekarang OFF
             if (should_be_on && !relayState)

@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
         )
         self.ui.closeAppBtn.clicked.connect(self.close)
         self.ui.btn_exit.clicked.connect(self.close)
-
+    
         # DRAG TITLE BAR
         self.ui.contentTopBg.mousePressEvent = self.ui_functions.mouse_press
         self.ui.contentTopBg.mouseMoveEvent = self.ui_functions.mouse_move
@@ -222,10 +222,10 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
-        # # SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        # SEMENTARA: DRAG BG APP (seluruh background)
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOGGLE LEFT MENU
         self.ui.toggleButton.clicked.connect(

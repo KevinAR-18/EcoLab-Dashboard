@@ -74,3 +74,16 @@ hardware_TA/vokta.py
 esp32c3_local_http/README.md
 esp32c3_local_http/firmware/esp32c3_smartsocket_http.ino
 esp32c3_local_http/python/esp32c3_http_client.py
+penjelasan_arsitektur_keamanan_mqtt.txt
+rangkuman_fitur_aplikasi_detail.txt
+
+# =========================
+# Local Writing Workspace
+# =========================
+/Penulisan TA/
+
+# =========================
+# Local Growatt Logger
+# =========================
+/GrowattLogger/
+growatt_csv/growatt_2026-04-28.csv

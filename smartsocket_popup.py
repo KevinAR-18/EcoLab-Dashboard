@@ -658,6 +658,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             "pf": "",
         }.get(metric, "")
 
+    def _metric_y_range(self, metric):
+        return {
+            "voltage": (200.0, 240.0),
+            "current": (0.0, 12.0),
+            "power": (0.0, 3000.0),
+            "frequency": (40.0, 60.0),
+            "pf": (0.0, 1.2),
+        }.get(metric)
+
     def _on_data_socket_changed(self, *_):
         socket_number = self._selected_data_socket()
         self.combo_graph_socket.blockSignals(True)
@@ -975,7 +984,10 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         axis_y.setTitleBrush(QColor("#1F2D3A"))
         axis_y.setGridLineColor(QColor("#D8E6F2"))
         axis_y.setLinePenColor(QColor("#8FB7CF"))
-        if values:
+        fixed_range = self._metric_y_range(metric)
+        if fixed_range is not None:
+            axis_y.setRange(*fixed_range)
+        elif values:
             min_value = min(values)
             max_value = max(values)
             if min_value == max_value:
