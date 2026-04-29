@@ -224,7 +224,7 @@ topic write ecolab/socket/5/datetime/status
 # ------------------------------------------------------------
 # PORTABLE RASPBERRY (Limited Access)
 # ------------------------------------------------------------
-user portableraspberry
+user portableraspi
 
 # Raspberry → ESP32 (Lamp Control)
 topic write ecolab/mcuA/lamp1/control
@@ -241,5 +241,7 @@ topic read ecolab/mcuA/lamp3/status
 topic read ecolab/mcuA/lamp4/status
 topic read ecolab/mcuA/lamp5/status
 topic read ecolab/mcuA/status
+topic read ecolab/mcuA/dht/temperature
 topic read ecolab/mcuB/ac/status
 topic read ecolab/mcuB/status
+topic read ecolab/mcuB/dht/temperature

@@ -1,0 +1,10 @@
+{
+  "start_active": false,
+  "start_hour": 0,
+  "start_minute": 0,
+  "stop_active": false,
+  "stop_hour": 0,
+  "stop_minute": 0,
+  "daily_mode": true,
+  "manual_relay_state": false
+}

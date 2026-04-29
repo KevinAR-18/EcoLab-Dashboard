@@ -74,7 +74,7 @@ if %ERRORLEVEL% NEQ 0 (
 echo.
 echo ========================================
 echo PyInstaller build complete!
-echo Output: dist\EcoLabDashboard.exe
+echo Output: dist\EcoLab Dashboard.exe
 echo ========================================
 echo.
 echo Next steps:

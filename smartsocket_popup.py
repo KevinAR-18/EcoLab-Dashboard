@@ -11,6 +11,7 @@ from PySide6.QtGui import (
     QPen,
     QPixmap,
     QRegion,
+    QDoubleValidator,
     QIntValidator,
 )
 from PySide6.QtWidgets import (
@@ -121,6 +122,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.socket_number = socket_number
         self.backend = backend  # SmartSocketBackend instance
         self.main_window = main_window  # Reference ke MainWindow untuk simpan format
+        self.graph_range_overrides = {}
         self.setupUi(self)
 
         # Ensure dropdown arrows are visible even under Windows 11 dark mode.
@@ -582,6 +584,26 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         for key, label in self._metric_options():
             self.combo_graph_metric.addItem(label, key)
         top_layout.addWidget(self.combo_graph_metric)
+        self.chk_graph_custom_range = QCheckBox("Custom Y-Axis", self.graph_tab)
+        top_layout.addWidget(self.chk_graph_custom_range)
+        top_layout.addWidget(QLabel("Min:"))
+        self.input_graph_min = QLineEdit(self.graph_tab)
+        self.input_graph_min.setFixedWidth(74)
+        self.input_graph_min.setAlignment(Qt.AlignCenter)
+        self.input_graph_min.setValidator(QDoubleValidator(self))
+        top_layout.addWidget(self.input_graph_min)
+        top_layout.addWidget(QLabel("Max:"))
+        self.input_graph_max = QLineEdit(self.graph_tab)
+        self.input_graph_max.setFixedWidth(74)
+        self.input_graph_max.setAlignment(Qt.AlignCenter)
+        self.input_graph_max.setValidator(QDoubleValidator(self))
+        top_layout.addWidget(self.input_graph_max)
+        self.btn_graph_apply_range = QPushButton("Apply")
+        self.btn_graph_apply_range.setStyleSheet(self._button_style("#0F8B4C"))
+        top_layout.addWidget(self.btn_graph_apply_range)
+        self.btn_graph_reset_range = QPushButton("Reset")
+        self.btn_graph_reset_range.setStyleSheet(self._button_style("#6B7280"))
+        top_layout.addWidget(self.btn_graph_reset_range)
         top_layout.addStretch()
         layout.addLayout(top_layout)
 
@@ -604,11 +626,21 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         self.combo_graph_socket.setCurrentIndex(self.socket_number - 1)
         self.combo_graph_socket.currentIndexChanged.connect(
-            self.refresh_monitoring_view
+            self._on_graph_selection_changed
         )
         self.combo_graph_metric.currentIndexChanged.connect(
-            self.refresh_monitoring_view
+            self._on_graph_selection_changed
         )
+        self.chk_graph_custom_range.stateChanged.connect(
+            self._on_graph_custom_range_toggled
+        )
+        self.btn_graph_apply_range.clicked.connect(
+            lambda: self._on_graph_apply_range(show_warning=True)
+        )
+        self.btn_graph_reset_range.clicked.connect(self._on_graph_reset_range)
+        self.input_graph_min.editingFinished.connect(self._on_graph_range_edit_finished)
+        self.input_graph_max.editingFinished.connect(self._on_graph_range_edit_finished)
+        self._load_graph_range_controls()
 
     def _create_socket_combo(self):
         combo = QComboBox(self)
@@ -666,6 +698,116 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             "frequency": (40.0, 60.0),
             "pf": (0.0, 1.2),
         }.get(metric)
+
+    def _graph_range_key(self):
+        return (
+            self._selected_graph_socket(),
+            self.combo_graph_metric.currentData() or "power",
+        )
+
+    def _load_graph_range_controls(self):
+        if not hasattr(self, "chk_graph_custom_range"):
+            return
+
+        override = self.graph_range_overrides.get(self._graph_range_key())
+        enabled = bool(override and override.get("enabled"))
+
+        self.chk_graph_custom_range.blockSignals(True)
+        self.chk_graph_custom_range.setChecked(enabled)
+        self.chk_graph_custom_range.blockSignals(False)
+
+        min_text = ""
+        max_text = ""
+        if override:
+            min_value = override.get("min")
+            max_value = override.get("max")
+            min_text = "" if min_value is None else f"{min_value:g}"
+            max_text = "" if max_value is None else f"{max_value:g}"
+
+        self.input_graph_min.blockSignals(True)
+        self.input_graph_min.setText(min_text)
+        self.input_graph_min.blockSignals(False)
+        self.input_graph_max.blockSignals(True)
+        self.input_graph_max.setText(max_text)
+        self.input_graph_max.blockSignals(False)
+
+        self._update_graph_range_inputs_enabled()
+
+    def _update_graph_range_inputs_enabled(self):
+        enabled = (
+            self.chk_graph_custom_range.isChecked()
+            if hasattr(self, "chk_graph_custom_range")
+            else False
+        )
+        for widget in (
+            getattr(self, "input_graph_min", None),
+            getattr(self, "input_graph_max", None),
+            getattr(self, "btn_graph_apply_range", None),
+        ):
+            if widget is not None:
+                widget.setEnabled(enabled)
+
+    def _on_graph_selection_changed(self, *_):
+        self._load_graph_range_controls()
+        self.refresh_monitoring_view()
+
+    def _on_graph_custom_range_toggled(self, *_):
+        key = self._graph_range_key()
+        state = self.graph_range_overrides.get(key, {}).copy()
+        state["enabled"] = self.chk_graph_custom_range.isChecked()
+        self.graph_range_overrides[key] = state
+        self._update_graph_range_inputs_enabled()
+        if state["enabled"]:
+            self._on_graph_apply_range(show_warning=False)
+        else:
+            self.refresh_monitoring_view()
+
+    def _on_graph_range_edit_finished(self):
+        self._on_graph_apply_range(show_warning=False)
+
+    def _on_graph_apply_range(self, show_warning=False):
+        if not self.chk_graph_custom_range.isChecked():
+            return
+
+        min_text = self.input_graph_min.text().strip()
+        max_text = self.input_graph_max.text().strip()
+        if not min_text or not max_text:
+            return
+
+        try:
+            min_value = float(min_text)
+            max_value = float(max_text)
+        except ValueError:
+            if show_warning:
+                QMessageBox.warning(
+                    self,
+                    "Custom Y-Axis",
+                    "Min dan Max harus berupa angka.",
+                )
+            return
+
+        if min_value >= max_value:
+            if show_warning:
+                QMessageBox.warning(
+                    self,
+                    "Custom Y-Axis",
+                    "Nilai Min harus lebih kecil dari Max.",
+                )
+            return
+
+        self.graph_range_overrides[self._graph_range_key()] = {
+            "enabled": True,
+            "min": min_value,
+            "max": max_value,
+        }
+        self.input_graph_min.setText(f"{min_value:g}")
+        self.input_graph_max.setText(f"{max_value:g}")
+        self.refresh_monitoring_view()
+
+    def _on_graph_reset_range(self):
+        self.graph_range_overrides.pop(self._graph_range_key(), None)
+        self._load_graph_range_controls()
+        self.refresh_monitoring_view()
 
     def _on_data_socket_changed(self, *_):
         socket_number = self._selected_data_socket()
@@ -764,6 +906,16 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
     def _selected_graph_socket(self):
         return self.combo_graph_socket.currentData() or self.socket_number
+
+    def _current_graph_override(self):
+        override = self.graph_range_overrides.get(self._graph_range_key())
+        if not override or not override.get("enabled"):
+            return None
+        min_value = override.get("min")
+        max_value = override.get("max")
+        if min_value is None or max_value is None or min_value >= max_value:
+            return None
+        return (float(min_value), float(max_value))
 
     def _refresh_interval_ms(self):
         sockets = {self._selected_data_socket(), self._selected_graph_socket()}
@@ -930,9 +1082,6 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             f"Smart Socket {socket_number} - {axis_label} "
             f"({len(records)} rows)"
         )
-        self.label_graph_status.setText(
-            f"Showing last {len(chart_records)} of {len(records)} samples"
-        )
 
         series = QLineSeries()
         series.setName(axis_label)
@@ -984,19 +1133,32 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         axis_y.setTitleBrush(QColor("#1F2D3A"))
         axis_y.setGridLineColor(QColor("#D8E6F2"))
         axis_y.setLinePenColor(QColor("#8FB7CF"))
-        fixed_range = self._metric_y_range(metric)
-        if fixed_range is not None:
-            axis_y.setRange(*fixed_range)
-        elif values:
-            min_value = min(values)
-            max_value = max(values)
-            if min_value == max_value:
-                padding = abs(min_value) * 0.1 or 1.0
-            else:
-                padding = (max_value - min_value) * 0.1
-            axis_y.setRange(min_value - padding, max_value + padding)
+        override_range = self._current_graph_override()
+        if override_range is not None:
+            axis_y.setRange(*override_range)
+            range_label = f"Custom Y: {override_range[0]:g} to {override_range[1]:g}"
         else:
-            axis_y.setRange(0, 1)
+            fixed_range = self._metric_y_range(metric)
+            if fixed_range is not None:
+                axis_y.setRange(*fixed_range)
+                range_label = f"Default Y: {fixed_range[0]:g} to {fixed_range[1]:g}"
+            elif values:
+                min_value = min(values)
+                max_value = max(values)
+                if min_value == max_value:
+                    padding = abs(min_value) * 0.1 or 1.0
+                else:
+                    padding = (max_value - min_value) * 0.1
+                axis_y.setRange(min_value - padding, max_value + padding)
+                range_label = "Y-Axis: Auto"
+            else:
+                axis_y.setRange(0, 1)
+                range_label = "Y-Axis: Auto"
+
+        self.label_graph_status.setText(
+            f"Showing last {len(chart_records)} of {len(records)} samples | "
+            f"{range_label}"
+        )
 
         self.chart.addAxis(axis_x, Qt.AlignBottom)
         self.chart.addAxis(axis_y, Qt.AlignLeft)

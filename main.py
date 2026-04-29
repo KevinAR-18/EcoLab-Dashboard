@@ -1477,6 +1477,17 @@ class MainWindow(QMainWindow):
         if not data:
             return
 
+        display_data = dict(data)
+        try:
+            current_value = float(display_data.get("current", 0) or 0)
+        except (TypeError, ValueError):
+            current_value = 0.0
+
+        if current_value < 0.1:
+            display_data["power"] = 0.0
+            display_data["pf"] = 0.0
+            display_data["energy"] = 0.0
+
         # Cek status relay dari backend MQTT, fallback ke switch button.
         backend = self.smartsocket_manager.get_backend(socket_number)
         if backend and backend.relay_state is not None:
@@ -1487,7 +1498,7 @@ class MainWindow(QMainWindow):
             relay_on = False
 
         if hasattr(self, "smartsocket_recorder"):
-            self.smartsocket_recorder.append_energy(socket_number, data, relay_on)
+            self.smartsocket_recorder.append_energy(socket_number, display_data, relay_on)
 
         # Get labels for this socket
         voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
@@ -1500,17 +1511,17 @@ class MainWindow(QMainWindow):
         # Update labels HANYA saat relay ON
         if relay_on:
             if voltage_label:
-                voltage_label.setText(f"Voltage: {data.get('voltage', 0):.1f} V")
+                voltage_label.setText(f"Voltage: {display_data.get('voltage', 0):.1f} V")
             if current_label:
-                current_label.setText(f"Current: {data.get('current', 0):.3f} A")
+                current_label.setText(f"Current: {display_data.get('current', 0):.3f} A")
             if power_label:
-                power_label.setText(f"Power: {data.get('power', 0):.1f} W")
+                power_label.setText(f"Power: {display_data.get('power', 0):.1f} W")
             if energy_label:
-                energy_label.setText(f"Energy: {data.get('energy', 0):.3f} kWh")
+                energy_label.setText(f"Energy: {display_data.get('energy', 0):.3f} kWh")
             if freq_label:
-                freq_label.setText(f"Frequency: {data.get('frequency', 0):.1f} Hz")
+                freq_label.setText(f"Frequency: {display_data.get('frequency', 0):.1f} Hz")
             if pf_label:
-                pf_label.setText(f"PF: {data.get('pf', 0):.2f}")
+                pf_label.setText(f"PF: {display_data.get('pf', 0):.2f}")
         else:
             # Tampilkan "--" saat relay OFF
             if voltage_label:

@@ -87,3 +87,33 @@ rangkuman_fitur_aplikasi_detail.txt
 # =========================
 /GrowattLogger/
 growatt_csv/growatt_2026-04-28.csv
+Dashboard Raspi/config.py
+Dashboard Raspi/main.py
+Dashboard Raspi/note.txt
+Dashboard Raspi/assets/AC OFF.png
+Dashboard Raspi/assets/AC ON.png
+Dashboard Raspi/assets/bg.png
+Dashboard Raspi/assets/dalam.png
+Dashboard Raspi/assets/HOME.png
+Dashboard Raspi/assets/icon_power.png
+Dashboard Raspi/assets/icon_solar.png
+Dashboard Raspi/assets/icon_weather.png
+Dashboard Raspi/assets/icon_wind.png
+Dashboard Raspi/assets/LAMP OFF.png
+Dashboard Raspi/assets/LAMP ON.png
+Dashboard Raspi/assets/luar.png
+Dashboard Raspi/backend/__init__.py
+Dashboard Raspi/backend/lamp_backend.py
+Dashboard Raspi/backend/mqtt_client.py
+Dashboard Raspi/backend/temp_backend.py
+Dashboard Raspi/config/mqtt_settings.json
+Dashboard Raspi/credentials/.gitkeep
+Dashboard Raspi/credentials/ca.crt
+Dashboard Raspi/pages/lamp_page.py
+Dashboard Raspi/pages/temp_page.py
+Dashboard Raspi/ui/home.ui
+Dashboard Raspi/ui/lamp.ui
+Dashboard Raspi/ui/temp.ui
+Dashboard Raspi/ui_py/ui_home.py
+Dashboard Raspi/ui_py/ui_lamp.py
+Dashboard Raspi/ui_py/ui_temp.py
