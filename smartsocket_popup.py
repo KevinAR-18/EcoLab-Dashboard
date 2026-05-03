@@ -110,19 +110,213 @@ class _ComboArrowStyle(QProxyStyle):
         super().drawPrimitive(element, option, painter, widget)
 
 
+class GlobalRecordingSettingsDialog(QDialog):
+    def __init__(self, main_window, parent=None):
+        super().__init__(parent)
+        self.main_window = main_window
+        self.setWindowTitle("All Sockets Recording Settings")
+        self.setModal(True)
+        self.setMinimumWidth(560)
+        apply_light_theme_to_widget(self)
+        self.setStyleSheet("""
+            QDialog {
+                background: qlineargradient(
+                    x1: 0, y1: 0, x2: 0, y2: 1,
+                    stop: 0 #E7F4FB,
+                    stop: 1 #F8FCFF
+                );
+                border: 1px solid #B8D4E3;
+                border-radius: 12px;
+            }
+            QLabel {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QCheckBox {
+                color: #1F2D3A;
+                spacing: 6px;
+                background: transparent;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                border: 1px solid #A8C7DC;
+                border-radius: 4px;
+                background: #FFFFFF;
+            }
+            QCheckBox::indicator:checked {
+                background: #005C99;
+                border-color: #005C99;
+            }
+            QLineEdit {
+                color: #1F2D3A;
+                background: rgba(255, 255, 255, 0.92);
+                border: 1px solid #B8D4E3;
+                border-radius: 6px;
+                padding: 6px 8px;
+            }
+            QPushButton {
+                background-color: #005C99;
+                color: #FFFFFF;
+                border: none;
+                border-radius: 6px;
+                padding: 7px 12px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #0B74B8;
+            }
+            QPushButton:pressed {
+                background-color: #004B7D;
+            }
+        """)
+
+        settings = {}
+        if hasattr(self.main_window, "get_global_socket_monitoring_settings"):
+            settings = self.main_window.get_global_socket_monitoring_settings()
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(10)
+
+        info = QLabel(
+            "Apply recording settings to all Smart Socket devices at once."
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+
+        row_follow = QHBoxLayout()
+        self.chk_follow_schedule = QCheckBox("Follow Schedule for All", self)
+        self.chk_follow_schedule.setChecked(bool(settings.get("follow_schedule", False)))
+        row_follow.addWidget(self.chk_follow_schedule)
+        row_follow.addStretch()
+        layout.addLayout(row_follow)
+
+        row_interval = QHBoxLayout()
+        row_interval.addWidget(QLabel("Interval (s):"))
+        self.input_record_interval = QLineEdit(self)
+        self.input_record_interval.setFixedWidth(90)
+        self.input_record_interval.setAlignment(Qt.AlignCenter)
+        self.input_record_interval.setValidator(QIntValidator(1, 3600, self))
+        interval_seconds = settings.get("record_interval_seconds", 5)
+        try:
+            interval_seconds = int(round(float(interval_seconds)))
+        except Exception:
+            interval_seconds = 5
+        self.input_record_interval.setText(str(max(1, interval_seconds)))
+        row_interval.addWidget(self.input_record_interval)
+        row_interval.addStretch()
+        layout.addLayout(row_interval)
+
+        row_autosave = QHBoxLayout()
+        self.chk_autosave = QCheckBox("Autosave for All", self)
+        self.chk_autosave.setChecked(bool(settings.get("autosave_enabled", False)))
+        row_autosave.addWidget(self.chk_autosave)
+        self.input_autosave_dir = QLineEdit(self)
+        self.input_autosave_dir.setText(settings.get("autosave_dir", "") or "")
+        row_autosave.addWidget(self.input_autosave_dir, 1)
+        self.btn_pick_folder = QPushButton("Folder...")
+        self.btn_pick_folder.clicked.connect(self._pick_folder)
+        row_autosave.addWidget(self.btn_pick_folder)
+        layout.addLayout(row_autosave)
+
+        self.chk_save_default = QCheckBox("Save as default in AppData", self)
+        self.chk_save_default.setChecked(True)
+        layout.addWidget(self.chk_save_default)
+
+        actions = QHBoxLayout()
+        self.btn_apply_all = QPushButton("Apply to All")
+        self.btn_start_all = QPushButton("Start All")
+        self.btn_stop_all = QPushButton("Stop All")
+        self.btn_close = QPushButton("Close")
+        self.btn_apply_all.setStyleSheet(
+            "QPushButton { background-color: #0F8B4C; color: #FFFFFF; "
+            "border: none; border-radius: 6px; padding: 7px 12px; font-weight: 600; }"
+            "QPushButton:hover { background-color: #12A95D; }"
+            "QPushButton:pressed { background-color: #0B6F3D; }"
+        )
+        self.btn_stop_all.setStyleSheet(
+            "QPushButton { background-color: #EB5757; color: #FFFFFF; "
+            "border: none; border-radius: 6px; padding: 7px 12px; font-weight: 600; }"
+            "QPushButton:hover { background-color: #F06A6A; }"
+            "QPushButton:pressed { background-color: #C43F3F; }"
+        )
+        self.btn_close.setStyleSheet(
+            "QPushButton { background-color: #6B7280; color: #FFFFFF; "
+            "border: none; border-radius: 6px; padding: 7px 12px; font-weight: 600; }"
+            "QPushButton:hover { background-color: #7B8494; }"
+            "QPushButton:pressed { background-color: #596170; }"
+        )
+        actions.addWidget(self.btn_apply_all)
+        actions.addWidget(self.btn_start_all)
+        actions.addWidget(self.btn_stop_all)
+        actions.addStretch()
+        actions.addWidget(self.btn_close)
+        layout.addLayout(actions)
+
+        self.btn_apply_all.clicked.connect(self._apply_to_all)
+        self.btn_start_all.clicked.connect(self._start_all)
+        self.btn_stop_all.clicked.connect(self._stop_all)
+        self.btn_close.clicked.connect(self.accept)
+
+    def _pick_folder(self):
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            "Select Autosave Folder",
+            self.input_autosave_dir.text().strip(),
+        )
+        if directory:
+            self.input_autosave_dir.setText(directory)
+
+    def _settings_payload(self):
+        text = self.input_record_interval.text().strip()
+        try:
+            interval_seconds = int(text)
+        except ValueError:
+            interval_seconds = 5
+        interval_seconds = max(1, interval_seconds)
+        self.input_record_interval.setText(str(interval_seconds))
+
+        return {
+            "follow_schedule": self.chk_follow_schedule.isChecked(),
+            "record_interval_seconds": float(interval_seconds),
+            "autosave_enabled": self.chk_autosave.isChecked(),
+            "autosave_dir": self.input_autosave_dir.text().strip(),
+            "save_as_default": self.chk_save_default.isChecked(),
+        }
+
+    def _apply_to_all(self):
+        if not hasattr(self.main_window, "apply_global_socket_monitoring_settings"):
+            return
+        self.main_window.apply_global_socket_monitoring_settings(**self._settings_payload())
+
+    def _start_all(self):
+        self._apply_to_all()
+        if hasattr(self.main_window, "start_all_socket_recording"):
+            self.main_window.start_all_socket_recording(source="manual")
+
+    def _stop_all(self):
+        self._apply_to_all()
+        if hasattr(self.main_window, "stop_all_socket_recording"):
+            self.main_window.stop_all_socket_recording(source="manual")
+
+
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     TABLE_DISPLAY_LIMIT = 500
     CHART_POINT_LIMIT = 300
     WINDOW_RADIUS_PX = 10
-    WINDOW_WIDTH_PX = 1024
-    WINDOW_HEIGHT_PX = 650
+    WINDOW_WIDTH_PX = 1240
+    WINDOW_HEIGHT_PX = 720
 
     def __init__(self, socket_number, backend, main_window, parent=None):
         super().__init__(parent)
         self.socket_number = socket_number
         self.backend = backend  # SmartSocketBackend instance
         self.main_window = main_window  # Reference ke MainWindow untuk simpan format
-        self.graph_range_overrides = {}
+        if hasattr(self.main_window, "get_socket_graph_range_overrides"):
+            self.graph_range_overrides = self.main_window.get_socket_graph_range_overrides()
+        else:
+            self.graph_range_overrides = {}
         self.setupUi(self)
 
         # Ensure dropdown arrows are visible even under Windows 11 dark mode.
@@ -196,6 +390,10 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         if hasattr(self.main_window, "socket_recording_state_changed"):
             self.main_window.socket_recording_state_changed.connect(
                 self._on_recording_state_changed
+            )
+        if hasattr(self.main_window, "socket_warning_state_changed"):
+            self.main_window.socket_warning_state_changed.connect(
+                self._on_warning_state_changed
             )
 
         self._setup_monitoring_ui()
@@ -275,6 +473,13 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
                 )
             except (RuntimeError, TypeError):
                 pass
+        if hasattr(self.main_window, "socket_warning_state_changed"):
+            try:
+                self.main_window.socket_warning_state_changed.disconnect(
+                    self._on_warning_state_changed
+                )
+            except (RuntimeError, TypeError):
+                pass
         super().closeEvent(event)
 
     def connect_buttons(self):
@@ -292,11 +497,11 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
     # ================= MONITORING UI =================
     def _setup_monitoring_ui(self):
-        self.resize(980, 760)
-        self.setMinimumSize(QSize(900, 720))
-        self.setMaximumSize(QSize(1200, 900))
-        self.label_title.setMinimumSize(QSize(700, 55))
-        self.label_title.setMaximumSize(QSize(900, 60))
+        self.resize(1180, 800)
+        self.setMinimumSize(QSize(1120, 760))
+        self.setMaximumSize(QSize(1320, 940))
+        self.label_title.setMinimumSize(QSize(820, 55))
+        self.label_title.setMaximumSize(QSize(1020, 60))
 
         self.verticalLayout.removeWidget(self.groupBox_timer)
         self.verticalLayout.removeWidget(self.groupBox_schedule)
@@ -333,12 +538,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         self.data_tab = QWidget(self.tabs)
         self.graph_tab = QWidget(self.tabs)
+        self.warning_tab = QWidget(self.tabs)
         self._build_data_tab()
         self._build_graph_tab()
+        self._build_warning_tab()
 
         self.tabs.addTab(self.control_tab, "Control")
         self.tabs.addTab(self.data_tab, "Data")
         self.tabs.addTab(self.graph_tab, "Graph")
+        self.tabs.addTab(self.warning_tab, "Warning")
         self.verticalLayout.addWidget(self.tabs)
 
     def _build_data_tab(self):
@@ -439,16 +647,19 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.btn_stop_recording = QPushButton("Stop Recording")
         self.btn_clear_records = QPushButton("Clear Data")
         self.btn_export_csv = QPushButton("Export CSV")
+        self.btn_all_sockets = QPushButton("All Sockets...")
 
         self.btn_start_recording.setStyleSheet(self._button_style("#0F8B4C"))
         self.btn_stop_recording.setStyleSheet(self._button_style("#EB5757"))
         self.btn_clear_records.setStyleSheet(self._button_style("#6B7280"))
         self.btn_export_csv.setStyleSheet(self._button_style("#005C99"))
+        self.btn_all_sockets.setStyleSheet(self._button_style("#0D6E6E"))
 
         top_layout.addWidget(self.btn_start_recording)
         top_layout.addWidget(self.btn_stop_recording)
         top_layout.addWidget(self.btn_clear_records)
         top_layout.addWidget(self.btn_export_csv)
+        top_layout.addWidget(self.btn_all_sockets)
         layout.addLayout(top_layout)
 
         self.label_recording_status = QLabel("Recording: OFF")
@@ -530,6 +741,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.btn_stop_recording.clicked.connect(self.on_stop_recording)
         self.btn_clear_records.clicked.connect(self.on_clear_records)
         self.btn_export_csv.clicked.connect(self.on_export_csv)
+        self.btn_all_sockets.clicked.connect(self.on_open_all_sockets_settings)
 
     def _build_graph_tab(self):
         layout = QVBoxLayout(self.graph_tab)
@@ -641,6 +853,53 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.input_graph_min.editingFinished.connect(self._on_graph_range_edit_finished)
         self.input_graph_max.editingFinished.connect(self._on_graph_range_edit_finished)
         self._load_graph_range_controls()
+
+    def _build_warning_tab(self):
+        layout = QVBoxLayout(self.warning_tab)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(10)
+        self.warning_tab.setStyleSheet("""
+            QWidget {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QLabel {
+                color: #1F2D3A;
+                background: transparent;
+            }
+        """)
+
+        self.label_warning_title = QLabel("Load Warning Status")
+        self.label_warning_title.setStyleSheet("font-size: 16px; font-weight: 700;")
+        layout.addWidget(self.label_warning_title)
+
+        self.label_warning_level = QLabel("Status: Safe")
+        self.label_warning_level.setStyleSheet(
+            "padding: 10px 12px; border-radius: 8px; background: #E6F7EC; "
+            "color: #0F8B4C; font-weight: 700;"
+        )
+        layout.addWidget(self.label_warning_level)
+
+        self.label_warning_message = QLabel("Tidak ada warning aktif.")
+        self.label_warning_message.setWordWrap(True)
+        self.label_warning_message.setStyleSheet(
+            "padding: 12px; border: 1px solid #C7DCEC; border-radius: 8px; "
+            "background: #F8FCFF;"
+        )
+        layout.addWidget(self.label_warning_message)
+
+        self.label_warning_ack = QLabel("Acknowledgement: Not required")
+        self.label_warning_ack.setStyleSheet("font-weight: 600; color: #52606D;")
+        layout.addWidget(self.label_warning_ack)
+
+        action_row = QHBoxLayout()
+        self.btn_warning_ack = QPushButton("Acknowledge")
+        self.btn_warning_ack.setStyleSheet(self._button_style("#C97A00"))
+        self.btn_warning_ack.clicked.connect(self.on_acknowledge_warning)
+        action_row.addWidget(self.btn_warning_ack)
+        action_row.addStretch()
+        layout.addLayout(action_row)
+        layout.addStretch()
 
     def _create_socket_combo(self):
         combo = QComboBox(self)
@@ -765,6 +1024,13 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _on_graph_range_edit_finished(self):
         self._on_graph_apply_range(show_warning=False)
 
+    @staticmethod
+    def _parse_graph_range_value(text):
+        normalized = (text or "").strip().replace(",", ".")
+        if not normalized:
+            raise ValueError("empty")
+        return float(normalized)
+
     def _on_graph_apply_range(self, show_warning=False):
         if not self.chk_graph_custom_range.isChecked():
             return
@@ -775,8 +1041,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             return
 
         try:
-            min_value = float(min_text)
-            max_value = float(max_text)
+            min_value = self._parse_graph_range_value(min_text)
+            max_value = self._parse_graph_range_value(max_text)
         except ValueError:
             if show_warning:
                 QMessageBox.warning(
@@ -800,12 +1066,22 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             "min": min_value,
             "max": max_value,
         }
+        if hasattr(self.main_window, "set_socket_graph_range_override"):
+            self.main_window.set_socket_graph_range_override(
+                self._selected_graph_socket(),
+                self.combo_graph_metric.currentData() or "power",
+                self.graph_range_overrides[self._graph_range_key()],
+            )
         self.input_graph_min.setText(f"{min_value:g}")
         self.input_graph_max.setText(f"{max_value:g}")
         self.refresh_monitoring_view()
 
     def _on_graph_reset_range(self):
-        self.graph_range_overrides.pop(self._graph_range_key(), None)
+        graph_socket = self._selected_graph_socket()
+        metric = self.combo_graph_metric.currentData() or "power"
+        self.graph_range_overrides.pop((graph_socket, metric), None)
+        if hasattr(self.main_window, "clear_socket_graph_range_override"):
+            self.main_window.clear_socket_graph_range_override(graph_socket, metric)
         self._load_graph_range_controls()
         self.refresh_monitoring_view()
 
@@ -835,9 +1111,41 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         socket_number = self._selected_data_socket()
         enabled = self.chk_follow_schedule.isChecked()
         self.main_window.set_socket_follow_schedule(socket_number, enabled)
-        if enabled:
+        if enabled and self._is_socket_schedule_window_active(socket_number):
             self.main_window.start_socket_recording(socket_number, source="schedule")
         self.refresh_monitoring_view()
+
+    def _is_socket_schedule_window_active(self, socket_number):
+        try:
+            backend = self.main_window.smartsocket_manager.get_backend(socket_number)
+        except Exception:
+            backend = None
+
+        if backend is None or not getattr(backend, "relay_state", False):
+            return False
+
+        schedule_status = getattr(backend, "schedule_status", None) or {}
+        start_value = schedule_status.get("start")
+        stop_value = schedule_status.get("stop")
+        if not start_value or not stop_value:
+            return False
+
+        try:
+            start_hour, start_minute = map(int, str(start_value).split(":", 1))
+            stop_hour, stop_minute = map(int, str(stop_value).split(":", 1))
+        except (TypeError, ValueError):
+            return False
+
+        now = datetime.now()
+        now_minutes = now.hour * 60 + now.minute
+        start_minutes = start_hour * 60 + start_minute
+        stop_minutes = stop_hour * 60 + stop_minute
+
+        if start_minutes == stop_minutes:
+            return False
+        if start_minutes < stop_minutes:
+            return start_minutes <= now_minutes < stop_minutes
+        return now_minutes >= start_minutes or now_minutes < stop_minutes
 
     def _on_record_interval_changed(self):
         socket_number = self._selected_data_socket()
@@ -989,6 +1297,16 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
                 f"Failed to export CSV:\n{exc}",
             )
 
+    def on_open_all_sockets_settings(self):
+        dialog = GlobalRecordingSettingsDialog(self.main_window, self)
+        dialog.exec()
+        self.refresh_monitoring_view()
+
+    def on_acknowledge_warning(self):
+        if hasattr(self.main_window, "acknowledge_socket_warning"):
+            self.main_window.acknowledge_socket_warning(self.socket_number)
+        self._refresh_warning_tab(self.socket_number)
+
     def refresh_monitoring_view(self, *_):
         if not hasattr(self.main_window, "smartsocket_recorder"):
             return
@@ -999,6 +1317,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self._refresh_recording_controls(data_socket)
         self._refresh_table(data_socket)
         self._refresh_chart(graph_socket)
+        self._refresh_warning_tab(self.socket_number)
 
     def _refresh_recording_controls(self, socket_number):
         recording = self.main_window.is_socket_recording(socket_number)
@@ -1194,6 +1513,58 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.refresh_monitoring_view()
         else:
             self._update_refresh_timer_state()
+
+    def _on_warning_state_changed(self, socket_number):
+        if socket_number == self.socket_number:
+            self._refresh_warning_tab(socket_number)
+
+    def _refresh_warning_tab(self, socket_number):
+        if not hasattr(self.main_window, "get_socket_warning_state"):
+            return
+
+        state = self.main_window.get_socket_warning_state(socket_number)
+        active = bool(state.get("active"))
+        level = state.get("level", "normal")
+        current_value = float(state.get("current", 0.0) or 0.0)
+        message = state.get("message", "") or ""
+        acknowledged = bool(state.get("acknowledged", False))
+
+        if not active:
+            self.label_warning_level.setText("Status: Safe")
+            self.label_warning_level.setStyleSheet(
+                "padding: 10px 12px; border-radius: 8px; background: #E6F7EC; "
+                "color: #0F8B4C; font-weight: 700;"
+            )
+            self.label_warning_message.setText("Tidak ada warning aktif.")
+            self.label_warning_ack.setText("Acknowledgement: Not required")
+            self.btn_warning_ack.setEnabled(False)
+            return
+
+        level_map = {
+            "elevated": ("Status: Beban Cukup Tinggi", "#FFF6DB", "#A86A00"),
+            "high": ("Status: Beban Tinggi", "#FFE8CC", "#C05621"),
+            "critical": ("Status: Kurangi Beban Segera", "#FDECEC", "#C53030"),
+        }
+        level_text, bg_color, fg_color = level_map.get(
+            level,
+            ("Status: Warning", "#FFF6DB", "#A86A00"),
+        )
+        self.label_warning_level.setText(level_text)
+        self.label_warning_level.setStyleSheet(
+            f"padding: 10px 12px; border-radius: 8px; background: {bg_color}; "
+            f"color: {fg_color}; font-weight: 700;"
+        )
+        self.label_warning_message.setText(
+            f"Smart Socket {socket_number}\n"
+            f"Current: {current_value:.3f} A\n"
+            f"{message}"
+        )
+        self.label_warning_ack.setText(
+            "Acknowledgement: Acknowledged"
+            if acknowledged else
+            "Acknowledgement: Waiting for acknowledgement"
+        )
+        self.btn_warning_ack.setEnabled(not acknowledged)
 
     def _fmt(self, value, decimals):
         return f"{self._to_float(value):.{decimals}f}"

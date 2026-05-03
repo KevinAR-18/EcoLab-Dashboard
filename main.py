@@ -1,4 +1,4 @@
-import sys,random,os
+import sys,random,os,time
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
     QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject,
@@ -67,6 +67,7 @@ from arrow_setup import ArrowSetup
 from smartsocket_popup import SmartSocketPopup
 from smartsocket_setup import SmartSocketSetup
 from smartsocket_recorder import SmartSocketRecorder
+from smartsocket_settings_manager import SmartSocketSettingsManager
 
 from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow):
     # Signal untuk notify launcher saat logout terjadi
     logout_signal = Signal()
     socket_recording_state_changed = Signal(int, bool)
+    socket_warning_state_changed = Signal(int)
 
     # APP VERSION
     APP_VERSION = "v2.0"
@@ -175,6 +177,22 @@ class MainWindow(QMainWindow):
         self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
         self.smartsocket_manager.start()
         self.smartsocket_recorder = SmartSocketRecorder()
+        self.smartsocket_settings_manager = SmartSocketSettingsManager()
+        self.global_smartsocket_monitoring_settings = {}
+        self.socket_graph_range_overrides = {}
+        self.socket_load_warnings = {
+            socket_number: {
+                "active": False,
+                "level": "normal",
+                "message": "",
+                "current": 0.0,
+                "acknowledged": False,
+                "last_popup_at": 0.0,
+                "popup_open": False,
+            }
+            for socket_number in range(1, 6)
+        }
+        self._load_smartsocket_monitoring_settings()
 
         # Simpan format timer per socket untuk display
         self.socket_timer_formats = {}  # {socket_number: "hms" atau "seconds"}
@@ -1408,10 +1426,12 @@ class MainWindow(QMainWindow):
     def set_socket_follow_schedule(self, socket_number: int, enabled: bool):
         self.smartsocket_recorder.set_follow_schedule(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
+        self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Follow schedule recording {state}")
 
     def set_socket_record_interval_seconds(self, socket_number: int, seconds: float):
         self.smartsocket_recorder.set_record_interval_seconds(socket_number, seconds)
+        self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Record interval set to {seconds}s")
 
     def get_socket_record_interval_seconds(self, socket_number: int):
@@ -1420,6 +1440,7 @@ class MainWindow(QMainWindow):
     def set_socket_autosave_enabled(self, socket_number: int, enabled: bool):
         self.smartsocket_recorder.set_autosave_enabled(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
+        self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Autosave {state}")
 
     def is_socket_autosave_enabled(self, socket_number: int):
@@ -1427,6 +1448,7 @@ class MainWindow(QMainWindow):
 
     def set_socket_autosave_dir(self, socket_number: int, directory: str):
         self.smartsocket_recorder.set_autosave_dir(socket_number, directory)
+        self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Autosave dir: {directory}")
 
     def get_socket_autosave_dir(self, socket_number: int):
@@ -1449,6 +1471,279 @@ class MainWindow(QMainWindow):
         count = self.smartsocket_recorder.export_csv(socket_number, path)
         self.log(f"[Socket {socket_number}] Exported {count} rows to CSV")
         return count
+
+    def _load_smartsocket_monitoring_settings(self):
+        if not hasattr(self, "smartsocket_settings_manager"):
+            return
+
+        self.global_smartsocket_monitoring_settings = (
+            self.smartsocket_settings_manager.get_global_settings()
+        )
+
+        global_follow_schedule = bool(
+            self.global_smartsocket_monitoring_settings.get("follow_schedule", False)
+        )
+        global_interval_seconds = self.global_smartsocket_monitoring_settings.get(
+            "record_interval_seconds"
+        )
+        global_autosave_enabled = bool(
+            self.global_smartsocket_monitoring_settings.get("autosave_enabled", False)
+        )
+        global_autosave_dir = (
+            self.global_smartsocket_monitoring_settings.get("autosave_dir", "") or ""
+        )
+
+        for socket_number in range(1, 6):
+            try:
+                self.smartsocket_recorder.set_follow_schedule(
+                    socket_number,
+                    global_follow_schedule,
+                )
+            except Exception:
+                pass
+
+            try:
+                if global_interval_seconds is not None:
+                    self.smartsocket_recorder.set_record_interval_seconds(
+                        socket_number,
+                        float(global_interval_seconds),
+                    )
+            except Exception:
+                pass
+
+            try:
+                self.smartsocket_recorder.set_autosave_enabled(
+                    socket_number,
+                    global_autosave_enabled,
+                )
+            except Exception:
+                pass
+
+            try:
+                self.smartsocket_recorder.set_autosave_dir(
+                    socket_number,
+                    global_autosave_dir,
+                )
+            except Exception:
+                pass
+
+        for socket_number in range(1, 6):
+            settings = self.smartsocket_settings_manager.get_socket_settings(socket_number)
+            if not settings:
+                continue
+
+            try:
+                self.smartsocket_recorder.set_follow_schedule(
+                    socket_number,
+                    bool(settings.get("follow_schedule", False)),
+                )
+            except Exception:
+                pass
+
+            try:
+                interval_seconds = settings.get("record_interval_seconds")
+                if interval_seconds is not None:
+                    self.smartsocket_recorder.set_record_interval_seconds(
+                        socket_number,
+                        float(interval_seconds),
+                    )
+            except Exception:
+                pass
+
+            try:
+                self.smartsocket_recorder.set_autosave_enabled(
+                    socket_number,
+                    bool(settings.get("autosave_enabled", False)),
+                )
+            except Exception:
+                pass
+
+            try:
+                self.smartsocket_recorder.set_autosave_dir(
+                    socket_number,
+                    settings.get("autosave_dir", "") or "",
+                )
+            except Exception:
+                pass
+
+        self.socket_graph_range_overrides = (
+            self.smartsocket_settings_manager.get_all_graph_ranges()
+        )
+
+    def _persist_socket_monitoring_settings(self, socket_number: int):
+        if not hasattr(self, "smartsocket_settings_manager"):
+            return
+
+        self.smartsocket_settings_manager.update_socket_settings(
+            socket_number,
+            follow_schedule=self.is_socket_follow_schedule(socket_number),
+            record_interval_seconds=self.get_socket_record_interval_seconds(socket_number),
+            autosave_enabled=self.is_socket_autosave_enabled(socket_number),
+            autosave_dir=self.get_socket_autosave_dir(socket_number),
+        )
+
+    def get_socket_graph_range_overrides(self):
+        return dict(getattr(self, "socket_graph_range_overrides", {}))
+
+    def set_socket_graph_range_override(self, socket_number: int, metric: str, override: dict):
+        self.socket_graph_range_overrides[(socket_number, metric)] = dict(override)
+        if hasattr(self, "smartsocket_settings_manager"):
+            self.smartsocket_settings_manager.set_graph_range(socket_number, metric, override)
+
+    def clear_socket_graph_range_override(self, socket_number: int, metric: str):
+        self.socket_graph_range_overrides.pop((socket_number, metric), None)
+        if hasattr(self, "smartsocket_settings_manager"):
+            self.smartsocket_settings_manager.set_graph_range(socket_number, metric, None)
+
+    def get_socket_warning_state(self, socket_number: int):
+        return dict(self.socket_load_warnings.get(socket_number, {}))
+
+    def acknowledge_socket_warning(self, socket_number: int):
+        state = self.socket_load_warnings.get(socket_number)
+        if not state or not state.get("active"):
+            return
+        if not state.get("acknowledged"):
+            state["acknowledged"] = True
+            self.socket_warning_state_changed.emit(socket_number)
+
+    def _warning_from_current(self, current_value: float, relay_on: bool):
+        if not relay_on:
+            return {
+                "active": False,
+                "level": "normal",
+                "message": "",
+                "current": 0.0,
+            }
+
+        if current_value >= 10.0:
+            return {
+                "active": True,
+                "level": "critical",
+                "message": "Kurangi beban segera",
+                "current": current_value,
+            }
+        if current_value >= 8.0:
+            return {
+                "active": True,
+                "level": "high",
+                "message": "Beban tinggi, harap waspada",
+                "current": current_value,
+            }
+        if current_value >= 6.0:
+            return {
+                "active": True,
+                "level": "elevated",
+                "message": "Beban cukup tinggi",
+                "current": current_value,
+            }
+        return {
+            "active": False,
+            "level": "normal",
+            "message": "",
+            "current": current_value,
+        }
+
+    def _warning_popup_title(self, level: str):
+        return {
+            "elevated": "Socket Load Warning",
+            "high": "Socket Load Warning",
+            "critical": "Socket Load Critical",
+        }.get(level, "Socket Load Warning")
+
+    def _show_socket_warning_popup(self, socket_number: int):
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state.get("active") or state.get("popup_open"):
+            return
+
+        title = self._warning_popup_title(state.get("level", "high"))
+        text = (
+            f"Smart Socket {socket_number}\n"
+            f"Current: {float(state.get('current', 0.0)):.3f} A\n"
+            f"{state.get('message', '')}"
+        )
+        state["last_popup_at"] = time.time()
+        state["popup_open"] = True
+        show_styled_warning(self, title, text)
+        state["popup_open"] = False
+
+    def _update_socket_warning_state(self, socket_number: int, current_value: float, relay_on: bool):
+        new_state = self._warning_from_current(current_value, relay_on)
+        current_state = self.socket_load_warnings.get(socket_number, {})
+
+        changed = (
+            bool(current_state.get("active")) != bool(new_state.get("active"))
+            or current_state.get("level") != new_state.get("level")
+            or current_state.get("message") != new_state.get("message")
+        )
+
+        if not new_state["active"]:
+            if current_state.get("active") or current_state.get("current", 0.0) != 0.0:
+                self.socket_load_warnings[socket_number] = {
+                    **new_state,
+                    "acknowledged": False,
+                    "last_popup_at": 0.0,
+                    "popup_open": False,
+                }
+                self.socket_warning_state_changed.emit(socket_number)
+            return
+
+        acknowledged = False if changed else bool(current_state.get("acknowledged", False))
+        last_popup_at = 0.0 if changed else float(current_state.get("last_popup_at", 0.0) or 0.0)
+        popup_open = bool(current_state.get("popup_open", False))
+        self.socket_load_warnings[socket_number] = {
+            **new_state,
+            "acknowledged": acknowledged,
+            "last_popup_at": last_popup_at,
+            "popup_open": popup_open,
+        }
+        self.socket_warning_state_changed.emit(socket_number)
+
+        should_popup = (
+            not acknowledged and
+            not popup_open and (
+                changed or
+                (time.time() - last_popup_at) >= 30.0
+            )
+        )
+        if should_popup:
+            self._show_socket_warning_popup(socket_number)
+
+    def get_global_socket_monitoring_settings(self):
+        return dict(getattr(self, "global_smartsocket_monitoring_settings", {}))
+
+    def apply_global_socket_monitoring_settings(
+        self,
+        follow_schedule: bool,
+        record_interval_seconds: float,
+        autosave_enabled: bool,
+        autosave_dir: str,
+        save_as_default: bool = False,
+    ):
+        autosave_dir = (autosave_dir or "").strip()
+        for socket_number in range(1, 6):
+            self.set_socket_follow_schedule(socket_number, follow_schedule)
+            self.set_socket_record_interval_seconds(socket_number, record_interval_seconds)
+            self.set_socket_autosave_enabled(socket_number, autosave_enabled)
+            self.set_socket_autosave_dir(socket_number, autosave_dir)
+
+        settings = {
+            "follow_schedule": bool(follow_schedule),
+            "record_interval_seconds": float(record_interval_seconds),
+            "autosave_enabled": bool(autosave_enabled),
+            "autosave_dir": autosave_dir,
+        }
+        self.global_smartsocket_monitoring_settings = dict(settings)
+
+        if save_as_default and hasattr(self, "smartsocket_settings_manager"):
+            self.smartsocket_settings_manager.update_global_settings(**settings)
+
+    def start_all_socket_recording(self, source="manual"):
+        for socket_number in range(1, 6):
+            self.start_socket_recording(socket_number, source=source)
+
+    def stop_all_socket_recording(self, source="manual"):
+        for socket_number in range(1, 6):
+            self.stop_socket_recording(socket_number, source=source)
 
     # ================= SMART SOCKET HANDLERS =================
     def _on_socket_relay_status(self, socket_number: int, state: bool):
@@ -1497,6 +1792,8 @@ class MainWindow(QMainWindow):
         else:
             relay_on = False
 
+        self._update_socket_warning_state(socket_number, current_value, relay_on)
+
         if hasattr(self, "smartsocket_recorder"):
             self.smartsocket_recorder.append_energy(socket_number, display_data, relay_on)
 
@@ -1524,6 +1821,7 @@ class MainWindow(QMainWindow):
                 pf_label.setText(f"PF: {display_data.get('pf', 0):.2f}")
         else:
             # Tampilkan "--" saat relay OFF
+            self._update_socket_warning_state(socket_number, 0.0, False)
             if voltage_label:
                 voltage_label.setText("Voltage: -- V")
             if current_label:
