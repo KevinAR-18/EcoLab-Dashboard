@@ -10,8 +10,8 @@ if exist dist rmdir /s /q dist
 
 echo Cleaning old build files... done
 echo.
-echo NOTE: main and ui_theme_helper removed from hidden-import
-echo       (now imported at top of launcher.py for PyInstaller compatibility)
+echo NOTE: launcher.py imports main directly for PyInstaller compatibility
+echo       hidden-import list also includes Smart Socket monitoring modules
 echo.
 
 echo Building PyInstaller...
@@ -27,6 +27,7 @@ echo.
   --hidden-import=PySide6.QtCore ^
   --hidden-import=PySide6.QtGui ^
   --hidden-import=PySide6.QtWidgets ^
+  --hidden-import=PySide6.QtCharts ^
   --hidden-import=pyrebase ^
   --hidden-import=requests ^
   --hidden-import=google.oauth2.service_account ^
@@ -44,8 +45,11 @@ echo.
   --hidden-import=arrow_setup ^
   --hidden-import=smartsocket_popup ^
   --hidden-import=smartsocket_setup ^
+  --hidden-import=smartsocket_recorder ^
+  --hidden-import=smartsocket_settings_manager ^
   --hidden-import=ui_loginpage ^
   --hidden-import=ui_mainwindow ^
+  --hidden-import=ui_smartsocket_popup ^
   --hidden-import=ui_functions ^
   --hidden-import=ui_role_selection ^
   --hidden-import=widgets.lamp_button ^
