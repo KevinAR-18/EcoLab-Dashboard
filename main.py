@@ -1,3 +1,10 @@
+"""
+Main dashboard window for the EcoLab desktop application.
+
+This module integrates the generated UI, custom widgets, MQTT backends,
+Growatt/WeatherCloud services, and role-aware user actions into one window.
+"""
+
 import sys,random,os,time
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
@@ -55,6 +62,8 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
+# These values are resolved at import time so missing runtime configuration
+# fails early before the dashboard starts creating backend objects.
 MQTT_BROKER = get_required_env("ECOLAB_MQTT_BROKER")
 MQTT_PORT = int(get_env("ECOLAB_MQTT_PORT", "8883"))
 MQTT_USERNAME = get_required_env("ECOLAB_MQTT_USERNAME")
@@ -144,6 +153,8 @@ class MainWindow(QMainWindow):
         self.acbutton_backend.status_changed.connect(self._on_ac_status_changed)
 
         # BACKEND: SMART SOCKET
+        # Smart Socket features keep additional in-memory and persisted state
+        # because recording, charting, and autosave need more than raw MQTT I/O.
         self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
         self.smartsocket_manager.start()
         self.smartsocket_recorder = SmartSocketRecorder()

@@ -1,9 +1,12 @@
+"""Custom animated AC toggle widget used by the control-room page."""
+
+from PySide6.QtCore import QEasingCurve, Property, QPropertyAnimation, Qt, QTimer, Signal
+from PySide6.QtGui import QBrush, QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer, Property, Signal
-from PySide6.QtGui import QPainter, QColor, QBrush, QPen
 
 
 def blend_color(c1: QColor, c2: QColor, t: float) -> QColor:
+    """Linearly blend two colors for the background transition animation."""
     r = c1.red() + (c2.red() - c1.red()) * t
     g = c1.green() + (c2.green() - c1.green()) * t
     b = c1.blue() + (c2.blue() - c1.blue()) * t
@@ -11,19 +14,15 @@ def blend_color(c1: QColor, c2: QColor, t: float) -> QColor:
 
 
 class ACButton(QWidget):
-    """
-    Animated AC Switch Button
-    Signal:
-        toggled(bool)
-    """
+    """Animated AC switch button that behaves like a lightweight toggle."""
+
     toggled = Signal(bool)
 
     def __init__(self, parent=None, width=90, height=42):
         super().__init__(parent)
         self.setFixedSize(width, height)
         self.setCursor(Qt.PointingHandCursor)
-        
-        # Warna pastel
+
         self.off_color = QColor("#DCE9F5")
         self.on_color = QColor("#A5E8FF")
 
@@ -32,18 +31,15 @@ class ACButton(QWidget):
         self._radius = height // 2
         self._handle_pos = 3
 
-        # Animasi handle
         self._anim_pos = QPropertyAnimation(self, b"handle_pos", self)
         self._anim_pos.setDuration(260)
         self._anim_pos.setEasingCurve(QEasingCurve.OutCubic)
 
-        # Animasi warna
         self._anim_progress = 0.0
         self._color_timer = QTimer(self)
         self._color_timer.setInterval(15)
         self._color_timer.timeout.connect(self._update_color)
 
-    # ===== handle property =====
     def get_handle_pos(self):
         return self._handle_pos
 
@@ -53,9 +49,7 @@ class ACButton(QWidget):
 
     handle_pos = Property(float, get_handle_pos, set_handle_pos)
 
-    # ===== interaction =====
     def mousePressEvent(self, event):
-        # Cek apakah widget enabled sebelum proses event
         if not self.isEnabled():
             return
 
@@ -63,6 +57,7 @@ class ACButton(QWidget):
             self.toggle()
 
     def toggle(self):
+        """Flip the local state and start the switch animations."""
         self._is_on = not self._is_on
         self._anim_progress = 0.0
         self._color_timer.start()
@@ -73,6 +68,7 @@ class ACButton(QWidget):
         return self._is_on
 
     def setOn(self, state: bool):
+        """Synchronize the widget with an external state change."""
         if self._is_on == state:
             return
         self._is_on = state
@@ -80,8 +76,8 @@ class ACButton(QWidget):
         self._color_timer.start()
         self.toggled.emit(state)
 
-    # ===== animation =====
     def _animate_switch(self):
+        """Animate only the handle position; color is updated by the timer."""
         start = self._handle_pos
         end = self.width() - self.height() + 3 if self._is_on else 3
 
@@ -103,51 +99,28 @@ class ACButton(QWidget):
 
         self.update()
 
-    # ===== paint =====
     def paintEvent(self, event):
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 
-        # Jika disabled, set opacity untuk visual feedback
         if not self.isEnabled():
-            p.setOpacity(0.4)  # 40% opacity saat disabled
+            p.setOpacity(0.4)
 
-        # Background
         p.setBrush(QBrush(self._bg_color))
         p.setPen(Qt.NoPen)
         p.drawRoundedRect(self.rect(), self._radius, self._radius)
 
-        # Handle
-        d = self.height() - 6
+        diameter = self.height() - 6
         p.setBrush(Qt.white)
         p.setPen(QPen(QColor(200, 200, 200), 1))
-        p.drawEllipse(self._handle_pos, 3, d, d)
-        
-
-    # def setChecked(self, state: bool):
-    #     """
-    #     Sinkron state dari MQTT / aplikasi lain
-    #     TANPA emit toggled (biar tidak loop)
-    #     """
-    #     if self._is_on == state:
-    #         return
-
-    #     self._is_on = state
-    #     self._animate_switch()
-    #     self._color_timer.start()
-
+        p.drawEllipse(self._handle_pos, 3, diameter, diameter)
 
     def setChecked(self, state: bool):
-        """
-        Sinkron state AC dari MQTT / restore state
-        TANPA emit signal toggled
-        """
+        """Synchronize AC state from MQTT or state restoration without extra logic."""
         if self._is_on == state:
             return
 
         self._is_on = state
-
-        # 🔥 PAKSA update tampilan AC
-        self._animate_switch()     # posisi toggle
-        self._color_timer.start()  # trigger warna ON/OFF
-        self.update()              # repaint widget
+        self._animate_switch()
+        self._color_timer.start()
+        self.update()

@@ -1,3 +1,5 @@
+"""Persistent storage for Smart Socket popup preferences."""
+
 import json
 import os
 import sys
@@ -5,12 +7,13 @@ from pathlib import Path
 
 
 class SmartSocketSettingsManager:
-    """Persist Smart Socket monitoring settings to AppData JSON."""
+    """Save global and per-socket monitoring settings to a JSON file."""
 
     def __init__(self):
         self.settings_file = self._get_settings_file_path()
 
     def _get_settings_file_path(self):
+        """Resolve the settings file path for script and frozen modes."""
         appdata_dir = os.getenv("APPDATA")
 
         if appdata_dir:
@@ -26,6 +29,7 @@ class SmartSocketSettingsManager:
         return settings_dir / "smartsocket_monitoring_settings.json"
 
     def load_data(self):
+        """Load the JSON payload, always returning a valid structure."""
         if not self.settings_file.exists():
             return {"global": {}, "sockets": {}}
 
@@ -44,6 +48,7 @@ class SmartSocketSettingsManager:
         return data
 
     def save_data(self, data):
+        """Write the normalized settings structure back to disk."""
         payload = data if isinstance(data, dict) else {"global": {}, "sockets": {}}
         payload.setdefault("global", {})
         payload.setdefault("sockets", {})
@@ -79,6 +84,7 @@ class SmartSocketSettingsManager:
         self.save_data(data)
 
     def get_all_graph_ranges(self):
+        """Flatten stored graph overrides into tuple keys for quick lookup."""
         data = self.load_data()
         result = {}
 
@@ -100,6 +106,7 @@ class SmartSocketSettingsManager:
         return result
 
     def set_graph_range(self, socket_number, metric, override):
+        """Create, update, or clear one stored chart range override."""
         data = self.load_data()
         sockets = data.setdefault("sockets", {})
         entry = sockets.setdefault(str(socket_number), {})

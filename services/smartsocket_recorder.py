@@ -1,11 +1,12 @@
+"""In-memory recording utilities for Smart Socket monitoring data."""
+
 import csv
 from datetime import datetime
 
 
 class SmartSocketRecorder:
-    """In-memory recorder for Smart Socket monitoring samples."""
+    """Store per-socket monitoring samples and export them to CSV."""
 
-    # Default sampling interval for recording (seconds). Can be overridden per socket.
     DEFAULT_RECORD_INTERVAL_SECONDS = 5
 
     FIELD_NAMES = [
@@ -30,6 +31,8 @@ class SmartSocketRecorder:
     }
 
     def __init__(self, socket_count=5):
+        # Every socket keeps its own monitoring and recording state so popup
+        # windows can work independently without extra global bookkeeping.
         self._states = {
             socket_number: {
                 "recording": False,
@@ -38,7 +41,7 @@ class SmartSocketRecorder:
                 "autosave_dir": "",
                 "records": [],
                 "last_source": None,
-                "last_record_at": None,  # datetime of last saved sample
+                "last_record_at": None,
                 "record_interval_seconds": float(self.DEFAULT_RECORD_INTERVAL_SECONDS),
             }
             for socket_number in range(1, socket_count + 1)
@@ -50,6 +53,7 @@ class SmartSocketRecorder:
         return self._states[socket_number]
 
     def start(self, socket_number, source="manual"):
+        """Start recording for one socket."""
         state = self._state(socket_number)
         changed = not state["recording"]
         state["recording"] = True
@@ -58,6 +62,7 @@ class SmartSocketRecorder:
         return changed
 
     def stop(self, socket_number, source="manual"):
+        """Stop recording for one socket."""
         state = self._state(socket_number)
         changed = state["recording"]
         state["recording"] = False
@@ -95,6 +100,7 @@ class SmartSocketRecorder:
         return float(self._state(socket_number)["record_interval_seconds"])
 
     def handle_schedule_status(self, socket_number, status):
+        """Translate schedule triggers into recorder state changes."""
         state = self._state(socket_number)
         if not state["follow_schedule"]:
             return None
@@ -110,13 +116,16 @@ class SmartSocketRecorder:
         return None
 
     def append_energy(self, socket_number, data, relay_state):
+        """Append one monitoring sample if the socket is actively recording."""
         state = self._state(socket_number)
         if not state["recording"]:
             return None
 
         now = datetime.now()
         last = state.get("last_record_at")
-        interval = float(state.get("record_interval_seconds") or self.DEFAULT_RECORD_INTERVAL_SECONDS)
+        interval = float(
+            state.get("record_interval_seconds") or self.DEFAULT_RECORD_INTERVAL_SECONDS
+        )
         if last is not None:
             elapsed = (now - last).total_seconds()
             if elapsed < interval:
@@ -147,6 +156,7 @@ class SmartSocketRecorder:
         return len(self._state(socket_number)["records"])
 
     def export_csv(self, socket_number, path):
+        """Write all stored samples for one socket to a CSV file."""
         records = self.get_records(socket_number)
         with open(path, "w", newline="", encoding="utf-8") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=self.FIELD_NAMES)

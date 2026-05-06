@@ -27,6 +27,8 @@ class AppLauncher(QObject):
 
     def __init__(self):
         super().__init__()
+        # The launcher owns top-level window transitions so individual windows
+        # can stay focused on UI logic instead of application lifecycle rules.
         self.session_manager = SessionManager()
         self.main_window = None
         self.login_window = None
@@ -137,6 +139,8 @@ class AppLauncher(QObject):
             self.current_session = session
 
             # Buat main window dengan session
+            # The dashboard receives the loaded session so it can enable or
+            # restrict actions according to the current user role.
             self.main_window = MainWindow(user_session=session)
 
             # Connect logout signal

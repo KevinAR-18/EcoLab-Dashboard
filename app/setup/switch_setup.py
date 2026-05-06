@@ -1,11 +1,15 @@
-from PySide6.QtWidgets import QVBoxLayout
+"""Helpers for creating Smart Socket switch widgets."""
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout
+
 from widgets.switch_button import SwitchButton
 
 
 class SwitchSetup:
     @staticmethod
     def setup(ui, main_window):
+        """Create all switch widgets and bind them to dashboard callbacks."""
         frames = [
             ui.frame_switch_button_container,
             ui.frame_switch_button_container_2,
@@ -30,10 +34,7 @@ class SwitchSetup:
             layout.setContentsMargins(0, 0, 0, 0)
             layout.setSpacing(0)
 
-            # Size tombol 140x140
             switch = SwitchButton(switch_index=i, size=140)
-
-            # Tooltip
             switch.setToolTip(
                 f"{switch_locations.get(i, '-')}\n"
                 f"Klik untuk ON/OFF"
@@ -42,8 +43,6 @@ class SwitchSetup:
             layout.addWidget(switch)
             main_window.switches.append(switch)
 
-            # Connect signal
-            # Signal: toggled(switch_index, state) → idx, state
             switch.toggled.connect(
                 lambda idx, state: main_window.on_switch_toggled(idx, state)
             )

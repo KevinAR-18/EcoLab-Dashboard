@@ -51,6 +51,7 @@ class LoginWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # SETUP AUTH SERVICE
+        # The login window talks to Firebase only through this service layer.
         self.auth_service = FirebaseAuthService()
 
         # SETUP SESSION MANAGER
@@ -84,6 +85,8 @@ class LoginWindow(QMainWindow):
 
     def _connect_signals(self):
         """Connect semua UI signals ke handlers"""
+        # Keeping signal wiring here makes the constructor easier to scan and
+        # reduces the chance of missing a UI event during maintenance.
 
         # ===== NAVIGASI =====
         # Button untuk pindah ke sign up page
@@ -406,6 +409,8 @@ class LoginWindow(QMainWindow):
         message = result.get("message", "")
         user_id = result.get("user_id")
 
+        # The auth service normalizes Firebase responses into a small set of
+        # status values so the UI can keep all navigation decisions here.
         # ===== ADMIN LOGIN SUCCESS =====
         if status == "admin":
             # Load user data dari Firebase

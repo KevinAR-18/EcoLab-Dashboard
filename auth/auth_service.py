@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+"""Firebase authentication and user-management services for the desktop app."""
+
 import sys
 import types
 from datetime import datetime
@@ -27,6 +29,7 @@ from config.firebase_settings import (
 
 
 class FirebaseAuthAdminClient:
+    """Small REST client for privileged Firebase admin operations."""
     _SCOPES = ["https://www.googleapis.com/auth/identitytoolkit"]
 
     def __init__(self, project_id, service_account_path):
@@ -71,7 +74,10 @@ class FirebaseAuthAdminClient:
 
 
 class FirebaseAuthService:
+    """Application-facing service that wraps auth, signup, and user records."""
     def __init__(self):
+        # Pyrebase is used for normal user auth flows, while the admin client is
+        # reserved for actions that require a service account.
         firebase_config = get_firebase_config()
         firebase = pyrebase.initialize_app(firebase_config)
         self.auth = firebase.auth()
@@ -335,6 +341,8 @@ class FirebaseAuthService:
         return self.db.child("users").child(uid).get().val()
 
     def _google_auth_login(self):
+        # A local redirect server keeps Google OAuth compatible with a desktop
+        # application without embedding a dedicated web view inside the app.
         # Gunakan port yang fixed untuk menghindari redirect_uri_mismatch
         # Pastikan http://localhost:8080 terdaftar di Google Cloud Console
         flow = InstalledAppFlow.from_client_secrets_file(

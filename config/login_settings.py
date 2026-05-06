@@ -57,6 +57,9 @@ def toggle_password_visibility(password_field, show_checkbox):
     """
     from PySide6.QtWidgets import QLineEdit
 
+    # Both sign-in and sign-up pages use this helper to keep password-field
+    # behavior identical across the login window.
+
     if show_checkbox.isChecked():
         password_field.setEchoMode(QLineEdit.EchoMode.Normal)
     else:

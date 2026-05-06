@@ -14,6 +14,8 @@ def create_first_admin():
     print("CREATE FIRST ADMIN IN FIREBASE")
     print("=" * 50)
 
+    # Reuse the same service layer as the main app so account creation follows
+    # the same Firebase configuration and database schema.
     service = FirebaseAuthService()
 
     email = input("\nAdmin email: ").strip()
