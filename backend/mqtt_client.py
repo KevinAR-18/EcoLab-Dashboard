@@ -6,7 +6,7 @@ import paho.mqtt.client as mqtt
 class MqttClient:
     def __init__(
         self,
-        broker="10.33.11.148",
+        broker="localhost",
         port=1883,
         username=None,
         password=None,

@@ -81,7 +81,7 @@ class FirebaseAuthService:
             service_account_path=get_admin_service_account_path(),
         )
 
-    def create_admin(self, email="admin@ecolab.com", password="admin123"):
+    def create_admin(self, email, password):
         user = self.auth.create_user_with_email_and_password(email, password)
         uid = user["localId"]
 

@@ -1,11 +1,13 @@
 import growattServer
 
+from config.firebase_settings import get_required_env
+
 
 class GrowattBackend:
     def __init__(self):
         # ================= CREDENTIAL =================
-        self.username = "EcoLab"
-        self.password = "ecolab321"
+        self.username = get_required_env("ECOLAB_GROWATT_USERNAME")
+        self.password = get_required_env("ECOLAB_GROWATT_PASSWORD")
 
         self.api = growattServer.GrowattApi(
             agent_identifier="ShinePhone/8.1.17 (Android)"

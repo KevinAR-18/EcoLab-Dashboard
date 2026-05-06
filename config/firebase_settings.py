@@ -113,3 +113,24 @@ def get_admin_service_account_path():
         return Path(configured_path)
 
     return _DEFAULT_ADMIN_SERVICE_ACCOUNT
+
+
+def get_env(name, default=""):
+    """Read an environment variable after .env has been loaded."""
+    return os.getenv(name, default)
+
+
+def get_required_env(name):
+    """Read a required environment variable and raise if missing."""
+    value = os.getenv(name, "").strip()
+    if not value:
+        raise RuntimeError(f"Required environment variable is missing: {name}")
+    return value
+
+
+def get_env_bool(name, default=False):
+    """Read a boolean environment variable."""
+    value = os.getenv(name)
+    if value is None:
+        return bool(default)
+    return value.strip().lower() in {"1", "true", "yes", "on"}

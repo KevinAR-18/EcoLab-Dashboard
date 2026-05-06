@@ -51,6 +51,7 @@ from ui.ui_functions import UIFunctions
 # Import Session Manager dan Auth Service untuk user features
 from auth.session_manager import SessionManager
 from auth.auth_service import FirebaseAuthService
+from config.firebase_settings import get_env, get_env_bool, get_required_env
 
 # Import Theme Helper untuk styled message boxes
 from ui.ui_theme_helper import (
@@ -83,14 +84,12 @@ from backend.smartsocket_backend import SmartSocketManager
 # ============================================================
 # MQTT TLS CONFIGURATION
 # ============================================================
-MQTT_BROKER = "10.33.11.148"
-# MQTT_BROKER = "DESKTOP-CVPE153"
-MQTT_PORT = 8883  # TLS Port (8883) atau Plain MQTT (1883)
-MQTT_USERNAME = "dashboard"
-MQTT_PASSWORD = "ecolab321"
-MQTT_CA_CERT = get_credentials_path("ca.crt")  #CA Cert EcoLab
-# MQTT_CA_CERT = get_credentials_path("ca2.crt")  #CA Cert Laptop
-MQTT_USE_TLS = True  # Set False untuk plain MQTT (testing)
+MQTT_BROKER = get_required_env("ECOLAB_MQTT_BROKER")
+MQTT_PORT = int(get_env("ECOLAB_MQTT_PORT", "8883"))
+MQTT_USERNAME = get_required_env("ECOLAB_MQTT_USERNAME")
+MQTT_PASSWORD = get_required_env("ECOLAB_MQTT_PASSWORD")
+MQTT_CA_CERT = get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt"))
+MQTT_USE_TLS = get_env_bool("ECOLAB_MQTT_USE_TLS", True)
 
 # Class untuk mengatur Hari dan Waktu
 
@@ -412,13 +411,7 @@ class MainWindow(QMainWindow):
 
         # Set click handler untuk titleIndoor
         self.ui.titleIndoor.mousePressEvent = self.show_dht_popup
-
-
-
-        # Disable input IP & add button (belum digunakan)
-        # self.ui.inputIP.setEnabled(False)
-        # self.ui.btn_add.setEnabled(False)
-        
+       
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
         self.lampbutton_backend.status_changed.connect(self._on_lamp_status_changed)
         self.lampbutton_backend.start()
