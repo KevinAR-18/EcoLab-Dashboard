@@ -5,7 +5,7 @@ Dashboard EcoLab - Magang Lab Elektronika DTEDI 2025 x Tugas Akhir
 
 ---
 
-## Project Overview
+## Gambaran Proyek
 
 EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** berbasis **PySide6 (Qt)** dan **Firebase Authentication** untuk memonitor dan mengontrol perangkat laboratorium secara real-time.
 
@@ -19,7 +19,7 @@ Perangkat yang saat ini didukung:
 
 ---
 
-## Key Features
+## Fitur Utama
 
 - **Firebase Authentication**: email/password, Google Sign-In, dan Guest Mode
 - **Role-based Access Control**: guest, user, dan admin
@@ -37,7 +37,7 @@ Perangkat yang saat ini didukung:
 
 ---
 
-## Tech Stack
+## Teknologi yang Digunakan
 
 ### Frontend
 - **PySide6** (Qt6)
@@ -61,21 +61,21 @@ Perangkat yang saat ini didukung:
 
 ---
 
-## Installation
+## Instalasi
 
-### Prerequisites
+### Kebutuhan Awal
 
 ```bash
 Python 3.10 or higher
 ```
 
-### Install dependencies
+### Install dependensi
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Firebase setup
+### Setup Firebase
 
 1. Buat project di Firebase Console.
 2. Enable Authentication untuk Email/Password dan Google Sign-In.
@@ -98,24 +98,24 @@ Contoh:
 
 ---
 
-## Usage
+## Penggunaan
 
-### Start application
+### Menjalankan aplikasi
 
 ```bash
 python launcher.py
 ```
 
-### Authentication options
+### Opsi autentikasi
 
-1. **Email Login**
+1. **Email Login**  
    Masuk dengan email dan password.
-2. **Google Sign-In**
+2. **Google Sign-In**  
    Login dengan akun Google.
-3. **Guest Mode**
+3. **Guest Mode**  
    Akses read-only tanpa kontrol perangkat.
 
-### User roles
+### Peran pengguna
 
 | Role | Access |
 |------|--------|
@@ -125,7 +125,7 @@ python launcher.py
 
 ---
 
-## Smart Socket Updates
+## Update Smart Socket
 
 Fitur Smart Socket saat ini mencakup:
 
@@ -148,69 +148,69 @@ Catatan implementasi:
 
 ---
 
-## Project Structure
+## Struktur Proyek
 
-Struktur project saat ini setelah refactor adalah:
+Struktur proyek saat ini setelah refactor adalah:
 
 ```text
 Aplikasi EcoLab -  New/
-├─ launcher.py
-├─ loginmain.py
-├─ main.py
-├─ create_admin.py
-├─ README.md
-├─ requirements.txt
-├─ build.bat
-├─ .env.example
-├─ auth/
-│  ├─ auth_service.py
-│  └─ session_manager.py
-├─ config/
-│  ├─ firebase_settings.py
-│  ├─ login_settings.py
-│  └─ path_utils.py
-├─ dialogs/
-│  ├─ admin_window.py
-│  └─ smartsocket_popup.py
-├─ services/
-│  ├─ smartsocket_recorder.py
-│  └─ smartsocket_settings_manager.py
-├─ app/
-│  └─ setup/
-│     ├─ ac_setup.py
-│     ├─ arrow_setup.py
-│     ├─ lamp_setup.py
-│     ├─ smartsocket_setup.py
-│     └─ switch_setup.py
-├─ backend/
-│  ├─ mqtt_client.py
-│  ├─ mqtt_dht22_backend.py
-│  ├─ mcu_status_backend.py
-│  ├─ smartsocket_backend.py
-│  ├─ lampbutton_backend.py
-│  ├─ acbutton_backend.py
-│  ├─ growatt_backend.py
-│  ├─ growatt_worker.py
-│  └─ weathercloud_backend.py
-├─ widgets/
-│  ├─ ac_button.py
-│  ├─ flow_arrow.py
-│  ├─ lamp_button.py
-│  └─ switch_button.py
-├─ ui/
-│  ├─ ui_functions.py
-│  ├─ ui_theme_helper.py
-│  ├─ ui_loginpage.py
-│  ├─ ui_mainwindow.py
-│  ├─ ui_adminpanel.py
-│  ├─ ui_role_selection.py
-│  └─ ui_smartsocket_popup.py
-├─ credentials/
-├─ file ui/
-├─ icon/
-├─ images/
-├─ hardware_TA/
-└─ resources_rc.py
+|-- launcher.py
+|-- loginmain.py
+|-- main.py
+|-- create_admin.py
+|-- README.md
+|-- requirements.txt
+|-- build.bat
+|-- .env.example
+|-- auth/
+|   |-- auth_service.py
+|   `-- session_manager.py
+|-- config/
+|   |-- firebase_settings.py
+|   |-- login_settings.py
+|   `-- path_utils.py
+|-- dialogs/
+|   |-- admin_window.py
+|   `-- smartsocket_popup.py
+|-- services/
+|   |-- smartsocket_recorder.py
+|   `-- smartsocket_settings_manager.py
+|-- app/
+|   `-- setup/
+|       |-- ac_setup.py
+|       |-- arrow_setup.py
+|       |-- lamp_setup.py
+|       |-- smartsocket_setup.py
+|       `-- switch_setup.py
+|-- backend/
+|   |-- mqtt_client.py
+|   |-- mqtt_dht22_backend.py
+|   |-- mcu_status_backend.py
+|   |-- smartsocket_backend.py
+|   |-- lampbutton_backend.py
+|   |-- acbutton_backend.py
+|   |-- growatt_backend.py
+|   |-- growatt_worker.py
+|   `-- weathercloud_backend.py
+|-- widgets/
+|   |-- ac_button.py
+|   |-- flow_arrow.py
+|   |-- lamp_button.py
+|   `-- switch_button.py
+|-- ui/
+|   |-- ui_functions.py
+|   |-- ui_theme_helper.py
+|   |-- ui_loginpage.py
+|   |-- ui_mainwindow.py
+|   |-- ui_adminpanel.py
+|   |-- ui_role_selection.py
+|   `-- ui_smartsocket_popup.py
+|-- credentials/
+|-- file ui/
+|-- icon/
+|-- images/
+|-- hardware_TA/
+`-- resources_rc.py
 ```
 
 ---
@@ -292,7 +292,7 @@ Folder `hardware_TA/` berisi firmware dan simulator yang digunakan untuk pengemb
 6. **mcua_simulator.py** - Simulator MCU-A
 7. **mcub_simulator.py** - Simulator MCU-B
 
-### Run simulator example
+### Contoh menjalankan simulator
 
 ```bash
 cd hardware_TA
@@ -301,16 +301,16 @@ python smartsocket_simulator.py
 
 ---
 
-## Feature Details
+## Detail Fitur
 
-### Session management
+### Manajemen session
 
 - Simpan sesi login
 - Dukungan remember me
 - Auto login jika sesi masih valid
 - Logout dari aplikasi
 
-### Admin panel
+### Panel admin
 
 - Lihat daftar user
 - Approve akun
@@ -329,12 +329,14 @@ python smartsocket_simulator.py
 - Data recording, export CSV, dan grafik
 
 ### Smart Lamp
+
 - Kontrol lampu laboratorium
 - MQTT-based switching
 - Mendukung kontrol beberapa kanal lampu di page control room
 - Dikembangkan bersama **Ilham Purnomo**
 
 ### Smart AC
+
 - Kontrol AC berbasis IR
 - Mode pendingin dan fan
 - Pengaturan suhu
@@ -354,7 +356,7 @@ python smartsocket_simulator.py
 
 ---
 
-## Authentication Flow
+## Alur Autentikasi
 
 ```text
 launcher.py -> check session
@@ -367,7 +369,7 @@ launcher.py -> check session
 
 ---
 
-## Notes
+## Catatan
 
 - Gunakan `launcher.py` sebagai entry point utama aplikasi.
 - File session lokal dibuat otomatis saat login berhasil.
@@ -377,7 +379,7 @@ launcher.py -> check session
 
 ---
 
-## Contact
+## Kontak
 
 **Stephanus Kevin Andika Rata**  
 Magang Lab Elektronika DTEDI 2025  
@@ -389,16 +391,16 @@ Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
 
 ---
 
-## License & Copyright
+## Lisensi & Hak Cipta
 
 Copyright 2025 **Stephanus Kevin Andika Rata**
 
-This project is developed as part of:
+Project ini dikembangkan sebagai bagian dari:
 - **Magang Lab Elektronika DTEDI 2025**
 - **Final Project / Tugas Akhir**
 - **Universitas Gadjah Mada**
 
-Usage terms:
-- For educational and research purposes
-- For laboratory and academic usage
-- Contact the author for commercial or redistribution requests
+Ketentuan penggunaan:
+- Untuk keperluan edukasi dan penelitian
+- Untuk penggunaan laboratorium dan akademik
+- Hubungi author untuk kebutuhan komersial atau redistribusi
