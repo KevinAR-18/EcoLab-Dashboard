@@ -13,10 +13,10 @@ from loginmain import LoginWindow
 from main import MainWindow
 
 # Import Session Manager
-from session_manager import SessionManager
+from auth.session_manager import SessionManager
 
 # Import Theme Helper for light theme
-from ui_theme_helper import get_light_theme_stylesheet
+from ui.ui_theme_helper import get_light_theme_stylesheet
 
 
 class AppLauncher(QObject):

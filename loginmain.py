@@ -14,22 +14,22 @@ from PySide6.QtGui import QScreen, QPixmap, QIcon
 import resources_rc
 
 # Import UI dan UIFunctions
-from ui_loginpage import Ui_MainWindow
-from ui_functions import UIFunctions
+from ui.ui_loginpage import Ui_MainWindow
+from ui.ui_functions import UIFunctions
 
 # Import Login Settings
-import login_settings
+from config import login_settings
 
 # Import Auth Service untuk Firebase
-from auth_service import TrialLoginService
+from auth.auth_service import TrialLoginService
 
 # Import Session Manager untuk remember me
-from session_manager import SessionManager
+from auth.session_manager import SessionManager
 
 # Import Role Selection Dialog dan Admin Window
-from ui_role_selection import RoleSelectionDialog
-from admin_window import AdminPanelWindow
-from ui_theme_helper import (
+from ui.ui_role_selection import RoleSelectionDialog
+from dialogs.admin_window import AdminPanelWindow
+from ui.ui_theme_helper import (
     apply_light_theme_to_widget,
     show_styled_critical,
     show_styled_information,

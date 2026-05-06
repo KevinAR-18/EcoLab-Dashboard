@@ -18,20 +18,12 @@ from google.auth.transport.requests import Request
 from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 
-try:
-    from .firebase_settings import (
-        CLIENT_SECRET,
-        get_admin_service_account_path,
-        get_firebase_config,
-        get_firebase_project_id,
-    )
-except ImportError:
-    from firebase_settings import (
-        CLIENT_SECRET,
-        get_admin_service_account_path,
-        get_firebase_config,
-        get_firebase_project_id,
-    )
+from config.firebase_settings import (
+    CLIENT_SECRET,
+    get_admin_service_account_path,
+    get_firebase_config,
+    get_firebase_project_id,
+)
 
 
 class FirebaseAuthAdminClient:

@@ -12,8 +12,8 @@ from PySide6.QtWidgets import (
 )
 
 # Import Auth Service untuk Firebase
-from auth_service import TrialLoginService
-from ui_theme_helper import (
+from auth.auth_service import TrialLoginService
+from ui.ui_theme_helper import (
     apply_light_theme_to_widget,
     show_styled_critical,
     show_styled_information,
@@ -253,8 +253,8 @@ class AdminPanelWindow(QMainWindow):
         self.users_data = []  # Store user data for reference
 
         # Import admin panel UI
-        from ui_adminpanel import Ui_MainWindow as AdminPanelUI
-        from ui_functions import UIFunctions
+        from ui.ui_adminpanel import Ui_MainWindow as AdminPanelUI
+        from ui.ui_functions import UIFunctions
 
         self.ui = AdminPanelUI()
         self.ui.setupUi(self)

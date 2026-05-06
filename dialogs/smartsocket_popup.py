@@ -34,8 +34,8 @@ from PySide6.QtWidgets import (
     QProxyStyle,
     QStyle,
 )
-from ui_smartsocket_popup import Ui_SmartSocketPopup
-from ui_theme_helper import apply_light_theme_to_widget
+from ui.ui_smartsocket_popup import Ui_SmartSocketPopup
+from ui.ui_theme_helper import apply_light_theme_to_widget
 
 
 class _ComboArrowStyle(QProxyStyle):

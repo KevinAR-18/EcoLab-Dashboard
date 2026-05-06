@@ -20,11 +20,11 @@ def get_resource_path(relative_path):
     Contoh:
         # Development
         get_resource_path("images/logo.png")
-        → D:\Project\images\logo.png
+        -> D:\\Project\\images\\logo.png
 
         # PyInstaller (frozen)
         get_resource_path("images/logo.png")
-        → C:\Users\...\AppData\Local\Temp\_MEI12345\images\logo.png
+        -> C:\\Users\\...\\AppData\\Local\\Temp\\_MEI12345\\images\\logo.png
     """
     try:
         # PyInstaller creates temp folder & stores path in _MEIPASS

@@ -45,29 +45,29 @@ from PySide6.QtGui import (
 from PySide6.QtWidgets import *
 
 # Import UI hasil Qt Designer
-from ui_mainwindow import Ui_MainWindow
-from ui_functions import UIFunctions
+from ui.ui_mainwindow import Ui_MainWindow
+from ui.ui_functions import UIFunctions
 
 # Import Session Manager dan Auth Service untuk user features
-from session_manager import SessionManager
-from auth_service import TrialLoginService
+from auth.session_manager import SessionManager
+from auth.auth_service import TrialLoginService
 
 # Import Theme Helper untuk styled message boxes
-from ui_theme_helper import (
+from ui.ui_theme_helper import (
     show_styled_information,
     show_styled_warning,
     show_styled_critical,
     show_styled_question
 )
 
-from lamp_setup import LampSetup
-from switch_setup import SwitchSetup
-from ac_setup import ACSetup
-from arrow_setup import ArrowSetup
-from smartsocket_popup import SmartSocketPopup
-from smartsocket_setup import SmartSocketSetup
-from smartsocket_recorder import SmartSocketRecorder
-from smartsocket_settings_manager import SmartSocketSettingsManager
+from app.setup.lamp_setup import LampSetup
+from app.setup.switch_setup import SwitchSetup
+from app.setup.ac_setup import ACSetup
+from app.setup.arrow_setup import ArrowSetup
+from dialogs.smartsocket_popup import SmartSocketPopup
+from app.setup.smartsocket_setup import SmartSocketSetup
+from services.smartsocket_recorder import SmartSocketRecorder
+from services.smartsocket_settings_manager import SmartSocketSettingsManager
 
 from widgets.lamp_button import LampButton
 from backend.growatt_backend import GrowattBackend
@@ -1271,7 +1271,6 @@ class MainWindow(QMainWindow):
 
             # Update password via Firebase
             try:
-                from auth_service import TrialLoginService
                 auth_service = TrialLoginService()
 
                 result = auth_service.set_user_password(
@@ -1315,7 +1314,7 @@ class MainWindow(QMainWindow):
     def handle_open_admin_panel(self):
         """Handle tombol Admin Panel diklik"""
         try:
-            from admin_window import AdminPanelWindow
+            from dialogs.admin_window import AdminPanelWindow
 
             # Buka admin panel window
             self.admin_panel_window = AdminPanelWindow(self)

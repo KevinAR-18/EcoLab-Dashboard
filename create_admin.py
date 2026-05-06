@@ -2,7 +2,7 @@
 Script untuk membuat admin pertama kali di Firebase
 Run ini HANYA jika admin belum ada di Firebase
 """
-from auth_service import TrialLoginService
+from auth.auth_service import TrialLoginService
 
 def create_first_admin():
     """Buat admin pertama di Firebase"""
