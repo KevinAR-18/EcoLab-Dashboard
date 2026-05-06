@@ -29,6 +29,8 @@ Thumbs.db
 # =========================
 /*.csv
 /*.json
+/schedule_socket1.json
+/schedule_socket2.json
 
 # =========================
 # Qt / PySide
@@ -52,6 +54,10 @@ Modern_GUI_PyDracula_PySide6_or_PyQt6-master/
 /growatt_csv/
 /Penulisan TA/
 /.claude/
+/EcoLab Dashboard.spec
+/EcoLabDashboard.spec
+/installforgeecolab.ifp
+/acl.txt
 
 trialloginpage\client_secret.json
 trialloginpage/firebase_service_account.json
