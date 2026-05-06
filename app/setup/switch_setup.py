@@ -29,6 +29,7 @@ class SwitchSetup:
         main_window.switches = []
 
         for i, frame in enumerate(frames, start=1):
+            # Each Qt Designer placeholder frame gets one custom switch widget.
             layout = QVBoxLayout(frame)
             layout.setAlignment(Qt.AlignCenter)
             layout.setContentsMargins(0, 0, 0, 0)
@@ -43,6 +44,7 @@ class SwitchSetup:
             layout.addWidget(switch)
             main_window.switches.append(switch)
 
+            # The widget emits (index, state) so the main window can reuse one slot.
             switch.toggled.connect(
                 lambda idx, state: main_window.on_switch_toggled(idx, state)
             )

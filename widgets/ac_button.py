@@ -41,6 +41,7 @@ class ACButton(QWidget):
         self._color_timer.timeout.connect(self._update_color)
 
     def get_handle_pos(self):
+        """Expose the animated handle position as a Qt property."""
         return self._handle_pos
 
     def set_handle_pos(self, pos):
@@ -87,6 +88,7 @@ class ACButton(QWidget):
         self._anim_pos.start()
 
     def _update_color(self):
+        """Blend between on/off backgrounds while the handle animation is running."""
         self._anim_progress += 0.06
         if self._anim_progress >= 1.0:
             self._anim_progress = 1.0
@@ -100,6 +102,7 @@ class ACButton(QWidget):
         self.update()
 
     def paintEvent(self, event):
+        """Draw the rounded track and the circular handle."""
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 

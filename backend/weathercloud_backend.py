@@ -9,6 +9,7 @@ class WeatherCloudBackend:
     def __init__(self, device_id: str):
         self.device_id = device_id
         self.url = f"https://app.weathercloud.net/device/values/{device_id}"
+        # WeatherCloud expects a browser-like request for this public JSON endpoint.
         self.headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "

@@ -36,6 +36,7 @@ class LampButton(QWidget):
         self.setFixedSize(QSize(self._size, int(self._size * 1.4)))
 
     def getGlowOpacity(self):
+        """Expose the animated glow intensity as a Qt property."""
         return self._glow_alpha
 
     def setGlowOpacity(self, value):
@@ -80,6 +81,7 @@ class LampButton(QWidget):
         self.toggled.emit(state)
 
     def _startPulse(self):
+        """Keep a subtle breathing effect after the initial fade-in finishes."""
         if self._is_on:
             self._pulse_dir = 1
             self.pulse_timer.start()
@@ -96,6 +98,7 @@ class LampButton(QWidget):
         super().mousePressEvent(event)
 
     def paintEvent(self, event):
+        """Render the lamp body, glow layers, filament, and base."""
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 

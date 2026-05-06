@@ -2,6 +2,8 @@
 
 
 class MCUStatusBackend:
+    """Cache the latest heartbeat state for MCU-A and MCU-B."""
+
     TOPIC_MCU_A = "ecolab/mcuA/status"
     TOPIC_MCU_B = "ecolab/mcuB/status"
 

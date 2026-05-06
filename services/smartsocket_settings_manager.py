@@ -56,11 +56,13 @@ class SmartSocketSettingsManager:
             json.dump(payload, file, indent=4)
 
     def get_global_settings(self):
+        """Return settings shared by every Smart Socket popup instance."""
         data = self.load_data()
         global_settings = data.get("global", {})
         return global_settings if isinstance(global_settings, dict) else {}
 
     def update_global_settings(self, **settings):
+        """Merge one or more global popup settings into the stored payload."""
         data = self.load_data()
         global_settings = data.setdefault("global", {})
         for key, value in settings.items():
@@ -68,12 +70,14 @@ class SmartSocketSettingsManager:
         self.save_data(data)
 
     def get_socket_settings(self, socket_number):
+        """Return persisted settings for one socket number."""
         data = self.load_data()
         sockets = data.get("sockets", {})
         entry = sockets.get(str(socket_number), {})
         return entry if isinstance(entry, dict) else {}
 
     def update_socket_settings(self, socket_number, **settings):
+        """Merge one or more socket-specific settings into the stored payload."""
         data = self.load_data()
         sockets = data.setdefault("sockets", {})
         entry = sockets.setdefault(str(socket_number), {})

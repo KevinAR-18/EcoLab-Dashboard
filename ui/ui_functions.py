@@ -11,6 +11,8 @@ class UIFunctions:
         self.drag_pos = None
         self.is_maximized = False
         self.menu_expanded = False
+        # Keep a reference so the animation is not garbage-collected mid-transition.
+        self.animation = None
 
     def toggle_max_restore(self):
         """Toggle the current window between maximized and normal size."""

@@ -72,6 +72,7 @@ _load_dotenv()
 
 
 def get_firebase_config():
+    """Build the Firebase web config expected by Pyrebase."""
     config = {}
 
     for key, env_name in _FIREBASE_ENV_MAP.items():
@@ -89,6 +90,7 @@ def get_firebase_config():
 
 
 def get_firebase_project_id():
+    """Return the project id used by Firestore/Admin SDK flows."""
     project_id = os.getenv("ECOLAB_FIREBASE_PROJECT_ID", _FIREBASE_DEFAULTS["projectId"])
     if not project_id:
         raise RuntimeError(
@@ -98,6 +100,7 @@ def get_firebase_project_id():
 
 
 def get_firebase_web_api_key():
+    """Return the Firebase Web API key used by auth requests."""
     api_key = os.getenv("ECOLAB_FIREBASE_API_KEY", _FIREBASE_DEFAULTS["apiKey"])
     if not api_key:
         raise RuntimeError(
@@ -107,6 +110,7 @@ def get_firebase_web_api_key():
 
 
 def get_admin_service_account_path():
+    """Resolve the Admin SDK credential path with an optional env override."""
     configured_path = os.getenv("ECOLAB_FIREBASE_SERVICE_ACCOUNT")
     if configured_path:
         return Path(configured_path)

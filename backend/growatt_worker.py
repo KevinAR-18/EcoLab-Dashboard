@@ -2,10 +2,7 @@ from PySide6.QtCore import QThread, Signal
 
 
 class GrowattWorker(QThread):
-    """
-    Worker thread untuk Growatt
-    - Semua HTTP & API dipindah ke thread
-    """
+    """Run one Growatt fetch cycle outside the UI thread."""
 
     data_ready = Signal(dict)
     error = Signal(str)
@@ -16,6 +13,7 @@ class GrowattWorker(QThread):
         self._running = True
 
     def run(self):
+        """Fetch once and return the normalized payload through Qt signals."""
         try:
             if not self._running:
                 return
@@ -27,4 +25,5 @@ class GrowattWorker(QThread):
             self.error.emit(str(e))
 
     def stop(self):
+        """Mark the worker as cancelled before the next fetch starts."""
         self._running = False
