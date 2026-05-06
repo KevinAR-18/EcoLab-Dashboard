@@ -1,88 +1,88 @@
 # EcoLab Dashboard - Smart Laboratory Management System
 
-Dashboard EcoLab - Magang Lab Elektronika DTEDI 2025 x Tugas Akhir  
+EcoLab Dashboard - DTEDI Electronics Laboratory Internship 2025 x Final Project  
 **Author:** Stephanus Kevin Andika Rata
 
 ---
 
-## Gambaran Proyek
+## Project Overview
 
-EcoLab Dashboard adalah aplikasi **Smart Laboratory Management System** berbasis **PySide6 (Qt)** dan **Firebase Authentication** untuk memonitor dan mengontrol perangkat laboratorium secara real-time.
+EcoLab Dashboard is a **Smart Laboratory Management System** desktop application built with **PySide6 (Qt)** and **Firebase Authentication** to monitor and control laboratory devices in real time.
 
-Perangkat yang saat ini didukung:
+The system currently supports:
 - **EcoLab Power Monitoring (Growatt)**
 - **Smart Socket**
 - **Smart Lamp**
 - **Smart AC Control**
 - **Weather Station Monitoring**
-- **Monitoring sensor dan status perangkat laboratorium**
+- **Laboratory sensor and device status monitoring**
 
 ---
 
-## Fitur Utama
+## Main Features
 
-- **Firebase Authentication**: email/password, Google Sign-In, dan Guest Mode
-- **Role-based Access Control**: guest, user, dan admin
-- **Session Management**: dukungan "Remember Me"
-- **Admin Panel**: manajemen akun pengguna laboratorium
-- **Smart Socket Control**: relay, timer, schedule, dan monitoring energi
-- **Smart Socket Recording**: simpan data monitoring ke memori aplikasi
-- **Smart Socket Export**: export data per socket ke CSV
-- **Smart Socket Graph**: grafik monitoring per socket di popup kontrol
-- **EcoLab Power Monitoring**: monitoring data inverter Growatt pada page 1
-- **Weather Station Monitoring**: monitoring data cuaca laboratorium
+- **Firebase Authentication**: email/password, Google Sign-In, and Guest Mode
+- **Role-based Access Control**: guest, user, and admin
+- **Session Management**: remember-me support
+- **Admin Panel**: laboratory user account management
+- **Smart Socket Control**: relay, timer, schedule, and energy monitoring
+- **Smart Socket Recording**: store monitoring data in application memory
+- **Smart Socket Export**: export per-socket data to CSV
+- **Smart Socket Graph**: per-socket monitoring charts inside the control popup
+- **EcoLab Power Monitoring**: Growatt inverter monitoring on page 1
+- **Weather Station Monitoring**: laboratory weather data monitoring
 - **Smart Lamp Control**
 - **Smart AC Control**
-- **Windows 11 Dark Mode Handling**: light theme enforcement untuk widget penting
+- **Windows 11 Dark Mode Handling**: light theme enforcement for key widgets
 
 ---
 
-## Teknologi yang Digunakan
+## Technology Stack
 
 ### Frontend
 - **PySide6** (Qt6)
 - **Python** 3.10+
-- **PySide6.QtCharts** untuk grafik Smart Socket
+- **PySide6.QtCharts** for Smart Socket charts
 
 ### Backend / Services
 - **Firebase Authentication**
 - **Pyrebase4**
-- **MQTT** (`paho-mqtt`) untuk komunikasi perangkat IoT
-- **Growatt data integration** untuk monitoring inverter/page 1
-- **Weather data integration** untuk monitoring Weather Station
-- **Google Cloud / OAuth config** untuk login Google
+- **MQTT** (`paho-mqtt`) for IoT device communication
+- **Growatt data integration** for inverter monitoring on page 1
+- **Weather data integration** for Weather Station monitoring
+- **Google Cloud / OAuth config** for Google login
 
 ### Hardware
-- **Growatt Inverter** untuk EcoLab Power Monitoring
-- **ESP32-C3** untuk Smart Socket
-- **Wemos D1 Mini** untuk Smart Lamp dan Smart AC
-- **PZEM-004T v3.0** untuk monitoring energi Smart Socket
-- **DS1302 RTC** untuk timer/schedule Smart Socket
+- **Growatt Inverter** for EcoLab Power Monitoring
+- **ESP32-C3** for Smart Socket
+- **Wemos D1 Mini** for Smart Lamp and Smart AC
+- **PZEM-004T v3.0** for Smart Socket energy monitoring
+- **DS1302 RTC** for Smart Socket timer and schedule
 
 ---
 
-## Instalasi
+## Installation
 
-### Kebutuhan Awal
+### Prerequisites
 
 ```bash
 Python 3.10 or higher
 ```
 
-### Install dependensi
+### Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Setup Firebase
+### Firebase setup
 
-1. Buat project di Firebase Console.
-2. Enable Authentication untuk Email/Password dan Google Sign-In.
-3. Setup Firebase Realtime Database jika diperlukan oleh konfigurasi project.
-4. Buat file `credentials/firebase_config.json`.
+1. Create a project in Firebase Console.
+2. Enable Authentication for Email/Password and Google Sign-In.
+3. Set up Firebase Realtime Database if required by the project configuration.
+4. Provide the required runtime values through `.env` and the `credentials/` folder.
 
-Contoh:
+Example Firebase web config:
 
 ```json
 {
@@ -98,59 +98,59 @@ Contoh:
 
 ---
 
-## Penggunaan
+## Usage
 
-### Menjalankan aplikasi
+### Run the application
 
 ```bash
 python launcher.py
 ```
 
-### Opsi autentikasi
+### Authentication options
 
 1. **Email Login**  
-   Masuk dengan email dan password.
+   Sign in with email and password.
 2. **Google Sign-In**  
-   Login dengan akun Google.
+   Sign in with a Google account.
 3. **Guest Mode**  
-   Akses read-only tanpa kontrol perangkat.
+   Read-only access without device control.
 
-### Peran pengguna
+### User roles
 
 | Role | Access |
 |------|--------|
-| **Guest** | Monitoring only, tanpa kontrol perangkat |
-| **User** | Kontrol perangkat dan akses dashboard utama |
-| **Admin** | Semua fitur user + admin panel |
+| **Guest** | Monitoring only, without device control |
+| **User** | Device control and main dashboard access |
+| **Admin** | All user features plus the admin panel |
 
 ---
 
-## Update Smart Socket
+## Smart Socket Updates
 
-Fitur Smart Socket saat ini mencakup:
+The current Smart Socket feature set includes:
 
-- Kontrol relay ON/OFF per socket
-- Timer per socket
-- Schedule start/stop dengan mode **daily** dan **onetime**
-- Monitoring **Voltage, Current, Power, Energy, Frequency, PF**
-- Popup kontrol dengan tab **Control**, **Data**, dan **Graph**
-- Recording data monitoring per socket
-- Interval recording yang bisa diatur manual dari popup
-- Opsi **Follow Schedule** untuk otomatis mulai recording saat schedule aktif
-- **Autosave CSV** saat recording berbasis schedule selesai
-- Export CSV per socket
-- Grafik per socket dengan pilihan metric
-- Refresh tabel dan grafik hanya saat recording aktif
+- Per-socket relay ON/OFF control
+- Per-socket timer
+- Start/stop schedules with **daily** and **onetime** modes
+- Monitoring for **Voltage, Current, Power, Energy, Frequency, PF**
+- Control popup with **Control**, **Data**, and **Graph** tabs
+- Per-socket monitoring data recording
+- Configurable recording interval from the popup
+- **Follow Schedule** option to automatically start recording when a schedule becomes active
+- **Autosave CSV** when schedule-based recording ends
+- Per-socket CSV export
+- Per-socket charts with selectable metrics
+- Table and chart refresh only while recording is active
 
-Catatan implementasi:
-- Smart Socket simulator Python sudah diselaraskan dengan konsep firmware terbaru.
-- Firmware `smartsocket2.ino` sampai `smartsocket5.ino` sudah dibuat dari basis `smartsocket.ino` dengan topic MQTT yang disesuaikan.
+Implementation notes:
+- The Python Smart Socket simulator has been aligned with the latest firmware concept.
+- Firmware files from `smartsocket2.ino` to `smartsocket5.ino` were derived from `smartsocket.ino` with adjusted MQTT topics.
 
 ---
 
-## Struktur Proyek
+## Project Structure
 
-Struktur proyek saat ini setelah refactor adalah:
+The current project structure after refactoring is:
 
 ```text
 Aplikasi EcoLab -  New/
@@ -215,84 +215,84 @@ Aplikasi EcoLab -  New/
 
 ---
 
-## Gambaran Arsitektur
+## Architecture Overview
 
-### Alur Masuk
+### Entry Flow
 
-- `launcher.py` adalah entry point utama aplikasi.
-- File ini memuat session yang tersimpan melalui `auth/session_manager.py`.
-- Jika session valid, aplikasi langsung membuka dashboard utama.
-- Jika tidak ada session valid, aplikasi membuka `loginmain.py`.
+- `launcher.py` is the main application entry point.
+- It loads any saved session through `auth/session_manager.py`.
+- If a valid session exists, it opens the main dashboard.
+- Otherwise, it opens `loginmain.py`.
 
-### Lapisan Autentikasi
+### Authentication Layer
 
-- `auth/auth_service.py` menangani autentikasi Firebase dan data user.
-- `auth/session_manager.py` menyimpan file session lokal untuk fitur remember me.
-- `create_admin.py` adalah script helper untuk membuat akun admin pertama secara manual.
+- `auth/auth_service.py` handles Firebase authentication and user records.
+- `auth/session_manager.py` stores the local session file used by remember-me behavior.
+- `create_admin.py` is a helper script for manually creating the first admin account.
 
-### Lapisan Aplikasi Utama
+### Main Application Layer
 
-- `main.py` berisi window dashboard utama dan orkestrasi aplikasi tingkat atas.
-- `loginmain.py` menangani login, sign-up, lupa password, guest mode, dan alur pemilihan admin/dashboard.
-- `dialogs/admin_window.py` berisi panel admin.
-- `dialogs/smartsocket_popup.py` berisi popup kontrol dan monitoring Smart Socket yang lebih detail.
+- `main.py` contains the main dashboard window and top-level application orchestration.
+- `loginmain.py` handles login, sign-up, forgot password, guest mode, and the admin/dashboard selection flow.
+- `dialogs/admin_window.py` contains the admin panel.
+- `dialogs/smartsocket_popup.py` contains the detailed Smart Socket control and monitoring popup.
 
-### Helper Setup
+### Setup Helpers
 
-Modul `app/setup/` adalah helper tipis untuk wiring UI:
+The `app/setup/` modules are thin UI wiring helpers:
 
-- `lamp_setup.py` membuat dan menghubungkan custom lamp button.
-- `switch_setup.py` membuat dan menghubungkan tombol Smart Socket.
-- `ac_setup.py` membuat dan menghubungkan custom AC button.
-- `arrow_setup.py` membuat dan menyimpan flow arrow.
-- `smartsocket_setup.py` menghubungkan signal backend Smart Socket ke main window.
+- `lamp_setup.py` creates and connects custom lamp buttons
+- `switch_setup.py` creates and connects Smart Socket switch buttons
+- `ac_setup.py` creates and connects the custom AC button
+- `arrow_setup.py` creates and stores flow arrows
+- `smartsocket_setup.py` connects Smart Socket backend signals to the main window
 
-### Lapisan Backend
+### Backend Layer
 
-Folder `backend/` berisi modul service dan integrasi:
+The `backend/` folder contains service and integration modules:
 
-- `mqtt_client.py` mengelola koneksi MQTT bersama.
-- `mqtt_dht22_backend.py` menyimpan dan memfilter pesan sensor DHT22.
-- `mcu_status_backend.py` melacak status online/offline MCU.
-- `smartsocket_backend.py` menangani topic MQTT untuk semua device Smart Socket.
-- `lampbutton_backend.py` dan `acbutton_backend.py` mengirim command kontrol.
-- `growatt_backend.py` mengambil data inverter.
-- `growatt_worker.py` menjalankan pengambilan data Growatt di luar UI thread.
-- `weathercloud_backend.py` mengambil data weather station.
+- `mqtt_client.py` manages the shared MQTT connection
+- `mqtt_dht22_backend.py` stores and filters DHT22 sensor messages
+- `mcu_status_backend.py` tracks MCU online/offline state
+- `smartsocket_backend.py` handles MQTT topics for all Smart Socket devices
+- `lampbutton_backend.py` and `acbutton_backend.py` send control commands
+- `growatt_backend.py` fetches inverter data
+- `growatt_worker.py` runs Growatt fetches outside the UI thread
+- `weathercloud_backend.py` fetches weather station data
 
-### Lapisan UI dan Widget
+### UI and Widget Layer
 
-- `ui/` berisi helper code serta modul Python hasil generate dari file `.ui` Qt Designer.
-- `widgets/` berisi custom widget buatan manual yang dipakai di dashboard.
-- `resources_rc.py` berisi binding Qt resource yang sudah dikompilasi.
+- `ui/` contains helper code and generated Python modules from Qt Designer `.ui` files
+- `widgets/` contains handwritten custom widgets used by the dashboard
+- `resources_rc.py` contains the compiled Qt resource bindings
 
 ---
 
 ## Hardware TA
 
-Folder `hardware_TA/` berisi firmware dan simulator yang digunakan untuk pengembangan serta pengujian integrasi perangkat laboratorium.
+The `hardware_TA/` folder contains firmware and simulators used for development and device integration testing.
 
 ### Arduino / firmware
 
-1. **smartsocket.ino** - Firmware Smart Socket 1 berbasis MQTT
-2. **smartsocket2.ino** - Firmware Smart Socket 2 berbasis MQTT
-3. **smartsocket3.ino** - Firmware Smart Socket 3 berbasis MQTT
-4. **smartsocket4.ino** - Firmware Smart Socket 4 berbasis MQTT
-5. **smartsocket5.ino** - Firmware Smart Socket 5 berbasis MQTT
-6. **smartlampcontrol.ino** - Firmware Smart Lamp
-7. **smartaccontrol.ino** - Firmware Smart AC Control
+1. **smartsocket.ino** - Smart Socket 1 firmware based on MQTT
+2. **smartsocket2.ino** - Smart Socket 2 firmware based on MQTT
+3. **smartsocket3.ino** - Smart Socket 3 firmware based on MQTT
+4. **smartsocket4.ino** - Smart Socket 4 firmware based on MQTT
+5. **smartsocket5.ino** - Smart Socket 5 firmware based on MQTT
+6. **smartlampcontrol.ino** - Smart Lamp firmware
+7. **smartaccontrol.ino** - Smart AC Control firmware
 
 ### Python simulators
 
-1. **smartsocket_simulator.py** - Simulator Smart Socket 1
-2. **smartsocket2_simulator.py** - Simulator Smart Socket 2
-3. **smartsocket3_simulator.py** - Simulator Smart Socket 3
-4. **smartsocket4_simulator.py** - Simulator Smart Socket 4
-5. **smartsocket5_simulator.py** - Simulator Smart Socket 5
-6. **mcua_simulator.py** - Simulator MCU-A
-7. **mcub_simulator.py** - Simulator MCU-B
+1. **smartsocket_simulator.py** - Smart Socket 1 simulator
+2. **smartsocket2_simulator.py** - Smart Socket 2 simulator
+3. **smartsocket3_simulator.py** - Smart Socket 3 simulator
+4. **smartsocket4_simulator.py** - Smart Socket 4 simulator
+5. **smartsocket5_simulator.py** - Smart Socket 5 simulator
+6. **mcua_simulator.py** - MCU-A simulator
+7. **mcub_simulator.py** - MCU-B simulator
 
-### Contoh menjalankan simulator
+### Example: run a simulator
 
 ```bash
 cd hardware_TA
@@ -301,62 +301,62 @@ python smartsocket_simulator.py
 
 ---
 
-## Detail Fitur
+## Feature Details
 
-### Manajemen session
+### Session management
 
-- Simpan sesi login
-- Dukungan remember me
-- Auto login jika sesi masih valid
-- Logout dari aplikasi
+- Save login sessions
+- Remember-me support
+- Auto-login when the session is still valid
+- Application logout
 
-### Panel admin
+### Admin panel
 
-- Lihat daftar user
-- Approve akun
-- Update role user/admin
-- Block/unblock akun
-- Update password user non-Google
-- Delete akun
+- View user list
+- Approve accounts
+- Update user/admin roles
+- Block/unblock accounts
+- Update passwords for non-Google users
+- Delete accounts
 
 ### Smart Socket
 
-- Monitoring status perangkat
-- Kontrol relay
-- Timer countdown
-- Schedule otomatis
-- Monitoring energi real-time
-- Data recording, export CSV, dan grafik
+- Device status monitoring
+- Relay control
+- Countdown timer
+- Automatic scheduling
+- Real-time energy monitoring
+- Data recording, CSV export, and charts
 
 ### Smart Lamp
 
-- Kontrol lampu laboratorium
+- Laboratory lamp control
 - MQTT-based switching
-- Mendukung kontrol beberapa kanal lampu di page control room
-- Dikembangkan bersama **Ilham Purnomo**
+- Supports multiple lamp channels in the control room page
+- Developed together with **Ilham Purnomo**
 
 ### Smart AC
 
-- Kontrol AC berbasis IR
-- Mode pendingin dan fan
-- Pengaturan suhu
-- Dikembangkan bersama **Ilham Purnomo**
+- IR-based AC control
+- Cooling and fan modes
+- Temperature settings
+- Developed together with **Ilham Purnomo**
 
 ### EcoLab Power Monitoring
 
-- Menampilkan data **Growatt inverter** pada page 1
-- Ringkasan dan live monitoring daya EcoLab
-- Menjadi halaman utama monitoring energi laboratorium
+- Displays **Growatt inverter** data on page 1
+- EcoLab power summary and live monitoring
+- Serves as the main laboratory energy monitoring page
 
 ### Weather Station Monitoring
 
-- Menampilkan data cuaca/stasiun cuaca laboratorium
-- Monitoring sensor lingkungan pada dashboard
-- Terintegrasi ke halaman monitoring untuk pemantauan kondisi sekitar
+- Displays laboratory weather station data
+- Environmental sensor monitoring on the dashboard
+- Integrated into the monitoring page for surrounding condition tracking
 
 ---
 
-## Alur Autentikasi
+## Authentication Flow
 
 ```text
 launcher.py -> check session
@@ -369,38 +369,38 @@ launcher.py -> check session
 
 ---
 
-## Catatan
+## Notes
 
-- Gunakan `launcher.py` sebagai entry point utama aplikasi.
-- File session lokal dibuat otomatis saat login berhasil.
-- File credential Firebase tidak di-include di repo.
-- Beberapa widget penting sudah dipaksa ke light theme untuk menghindari masalah warna teks di Windows 11 dark mode.
-- Firmware Smart Socket MQTT sekarang tidak lagi menyimpan isi sertifikat CA langsung di file `.ino`.
+- Use `launcher.py` as the main application entry point.
+- The local session file is created automatically after a successful login.
+- Firebase credential files are not included in the repository.
+- Several key widgets are forced into a light theme to avoid text color issues on Windows 11 dark mode.
+- Smart Socket MQTT firmware no longer stores the CA certificate contents directly inside the `.ino` files.
 
 ---
 
-## Kontak
+## Contact
 
 **Stephanus Kevin Andika Rata**  
-Magang Lab Elektronika DTEDI 2025  
-Tugas Akhir - EcoLab Smart Laboratory  
-Laboratorium Elektronika DTEDI  
+DTEDI Electronics Laboratory Internship 2025  
+Final Project - EcoLab Smart Laboratory  
+DTEDI Electronics Laboratory  
 Universitas Gadjah Mada
 
 Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
 
 ---
 
-## Lisensi & Hak Cipta
+## License & Copyright
 
 Copyright 2025 **Stephanus Kevin Andika Rata**
 
-Project ini dikembangkan sebagai bagian dari:
-- **Magang Lab Elektronika DTEDI 2025**
+This project is developed as part of:
+- **DTEDI Electronics Laboratory Internship 2025**
 - **Final Project / Tugas Akhir**
 - **Universitas Gadjah Mada**
 
-Ketentuan penggunaan:
-- Untuk keperluan edukasi dan penelitian
-- Untuk penggunaan laboratorium dan akademik
-- Hubungi author untuk kebutuhan komersial atau redistribusi
+Usage terms:
+- For educational and research purposes
+- For laboratory and academic usage
+- Contact the author for commercial or redistribution requests
