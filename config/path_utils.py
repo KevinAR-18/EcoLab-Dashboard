@@ -7,6 +7,13 @@ import sys
 from pathlib import Path
 
 
+def _project_root():
+    """Return the application root for dev mode or the executable dir when frozen."""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).parent
+    return Path(__file__).resolve().parent.parent
+
+
 def get_resource_path(relative_path):
     """
     Get absolute path ke resource file
@@ -30,8 +37,8 @@ def get_resource_path(relative_path):
         # PyInstaller creates temp folder & stores path in _MEIPASS
         base_path = sys._MEIPASS
     except AttributeError:
-        # Development mode: gunakan script directory
-        base_path = os.path.abspath(".")
+        # Development mode: gunakan project root
+        base_path = str(_project_root())
 
     return os.path.join(base_path, relative_path)
 
@@ -46,7 +53,7 @@ def get_base_path():
     try:
         return sys._MEIPASS
     except AttributeError:
-        return os.path.abspath(".")
+        return str(_project_root())
 
 
 def get_credentials_path(filename):
@@ -69,7 +76,7 @@ def get_credentials_path(filename):
         return os.path.join(exe_dir, "credentials", filename)
     else:
         # Development mode: credentials di project folder
-        return os.path.join(os.path.abspath("."), "credentials", filename)
+        return os.path.join(str(_project_root()), "credentials", filename)
 
 
 def get_images_path(filename):

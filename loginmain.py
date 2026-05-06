@@ -36,6 +36,7 @@ from ui.ui_theme_helper import (
     show_styled_question,
     show_styled_warning,
 )
+from config.path_utils import resource_path
 
 
 class LoginWindow(QMainWindow):
@@ -67,7 +68,7 @@ class LoginWindow(QMainWindow):
         self.setWindowTitle("EcoLab Login")
 
         # Set window icon
-        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        pixmap = QPixmap(resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.setWindowIcon(icon)
         apply_light_theme_to_widget(self)
@@ -644,14 +645,6 @@ class LoginWindow(QMainWindow):
                     return True  # Event ditangani
 
         return False  # Biarkan event diproses secara default
-
-    def resource_path(self, relative_path):
-        """ Mengonversi path relatif menjadi path absolut.
-        Berguna untuk memastikan file dapat ditemukan dari
-        direktori aplikasi saat ini.
-        """
-        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
-        return os.path.join(base_path, relative_path)
 
     def show_message_box(self, icon_type, title, text):
         """

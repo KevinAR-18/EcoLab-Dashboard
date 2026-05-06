@@ -19,7 +19,7 @@ class SmartSocketSettingsManager:
             if getattr(sys, "frozen", False):
                 base_dir = Path.home() / ".ecolab_dashboard"
             else:
-                base_dir = Path(__file__).parent / ".ecolab_dashboard"
+                base_dir = Path(__file__).resolve().parent.parent / ".ecolab_dashboard"
             settings_dir = base_dir
 
         settings_dir.mkdir(parents=True, exist_ok=True)

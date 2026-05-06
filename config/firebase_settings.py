@@ -14,10 +14,9 @@ def _get_base_dir():
         # Running dari EXE - gunakan folder yang sama dengan EXE
         base_dir = Path(sys.executable).parent
     else:
-        # Running dari script - gunakan project folder
-        base_dir = Path(__file__).resolve().parent
+        # Running dari script - gunakan project root
+        base_dir = Path(__file__).resolve().parent.parent
 
-    print(f"DEBUG: Base directory: {base_dir}")
     return base_dir
 
 

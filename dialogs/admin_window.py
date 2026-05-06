@@ -20,6 +20,7 @@ from ui.ui_theme_helper import (
     show_styled_question,
     show_styled_warning,
 )
+from config.path_utils import resource_path
 
 # ============================================================
 # PRIMARY ADMIN EMAIL
@@ -279,7 +280,7 @@ class AdminPanelWindow(QMainWindow):
         self.setWindowTitle("EcoLab Admin Panel")
 
         # Mengatur Icon Aplikasi
-        pixmap = QPixmap(self.resource_path("icon\\logoecolab.ico"))
+        pixmap = QPixmap(resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.setWindowIcon(icon)
         apply_light_theme_to_widget(self)
@@ -802,10 +803,3 @@ class AdminPanelWindow(QMainWindow):
                 # Ini sudah di dashboard utama (MainWindow) - langsung show saja
                 self.login_window.show()
 
-    def resource_path(self, relative_path):
-        """ Mengonversi path relatif menjadi path absolut.
-        Berguna untuk memastikan file dapat ditemukan dari
-        direktori aplikasi saat ini.
-        """
-        base_path = os.path.abspath(".")  # Mengatur ke directory saat ini.
-        return os.path.join(base_path, relative_path)

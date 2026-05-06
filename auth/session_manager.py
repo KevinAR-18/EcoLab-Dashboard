@@ -33,7 +33,7 @@ class SessionManager:
             if getattr(sys, 'frozen', False):
                 base_dir = Path.home() / ".ecolab_dashboard"
             else:
-                base_dir = Path(__file__).parent / ".ecolab_dashboard"
+                base_dir = Path(__file__).resolve().parent.parent / ".ecolab_dashboard"
             session_dir = base_dir
 
         session_dir.mkdir(parents=True, exist_ok=True)

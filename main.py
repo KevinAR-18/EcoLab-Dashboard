@@ -6,36 +6,6 @@ from PySide6.QtCore import (
 )
 
 
-# ============================================================
-# PATH RESOLUTION UTILITY (PyInstaller Compatible)
-# ============================================================
-def get_resource_path(relative_path):
-    """
-    Get absolute path ke resource file.
-    Works in both development mode and PyInstaller frozen executable.
-    """
-    try:
-        # PyInstaller creates temp folder & stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except AttributeError:
-        # Development mode: gunakan script directory
-        base_path = os.path.abspath(".")
-    return os.path.join(base_path, relative_path)
-
-
-def get_credentials_path(filename):
-    """
-    Get path ke credentials folder.
-    Credentials TIDAK di-bundle di .exe, jadi selalu ambil dari folder eksternal.
-    """
-    if getattr(sys, 'frozen', False):
-        # Frozen mode: credentials di sebelah .exe
-        exe_dir = os.path.dirname(sys.executable)
-        return os.path.join(exe_dir, "credentials", filename)
-    else:
-        # Development mode: credentials di project folder
-        return os.path.join(os.path.abspath("."), "credentials", filename)
-
 from PySide6.QtGui import (
     QBrush, QColor, QConicalGradient, QCursor, QFont, QFontDatabase,
     QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
@@ -52,6 +22,7 @@ from ui.ui_functions import UIFunctions
 from auth.session_manager import SessionManager
 from auth.auth_service import FirebaseAuthService
 from config.firebase_settings import get_env, get_env_bool, get_required_env
+from config.path_utils import get_credentials_path, get_resource_path
 
 # Import Theme Helper untuk styled message boxes
 from ui.ui_theme_helper import (
