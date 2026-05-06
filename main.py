@@ -50,7 +50,7 @@ from ui.ui_functions import UIFunctions
 
 # Import Session Manager dan Auth Service untuk user features
 from auth.session_manager import SessionManager
-from auth.auth_service import TrialLoginService
+from auth.auth_service import FirebaseAuthService
 
 # Import Theme Helper untuk styled message boxes
 from ui.ui_theme_helper import (
@@ -1271,7 +1271,7 @@ class MainWindow(QMainWindow):
 
             # Update password via Firebase
             try:
-                auth_service = TrialLoginService()
+                auth_service = FirebaseAuthService()
 
                 result = auth_service.set_user_password(
                     self.user_session["uid"],

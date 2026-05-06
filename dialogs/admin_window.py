@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 # Import Auth Service untuk Firebase
-from auth.auth_service import TrialLoginService
+from auth.auth_service import FirebaseAuthService
 from ui.ui_theme_helper import (
     apply_light_theme_to_widget,
     show_styled_critical,
@@ -309,7 +309,7 @@ class AdminPanelWindow(QMainWindow):
         self.date_helper = Date()
 
         # Setup Firebase Auth Service
-        self.auth_service = TrialLoginService()
+        self.auth_service = FirebaseAuthService()
 
         # Setup tabel
         self.setup_table()

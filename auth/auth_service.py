@@ -70,7 +70,7 @@ class FirebaseAuthAdminClient:
         return self._credentials
 
 
-class TrialLoginService:
+class FirebaseAuthService:
     def __init__(self):
         firebase_config = get_firebase_config()
         firebase = pyrebase.initialize_app(firebase_config)

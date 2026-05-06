@@ -21,7 +21,7 @@ from ui.ui_functions import UIFunctions
 from config import login_settings
 
 # Import Auth Service untuk Firebase
-from auth.auth_service import TrialLoginService
+from auth.auth_service import FirebaseAuthService
 
 # Import Session Manager untuk remember me
 from auth.session_manager import SessionManager
@@ -50,7 +50,7 @@ class LoginWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # SETUP AUTH SERVICE
-        self.auth_service = TrialLoginService()
+        self.auth_service = FirebaseAuthService()
 
         # SETUP SESSION MANAGER
         self.session_manager = SessionManager()

@@ -12,6 +12,7 @@ __pycache__/
 .venv/
 venv/
 env/
+.env
 
 # =========================
 # VS Code
@@ -70,6 +71,7 @@ trialloginpage/client_secret.json
 credentials/client_secret.json
 credentials/firebase_service_account.json
 credentials/*.old
+.env
 
 # MQTT TLS certificates
 credentials/ca.crt

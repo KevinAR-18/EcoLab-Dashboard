@@ -24,38 +24,52 @@ def _get_base_dir():
 BASE_DIR = _get_base_dir()
 CREDENTIALS_DIR = BASE_DIR / "credentials"
 CLIENT_SECRET = CREDENTIALS_DIR / "client_secret.json"
+ENV_FILE = BASE_DIR / ".env"
 
 _FIREBASE_DEFAULTS = {
-    "apiKey": "AIzaSyCK8_r_Vyl7quiqv8kq_5f-FJB0Gkhb6Ec",
-    "authDomain": "ecolab-dashboard.firebaseapp.com",
-    "databaseURL": "https://ecolab-dashboard-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "projectId": "ecolab-dashboard",
-    "storageBucket": "ecolab-dashboard.firebasestorage.app",
-    "messagingSenderId": "327361095666",
-    "appId": "1:327361095666:web:5448ff5c2a73c18771ad6b",
+    "apiKey": "",
+    "authDomain": "",
+    "databaseURL": "",
+    "projectId": "",
+    "storageBucket": "",
+    "messagingSenderId": "",
+    "appId": "",
 }
 
-# _FIREBASE_DEFAULTS = {
-#     "apiKey": "AIzaSyDkca9-2rrP1_wetueUq-TbX-HTCrA_sCw",
-#     "authDomain": "cobaloginpage.firebaseapp.com",
-#     "databaseURL": "https://cobaloginpage-default-rtdb.asia-southeast1.firebasedatabase.app",
-#     "projectId": "cobaloginpage",
-#     "storageBucket": "cobaloginpage.firebasestorage.app",
-#     "messagingSenderId": "204601095466",
-#     "appId": "1:204601095466:web:556f5b16bc20eccb679a53",
-# }
-
 _FIREBASE_ENV_MAP = {
-    "apiKey": "TRIALLOGIN_FIREBASE_API_KEY",
-    "authDomain": "TRIALLOGIN_FIREBASE_AUTH_DOMAIN",
-    "databaseURL": "TRIALLOGIN_FIREBASE_DATABASE_URL",
-    "projectId": "TRIALLOGIN_FIREBASE_PROJECT_ID",
-    "storageBucket": "TRIALLOGIN_FIREBASE_STORAGE_BUCKET",
-    "messagingSenderId": "TRIALLOGIN_FIREBASE_MESSAGING_SENDER_ID",
-    "appId": "TRIALLOGIN_FIREBASE_APP_ID",
+    "apiKey": "ECOLAB_FIREBASE_API_KEY",
+    "authDomain": "ECOLAB_FIREBASE_AUTH_DOMAIN",
+    "databaseURL": "ECOLAB_FIREBASE_DATABASE_URL",
+    "projectId": "ECOLAB_FIREBASE_PROJECT_ID",
+    "storageBucket": "ECOLAB_FIREBASE_STORAGE_BUCKET",
+    "messagingSenderId": "ECOLAB_FIREBASE_MESSAGING_SENDER_ID",
+    "appId": "ECOLAB_FIREBASE_APP_ID",
 }
 
 _DEFAULT_ADMIN_SERVICE_ACCOUNT = CREDENTIALS_DIR / "firebase_service_account.json"
+
+
+def _load_dotenv():
+    """Load simple KEY=VALUE pairs from a local .env file."""
+    if not ENV_FILE.is_file():
+        return
+
+    try:
+        for raw_line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = value
+    except OSError:
+        pass
+
+
+_load_dotenv()
 
 
 def get_firebase_config():
@@ -64,19 +78,37 @@ def get_firebase_config():
     for key, env_name in _FIREBASE_ENV_MAP.items():
         config[key] = os.getenv(env_name, _FIREBASE_DEFAULTS[key])
 
+    missing_keys = [key for key, value in config.items() if not value]
+    if missing_keys:
+        missing_envs = ", ".join(_FIREBASE_ENV_MAP[key] for key in missing_keys)
+        raise RuntimeError(
+            "Firebase config is incomplete. Set these environment variables: "
+            f"{missing_envs}"
+        )
+
     return config
 
 
 def get_firebase_project_id():
-    return os.getenv("TRIALLOGIN_FIREBASE_PROJECT_ID", _FIREBASE_DEFAULTS["projectId"])
+    project_id = os.getenv("ECOLAB_FIREBASE_PROJECT_ID", _FIREBASE_DEFAULTS["projectId"])
+    if not project_id:
+        raise RuntimeError(
+            "Firebase project ID is missing. Set ECOLAB_FIREBASE_PROJECT_ID."
+        )
+    return project_id
 
 
 def get_firebase_web_api_key():
-    return os.getenv("TRIALLOGIN_FIREBASE_API_KEY", _FIREBASE_DEFAULTS["apiKey"])
+    api_key = os.getenv("ECOLAB_FIREBASE_API_KEY", _FIREBASE_DEFAULTS["apiKey"])
+    if not api_key:
+        raise RuntimeError(
+            "Firebase web API key is missing. Set ECOLAB_FIREBASE_API_KEY."
+        )
+    return api_key
 
 
 def get_admin_service_account_path():
-    configured_path = os.getenv("TRIALLOGIN_FIREBASE_SERVICE_ACCOUNT")
+    configured_path = os.getenv("ECOLAB_FIREBASE_SERVICE_ACCOUNT")
     if configured_path:
         return Path(configured_path)
 
