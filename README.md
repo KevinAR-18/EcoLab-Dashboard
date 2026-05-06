@@ -150,7 +150,7 @@ Catatan implementasi:
 
 ## Project Structure
 
-The current project structure after refactoring is:
+Struktur project saat ini setelah refactor adalah:
 
 ```text
 Aplikasi EcoLab -  New/
@@ -215,56 +215,56 @@ Aplikasi EcoLab -  New/
 
 ---
 
-## Architecture Overview
+## Gambaran Arsitektur
 
-### Entry Flow
+### Alur Masuk
 
-- `launcher.py` is the main entry point.
-- It loads any saved session through `auth/session_manager.py`.
-- If a valid session exists, it opens the main dashboard.
-- Otherwise, it opens `loginmain.py`.
+- `launcher.py` adalah entry point utama aplikasi.
+- File ini memuat session yang tersimpan melalui `auth/session_manager.py`.
+- Jika session valid, aplikasi langsung membuka dashboard utama.
+- Jika tidak ada session valid, aplikasi membuka `loginmain.py`.
 
-### Authentication Layer
+### Lapisan Autentikasi
 
-- `auth/auth_service.py` handles Firebase authentication and user records.
-- `auth/session_manager.py` stores the local session file used by remember-me behavior.
-- `create_admin.py` is a helper script for creating the first admin account manually.
+- `auth/auth_service.py` menangani autentikasi Firebase dan data user.
+- `auth/session_manager.py` menyimpan file session lokal untuk fitur remember me.
+- `create_admin.py` adalah script helper untuk membuat akun admin pertama secara manual.
 
-### Main Application Layer
+### Lapisan Aplikasi Utama
 
-- `main.py` contains the main dashboard window and the top-level application orchestration.
-- `loginmain.py` handles login, sign-up, forgot password, guest mode, and the admin/dash selection flow.
-- `dialogs/admin_window.py` contains the admin panel.
-- `dialogs/smartsocket_popup.py` contains the detailed Smart Socket control and monitoring popup.
+- `main.py` berisi window dashboard utama dan orkestrasi aplikasi tingkat atas.
+- `loginmain.py` menangani login, sign-up, lupa password, guest mode, dan alur pemilihan admin/dashboard.
+- `dialogs/admin_window.py` berisi panel admin.
+- `dialogs/smartsocket_popup.py` berisi popup kontrol dan monitoring Smart Socket yang lebih detail.
 
-### Setup Helpers
+### Helper Setup
 
-The `app/setup/` modules are thin UI wiring helpers:
+Modul `app/setup/` adalah helper tipis untuk wiring UI:
 
-- `lamp_setup.py` creates and connects custom lamp buttons
-- `switch_setup.py` creates and connects Smart Socket switch buttons
-- `ac_setup.py` creates and connects the custom AC button
-- `arrow_setup.py` creates and stores flow arrows
-- `smartsocket_setup.py` connects Smart Socket backend signals to the main window
+- `lamp_setup.py` membuat dan menghubungkan custom lamp button.
+- `switch_setup.py` membuat dan menghubungkan tombol Smart Socket.
+- `ac_setup.py` membuat dan menghubungkan custom AC button.
+- `arrow_setup.py` membuat dan menyimpan flow arrow.
+- `smartsocket_setup.py` menghubungkan signal backend Smart Socket ke main window.
 
-### Backend Layer
+### Lapisan Backend
 
-The `backend/` folder contains service and integration modules:
+Folder `backend/` berisi modul service dan integrasi:
 
-- `mqtt_client.py` manages the shared MQTT connection
-- `mqtt_dht22_backend.py` stores and filters DHT22 sensor messages
-- `mcu_status_backend.py` tracks MCU online/offline state
-- `smartsocket_backend.py` handles MQTT topics for all Smart Socket devices
-- `lampbutton_backend.py` and `acbutton_backend.py` send control commands
-- `growatt_backend.py` fetches inverter data
-- `growatt_worker.py` runs Growatt fetches outside the UI thread
-- `weathercloud_backend.py` fetches weather station data
+- `mqtt_client.py` mengelola koneksi MQTT bersama.
+- `mqtt_dht22_backend.py` menyimpan dan memfilter pesan sensor DHT22.
+- `mcu_status_backend.py` melacak status online/offline MCU.
+- `smartsocket_backend.py` menangani topic MQTT untuk semua device Smart Socket.
+- `lampbutton_backend.py` dan `acbutton_backend.py` mengirim command kontrol.
+- `growatt_backend.py` mengambil data inverter.
+- `growatt_worker.py` menjalankan pengambilan data Growatt di luar UI thread.
+- `weathercloud_backend.py` mengambil data weather station.
 
-### UI and Widget Layer
+### Lapisan UI dan Widget
 
-- `ui/` contains helper code plus generated Python modules from Qt Designer `.ui` files
-- `widgets/` contains handwritten custom widgets used by the dashboard
-- `resources_rc.py` contains the compiled Qt resource bindings
+- `ui/` berisi helper code serta modul Python hasil generate dari file `.ui` Qt Designer.
+- `widgets/` berisi custom widget buatan manual yang dipakai di dashboard.
+- `resources_rc.py` berisi binding Qt resource yang sudah dikompilasi.
 
 ---
 
