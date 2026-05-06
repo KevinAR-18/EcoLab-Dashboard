@@ -1,3 +1,5 @@
+"""Widget panah animatif untuk menampilkan arah flow energi di dashboard."""
+
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, QTimer, QPoint
 from PySide6.QtGui import QPainter, QColor, QPolygon
@@ -5,11 +7,13 @@ from PySide6.QtGui import QPainter, QColor, QPolygon
 
 class FlowArrow(QWidget):
     """
-    Flow Arrow Cascade Widget
-    direction: 'up', 'down', 'left', 'right'
+    Widget panah berantai untuk visualisasi flow energi.
+
+    Parameter `direction` mendukung nilai `'up'`, `'down'`, `'left'`, dan `'right'`.
     """
 
     def __init__(self, parent=None, direction="right", count=5):
+        """Menyiapkan arah panah, jumlah segmen, dan timer animasinya."""
         super().__init__(parent)
 
         self.direction = direction
@@ -29,8 +33,9 @@ class FlowArrow(QWidget):
         self.timer.setInterval(120)
         self.timer.timeout.connect(self.animate)
 
-    # ================= CONTROL =================
+    # ================= KONTROL =================
     def set_active(self, state: bool):
+        """Mengaktifkan atau menonaktifkan animasi flow panah."""
         if self.active == state:
             return
 
@@ -46,6 +51,7 @@ class FlowArrow(QWidget):
             self.update()
 
     def animate(self):
+        """Menggerakkan siklus grow/fade untuk animasi panah."""
         if self.state == "grow":
             self.step += 1
             if self.step >= self.count:
@@ -60,12 +66,13 @@ class FlowArrow(QWidget):
 
         self.update()
 
-    # ================= PAINT =================
+    # ================= GAMBAR =================
     def paintEvent(self, event):
+        """Menggambar semua segmen panah berdasarkan arah dan state aktif."""
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 
-        active_color = QColor("#032277")     # hijau jelas
+        active_color = QColor("#032277")     # warna aktif
         inactive_color = QColor(200, 200, 200)
 
         w, h = self.width(), self.height()
@@ -102,6 +109,7 @@ class FlowArrow(QWidget):
             p.drawPolygon(self.make_triangle(x, y, size))
 
     def make_triangle(self, x, y, s):
+        """Membuat polygon segitiga kecil sesuai arah panah saat ini."""
         if self.direction == "right":
             return QPolygon([
                 QPoint(x, y - s),
@@ -127,6 +135,7 @@ class FlowArrow(QWidget):
         ])
 
     def set_direction(self, direction: str):
+        """Mengubah arah panah lalu mereset state animasi jika valid."""
         if direction not in ("up", "down", "left", "right"):
             return
 

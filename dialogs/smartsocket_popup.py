@@ -111,7 +111,9 @@ class _ComboArrowStyle(QProxyStyle):
 
 
 class GlobalRecordingSettingsDialog(QDialog):
+    """Dialog untuk mengatur recording semua Smart Socket sekaligus."""
     def __init__(self, main_window, parent=None):
+        """Menyiapkan form global settings untuk semua socket."""
         super().__init__(parent)
         self.main_window = main_window
         self.setWindowTitle("All Sockets Recording Settings")
@@ -260,6 +262,7 @@ class GlobalRecordingSettingsDialog(QDialog):
         self.btn_close.clicked.connect(self.accept)
 
     def _pick_folder(self):
+        """Membuka folder picker untuk memilih lokasi autosave global."""
         directory = QFileDialog.getExistingDirectory(
             self,
             "Select Autosave Folder",
@@ -269,6 +272,7 @@ class GlobalRecordingSettingsDialog(QDialog):
             self.input_autosave_dir.setText(directory)
 
     def _settings_payload(self):
+        """Mengambil payload settings dari input dialog dalam format siap pakai."""
         text = self.input_record_interval.text().strip()
         try:
             interval_seconds = int(text)
@@ -286,22 +290,26 @@ class GlobalRecordingSettingsDialog(QDialog):
         }
 
     def _apply_to_all(self):
+        """Menerapkan settings dialog ke semua socket lewat MainWindow."""
         if not hasattr(self.main_window, "apply_global_socket_monitoring_settings"):
             return
         self.main_window.apply_global_socket_monitoring_settings(**self._settings_payload())
 
     def _start_all(self):
+        """Menerapkan settings lalu memulai recording semua socket."""
         self._apply_to_all()
         if hasattr(self.main_window, "start_all_socket_recording"):
             self.main_window.start_all_socket_recording(source="manual")
 
     def _stop_all(self):
+        """Menerapkan settings lalu menghentikan recording semua socket."""
         self._apply_to_all()
         if hasattr(self.main_window, "stop_all_socket_recording"):
             self.main_window.stop_all_socket_recording(source="manual")
 
 
 class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
+    """Popup kontrol detail untuk satu Smart Socket beserta tab monitoringnya."""
     TABLE_DISPLAY_LIMIT = 500
     CHART_POINT_LIMIT = 300
     WINDOW_RADIUS_PX = 10
@@ -309,6 +317,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     WINDOW_HEIGHT_PX = 720
 
     def __init__(self, socket_number, backend, main_window, parent=None):
+        """Menyiapkan popup socket, chart, table, warning, dan kontrol recording."""
         super().__init__(parent)
         self.socket_number = socket_number
         self.backend = backend  # SmartSocketBackend instance

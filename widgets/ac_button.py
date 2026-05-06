@@ -1,4 +1,4 @@
-"""Custom animated AC toggle widget used by the control-room page."""
+"""Widget toggle AC custom dengan animasi untuk halaman control room."""
 
 from PySide6.QtCore import QEasingCurve, Property, QPropertyAnimation, Qt, QTimer, Signal
 from PySide6.QtGui import QBrush, QColor, QPainter, QPen
@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget
 
 
 def blend_color(c1: QColor, c2: QColor, t: float) -> QColor:
-    """Linearly blend two colors for the background transition animation."""
+    """Mencampur dua warna secara linear untuk animasi transisi background."""
     r = c1.red() + (c2.red() - c1.red()) * t
     g = c1.green() + (c2.green() - c1.green()) * t
     b = c1.blue() + (c2.blue() - c1.blue()) * t
@@ -14,11 +14,12 @@ def blend_color(c1: QColor, c2: QColor, t: float) -> QColor:
 
 
 class ACButton(QWidget):
-    """Animated AC switch button that behaves like a lightweight toggle."""
+    """Tombol switch AC animatif yang berperilaku seperti toggle ringan."""
 
     toggled = Signal(bool)
 
     def __init__(self, parent=None, width=90, height=42):
+        """Menyiapkan tampilan, warna, dan animasi dasar tombol AC."""
         super().__init__(parent)
         self.setFixedSize(width, height)
         self.setCursor(Qt.PointingHandCursor)
@@ -41,16 +42,18 @@ class ACButton(QWidget):
         self._color_timer.timeout.connect(self._update_color)
 
     def get_handle_pos(self):
-        """Expose the animated handle position as a Qt property."""
+        """Mengembalikan posisi handle sebagai Qt property yang bisa dianimasikan."""
         return self._handle_pos
 
     def set_handle_pos(self, pos):
+        """Mengubah posisi handle lalu meminta repaint widget."""
         self._handle_pos = pos
         self.update()
 
     handle_pos = Property(float, get_handle_pos, set_handle_pos)
 
     def mousePressEvent(self, event):
+        """Menangani klik mouse untuk toggle state saat widget aktif."""
         if not self.isEnabled():
             return
 
@@ -58,7 +61,7 @@ class ACButton(QWidget):
             self.toggle()
 
     def toggle(self):
-        """Flip the local state and start the switch animations."""
+        """Membalik state lokal lalu memulai animasi switch."""
         self._is_on = not self._is_on
         self._anim_progress = 0.0
         self._color_timer.start()
@@ -66,10 +69,11 @@ class ACButton(QWidget):
         self.toggled.emit(self._is_on)
 
     def isOn(self):
+        """Mengembalikan state ON/OFF tombol AC saat ini."""
         return self._is_on
 
     def setOn(self, state: bool):
-        """Synchronize the widget with an external state change."""
+        """Menyinkronkan widget dengan perubahan state dari luar."""
         if self._is_on == state:
             return
         self._is_on = state
@@ -78,7 +82,7 @@ class ACButton(QWidget):
         self.toggled.emit(state)
 
     def _animate_switch(self):
-        """Animate only the handle position; color is updated by the timer."""
+        """Menjalankan animasi posisi handle, sementara warna diupdate timer."""
         start = self._handle_pos
         end = self.width() - self.height() + 3 if self._is_on else 3
 
@@ -88,7 +92,7 @@ class ACButton(QWidget):
         self._anim_pos.start()
 
     def _update_color(self):
-        """Blend between on/off backgrounds while the handle animation is running."""
+        """Mengubah warna background bertahap selama animasi berjalan."""
         self._anim_progress += 0.06
         if self._anim_progress >= 1.0:
             self._anim_progress = 1.0
@@ -102,7 +106,7 @@ class ACButton(QWidget):
         self.update()
 
     def paintEvent(self, event):
-        """Draw the rounded track and the circular handle."""
+        """Menggambar track rounded dan handle bulat tombol AC."""
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 
@@ -119,7 +123,7 @@ class ACButton(QWidget):
         p.drawEllipse(self._handle_pos, 3, diameter, diameter)
 
     def setChecked(self, state: bool):
-        """Synchronize AC state from MQTT or state restoration without extra logic."""
+        """Menyinkronkan state AC dari MQTT atau restore state tanpa logika tambahan."""
         if self._is_on == state:
             return
 

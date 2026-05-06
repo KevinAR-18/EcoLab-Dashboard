@@ -1,4 +1,4 @@
-"""Helpers for creating Smart Socket switch widgets."""
+"""Helper untuk membuat widget switch Smart Socket."""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout
@@ -9,7 +9,7 @@ from widgets.switch_button import SwitchButton
 class SwitchSetup:
     @staticmethod
     def setup(ui, main_window):
-        """Create all switch widgets and bind them to dashboard callbacks."""
+        """Membuat semua widget switch lalu bind ke callback dashboard."""
         frames = [
             ui.frame_switch_button_container,
             ui.frame_switch_button_container_2,
@@ -29,7 +29,7 @@ class SwitchSetup:
         main_window.switches = []
 
         for i, frame in enumerate(frames, start=1):
-            # Each Qt Designer placeholder frame gets one custom switch widget.
+            # Setiap frame placeholder dari Qt Designer diisi satu switch custom.
             layout = QVBoxLayout(frame)
             layout.setAlignment(Qt.AlignCenter)
             layout.setContentsMargins(0, 0, 0, 0)
@@ -44,7 +44,7 @@ class SwitchSetup:
             layout.addWidget(switch)
             main_window.switches.append(switch)
 
-            # The widget emits (index, state) so the main window can reuse one slot.
+            # Widget mengirim `(index, state)` agar MainWindow cukup punya satu slot.
             switch.toggled.connect(
                 lambda idx, state: main_window.on_switch_toggled(idx, state)
             )

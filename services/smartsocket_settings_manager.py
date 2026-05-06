@@ -1,4 +1,4 @@
-"""Persistent storage for Smart Socket popup preferences."""
+"""Penyimpanan persisten untuk preference popup Smart Socket."""
 
 import json
 import os
@@ -7,13 +7,14 @@ from pathlib import Path
 
 
 class SmartSocketSettingsManager:
-    """Save global and per-socket monitoring settings to a JSON file."""
+    """Menyimpan pengaturan global dan per-socket ke file JSON."""
 
     def __init__(self):
+        """Menentukan lokasi file settings yang akan dipakai aplikasi."""
         self.settings_file = self._get_settings_file_path()
 
     def _get_settings_file_path(self):
-        """Resolve the settings file path for script and frozen modes."""
+        """Menentukan path file settings untuk mode script maupun executable."""
         appdata_dir = os.getenv("APPDATA")
 
         if appdata_dir:
@@ -29,7 +30,7 @@ class SmartSocketSettingsManager:
         return settings_dir / "smartsocket_monitoring_settings.json"
 
     def load_data(self):
-        """Load the JSON payload, always returning a valid structure."""
+        """Memuat payload JSON dan selalu mengembalikan struktur yang valid."""
         if not self.settings_file.exists():
             return {"global": {}, "sockets": {}}
 
@@ -48,7 +49,7 @@ class SmartSocketSettingsManager:
         return data
 
     def save_data(self, data):
-        """Write the normalized settings structure back to disk."""
+        """Menyimpan struktur settings yang sudah dinormalisasi ke disk."""
         payload = data if isinstance(data, dict) else {"global": {}, "sockets": {}}
         payload.setdefault("global", {})
         payload.setdefault("sockets", {})
@@ -56,13 +57,13 @@ class SmartSocketSettingsManager:
             json.dump(payload, file, indent=4)
 
     def get_global_settings(self):
-        """Return settings shared by every Smart Socket popup instance."""
+        """Mengambil pengaturan global yang dipakai semua popup Smart Socket."""
         data = self.load_data()
         global_settings = data.get("global", {})
         return global_settings if isinstance(global_settings, dict) else {}
 
     def update_global_settings(self, **settings):
-        """Merge one or more global popup settings into the stored payload."""
+        """Menggabungkan satu atau lebih global settings ke payload tersimpan."""
         data = self.load_data()
         global_settings = data.setdefault("global", {})
         for key, value in settings.items():
@@ -70,14 +71,14 @@ class SmartSocketSettingsManager:
         self.save_data(data)
 
     def get_socket_settings(self, socket_number):
-        """Return persisted settings for one socket number."""
+        """Mengambil settings tersimpan untuk satu nomor socket."""
         data = self.load_data()
         sockets = data.get("sockets", {})
         entry = sockets.get(str(socket_number), {})
         return entry if isinstance(entry, dict) else {}
 
     def update_socket_settings(self, socket_number, **settings):
-        """Merge one or more socket-specific settings into the stored payload."""
+        """Menggabungkan settings khusus socket ke payload tersimpan."""
         data = self.load_data()
         sockets = data.setdefault("sockets", {})
         entry = sockets.setdefault(str(socket_number), {})
@@ -88,7 +89,7 @@ class SmartSocketSettingsManager:
         self.save_data(data)
 
     def get_all_graph_ranges(self):
-        """Flatten stored graph overrides into tuple keys for quick lookup."""
+        """Meratakan override range grafik ke key tuple agar mudah dipakai UI."""
         data = self.load_data()
         result = {}
 
@@ -110,7 +111,7 @@ class SmartSocketSettingsManager:
         return result
 
     def set_graph_range(self, socket_number, metric, override):
-        """Create, update, or clear one stored chart range override."""
+        """Membuat, mengubah, atau menghapus override range grafik."""
         data = self.load_data()
         sockets = data.setdefault("sockets", {})
         entry = sockets.setdefault(str(socket_number), {})

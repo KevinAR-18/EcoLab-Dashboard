@@ -1,7 +1,7 @@
 """
-Session Manager for EcoLab Dashboard.
+Session manager untuk EcoLab Dashboard.
 
-This module stores the lightweight local session used by remember-me behavior.
+Modul ini menyimpan local session ringan yang dipakai oleh fitur remember me.
 """
 
 import json
@@ -12,14 +12,15 @@ from pathlib import Path
 
 
 class SessionManager:
-    """Persist, load, validate, and delete the local session file."""
+    """Menyimpan, memuat, memvalidasi, dan menghapus file local session."""
 
     def __init__(self):
+        """Menentukan lokasi file session dan masa berlaku default session."""
         self.session_file = self._get_session_file_path()
         self.expiry_days = 7
 
     def _get_session_file_path(self):
-        """Resolve a stable writable session path for script and frozen modes."""
+        """Menentukan path session yang stabil untuk mode script dan executable."""
         appdata_dir = os.getenv("APPDATA")
 
         if appdata_dir:
@@ -35,7 +36,7 @@ class SessionManager:
         return session_dir / "ecolab_session.json"
 
     def save_session(self, user_data):
-        """Write a session file with creation and expiry timestamps."""
+        """Menyimpan session ke file lengkap dengan created dan expiry time."""
         try:
             session_data = {
                 **user_data,
@@ -51,7 +52,7 @@ class SessionManager:
             return {"status": "error", "message": str(exc)}
 
     def load_session(self):
-        """Load the stored session if it exists and is not expired."""
+        """Memuat session tersimpan jika ada dan belum expired."""
         try:
             if not self.session_file.exists():
                 return None
@@ -69,7 +70,7 @@ class SessionManager:
             return None
 
     def delete_session(self):
-        """Remove the local session file if it exists."""
+        """Menghapus file local session jika memang ada."""
         try:
             if self.session_file.exists():
                 self.session_file.unlink()
@@ -78,11 +79,11 @@ class SessionManager:
             return {"status": "error", "message": str(exc)}
 
     def is_valid(self):
-        """Return whether a currently stored session is still usable."""
+        """Mengecek apakah session yang tersimpan masih valid dipakai."""
         return self.load_session() is not None
 
     def _is_valid(self, session_data):
-        """Validate the stored expiry timestamp."""
+        """Memvalidasi timestamp expiry yang tersimpan di session."""
         try:
             expires_at_str = session_data.get("expires_at")
             if not expires_at_str:
@@ -94,7 +95,7 @@ class SessionManager:
             return False
 
     def get_session_info(self):
-        """Return a small dashboard-friendly view of the stored session."""
+        """Mengembalikan ringkasan session yang ramah dipakai oleh UI dashboard."""
         session = self.load_session()
         if not session:
             return None

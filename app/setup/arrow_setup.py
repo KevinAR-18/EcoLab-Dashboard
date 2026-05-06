@@ -1,4 +1,4 @@
-"""Helpers for placing energy-flow arrow widgets on the dashboard."""
+"""Helper untuk menempatkan widget panah aliran energi di dashboard."""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout
@@ -9,7 +9,7 @@ from widgets.flow_arrow import FlowArrow
 class ArrowSetup:
     @staticmethod
     def setup(ui, main_window):
-        """Attach all flow arrows to their placeholder frames."""
+        """Memasang semua panah flow ke frame placeholder yang sesuai."""
         ui.arrow_pv = FlowArrow(direction="down")
         ArrowSetup._add(ui.downArrowFrame, ui.arrow_pv)
 
@@ -22,7 +22,8 @@ class ArrowSetup:
         ui.arrow_soc_dynamic = FlowArrow(direction="up")
         ArrowSetup._add(ui.upArrowFrame, ui.arrow_soc_dynamic)
 
-        # Store arrow references centrally so MainWindow can update them from live data.
+        # Simpan referensi panah di satu tempat agar MainWindow mudah
+        # mengubah arah dan status aktif dari data realtime.
         main_window.arrows = {
             "pv": ui.arrow_pv,
             "soc_dynamic": ui.arrow_soc_dynamic,
@@ -32,7 +33,7 @@ class ArrowSetup:
 
     @staticmethod
     def _add(frame, widget):
-        """Place one arrow widget inside the given frame."""
+        """Menaruh satu widget panah ke dalam frame tujuan."""
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(Qt.AlignCenter)

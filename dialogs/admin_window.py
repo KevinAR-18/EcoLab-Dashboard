@@ -39,6 +39,7 @@ PRIMARY_ADMIN_EMAILS = [
 class Date:
     """Helper class untuk update waktu dan tanggal"""
     def update_time(self, label: QLabel):
+        """Memperbarui label jam dan tanggal pada header admin panel."""
         current_time = QDateTime.currentDateTime()
 
         time_text = current_time.toString("HH:mm")
@@ -51,12 +52,14 @@ class UserActionDialog(QDialog):
     """Dialog popup untuk action pada user"""
 
     def __init__(self, parent=None, user_data=None):
+        """Menyimpan data user lalu menyiapkan isi dialog aksi admin."""
         super().__init__(parent)
         self.user_data = user_data or {}
         self.choice = None
         self.setup_ui()
 
     def setup_ui(self):
+        """Membangun seluruh layout dan tombol aksi pada dialog user."""
         self.setModal(True)
         self.setFixedSize(400, 300)
         self.setWindowTitle("User Actions")
@@ -206,6 +209,7 @@ class UserActionDialog(QDialog):
             self.password_btn.setStyleSheet(self._button_style("#cccccc"))
 
     def _button_style(self, color):
+        """Menghasilkan stylesheet tombol aksi berdasarkan warna utama."""
         return f"""
             QPushButton {{
                 background-color: {color};
@@ -229,18 +233,22 @@ class UserActionDialog(QDialog):
         """
 
     def approve_action(self):
+        """Menandai bahwa admin memilih aksi approve."""
         self.choice = "approve"
         self.accept()
 
     def update_password_action(self):
+        """Menandai bahwa admin memilih aksi update password."""
         self.choice = "update_password"
         self.accept()
 
     def block_action(self):
+        """Menandai bahwa admin memilih aksi block atau unblock."""
         self.choice = "block_unblock"
         self.accept()
 
     def delete_action(self):
+        """Menandai bahwa admin memilih aksi hapus user."""
         self.choice = "delete"
         self.accept()
 
@@ -249,6 +257,7 @@ class AdminPanelWindow(QMainWindow):
     """Admin Panel Window dengan tombol back yang bisa kembali ke popup"""
 
     def __init__(self, login_window):
+        """Menyiapkan admin panel, UI table user, dan integrasi auth service."""
         super().__init__()
         self.login_window = login_window  # Simpan reference ke login window
         self.users_data = []  # Store user data for reference

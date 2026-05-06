@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-"""Firebase authentication and user-management services for the desktop app."""
+"""Service authentication Firebase dan user management untuk aplikasi desktop."""
 
 import sys
 import types
@@ -29,24 +29,29 @@ from config.firebase_settings import (
 
 
 class FirebaseAuthAdminClient:
-    """Small REST client for privileged Firebase admin operations."""
+    """REST client kecil untuk operasi admin Firebase yang butuh privilege."""
     _SCOPES = ["https://www.googleapis.com/auth/identitytoolkit"]
 
     def __init__(self, project_id, service_account_path):
+        """Menyimpan project ID dan path service account untuk operasi admin."""
         self.project_id = project_id
         self.service_account_path = Path(service_account_path)
         self._credentials = None
 
     def is_configured(self):
+        """Mengecek apakah file service account admin tersedia."""
         return self.service_account_path.is_file()
 
     def update_password(self, uid, password):
+        """Mengirim request admin untuk update password user tertentu."""
         return self._post("accounts:update", {"localId": uid, "password": password})
 
     def delete_user(self, uid):
+        """Mengirim request admin untuk menghapus user tertentu."""
         return self._post("accounts:delete", {"localId": uid})
 
     def _post(self, action, payload):
+        """Menjalankan POST request ke Firebase Identity Toolkit API."""
         if not self.is_configured():
             raise RuntimeError("Firebase admin credentials are not configured")
 
@@ -61,6 +66,7 @@ class FirebaseAuthAdminClient:
         return response.json() if response.content else {}
 
     def _get_credentials(self):
+        """Membuat atau me-refresh kredensial service account sebelum request."""
         if self._credentials is None:
             self._credentials = service_account.Credentials.from_service_account_file(
                 str(self.service_account_path),
@@ -74,10 +80,11 @@ class FirebaseAuthAdminClient:
 
 
 class FirebaseAuthService:
-    """Application-facing service that wraps auth, signup, and user records."""
+    """Service utama aplikasi untuk auth, signup, dan data user Firebase."""
     def __init__(self):
-        # Pyrebase is used for normal user auth flows, while the admin client is
-        # reserved for actions that require a service account.
+        """Menyiapkan client Pyrebase dan admin client untuk semua auth flow."""
+        # Pyrebase dipakai untuk auth flow user biasa, sedangkan admin client
+        # dipakai untuk operasi yang memang memerlukan service account.
         firebase_config = get_firebase_config()
         firebase = pyrebase.initialize_app(firebase_config)
         self.auth = firebase.auth()
@@ -88,6 +95,7 @@ class FirebaseAuthService:
         )
 
     def create_admin(self, email, password):
+        """Membuat akun admin awal di Firebase Auth dan database user."""
         user = self.auth.create_user_with_email_and_password(email, password)
         uid = user["localId"]
 
@@ -106,6 +114,7 @@ class FirebaseAuthService:
         return {"status": "success", "message": "Admin created", "user_id": uid}
 
     def login_with_email(self, email, password):
+        """Melakukan login user menggunakan email dan password."""
         try:
             user = self.auth.sign_in_with_email_and_password(email, password)
             uid = user["localId"]
@@ -114,11 +123,12 @@ class FirebaseAuthService:
             return self._error_result(exc)
 
     def signup_with_email(self, email, password, username=None):
+        """Mendaftarkan user baru lewat email/password dengan status pending."""
         try:
             user = self.auth.create_user_with_email_and_password(email, password)
             uid = user["localId"]
 
-            # Gunakan username dari parameter, atau fallback ke email prefix
+            # Pakai username dari parameter, atau fallback ke prefix email.
             display_username = username or email.split("@")[0]
 
             self.db.child("users").child(uid).set(
@@ -139,11 +149,11 @@ class FirebaseAuthService:
 
     def login_with_google(self, create_if_not_exists=True):
         """
-        Login dengan Google OAuth.
+        Menjalankan login atau signup lewat Google OAuth.
 
         Args:
             create_if_not_exists: Jika True, auto create account jika belum ada.
-                                 Jika False, hanya login, return error jika belum ada.
+                                 Jika False, hanya login dan return error jika akun belum ada.
         """
         try:
             userinfo = self._google_auth_login()
@@ -153,9 +163,9 @@ class FirebaseAuthService:
             user = self.get_user_record(uid)
 
             if not user:
-                # Jika user belum ada
+                # Jika user belum ada di database
                 if create_if_not_exists:
-                    # Sign up mode - auto create account
+                    # Mode sign up: auto create account baru.
                     self.db.child("users").child(uid).set(
                         {
                             "username": name,
@@ -173,7 +183,7 @@ class FirebaseAuthService:
                         "user_id": uid,
                     }
                 else:
-                    # Sign in mode - jangan create, return error
+                    # Mode sign in: jangan create account baru.
                     return {
                         "status": "error",
                         "message": "Google account not registered. Please sign up first.",
@@ -189,6 +199,7 @@ class FirebaseAuthService:
             return self._error_result(exc)
 
     def send_reset_password(self, email):
+        """Mengirim email reset password lewat Firebase."""
         try:
             self.auth.send_password_reset_email(email)
             return {"status": "success", "message": "Check your email"}
@@ -197,8 +208,7 @@ class FirebaseAuthService:
 
     def check_email_exists(self, email):
         """
-        Cek apakah email sudah terdaftar di Firebase Authentication
-        dengan mencoba login menggunakan dummy password
+        Mengecek apakah email sudah terdaftar di Firebase Authentication.
 
         Args:
             email: Email yang akan dicek
@@ -207,27 +217,28 @@ class FirebaseAuthService:
             dict: {"exists": bool, "message": str}
         """
         try:
-            # Coba sign in dengan dummy password
-            # Firebase akan return error spesifik berdasarkan kondisi:
-            # - EMAIL_NOT_FOUND → email belum terdaftar
-            # - INVALID_PASSWORD → email sudah ada (tapi password salah)
+            # Coba sign in dengan dummy password.
+            # Firebase akan mengembalikan error spesifik:
+            # - EMAIL_NOT_FOUND -> email belum terdaftar
+            # - INVALID_PASSWORD -> email sudah ada, tapi password salah
             self.auth.sign_in_with_email_and_password(email, "__dummy_password_check_123__")
             return {"exists": False, "message": "Unexpected success"}
         except Exception as exc:
             error_msg = str(exc)
 
-            # Parse error message dari Firebase
+            # Parse error message dari Firebase.
             if "EMAIL_NOT_FOUND" in error_msg or "There is no user record" in error_msg:
-                # Email belum terdaftar
+                # Email belum terdaftar.
                 return {"exists": False, "message": "Email available"}
             elif "INVALID_PASSWORD" in error_msg or "The password is invalid" in error_msg:
-                # Email sudah terdaftar (password salah = email ada)
+                # Email sudah terdaftar, hanya password dummy-nya yang salah.
                 return {"exists": True, "message": "Email already registered"}
             else:
-                # Error lain (network, invalid email format, dll)
+                # Error lain seperti network issue atau format email tidak valid.
                 return {"exists": False, "message": f"Error: {error_msg}"}
 
     def get_pending_users(self):
+        """Mengambil daftar user yang masih menunggu approval admin."""
         return [
             {
                 "uid": user["uid"],
@@ -241,6 +252,7 @@ class FirebaseAuthService:
         ]
 
     def get_all_users(self):
+        """Mengambil semua user lalu menormalkannya untuk kebutuhan admin UI."""
         users = self.db.child("users").get()
         if not users.each():
             return []
@@ -258,6 +270,7 @@ class FirebaseAuthService:
         )
 
     def get_user_summary(self):
+        """Menghasilkan ringkasan jumlah user berdasarkan status dan role."""
         users = self.get_all_users()
         return {
             "total": len(users),
@@ -268,6 +281,7 @@ class FirebaseAuthService:
         }
 
     def update_user_role(self, uid, role):
+        """Mengubah role user tertentu di database Firebase."""
         user = self.get_user_record(uid)
         if not user:
             return {"status": "error", "message": "User data not found"}
@@ -276,6 +290,7 @@ class FirebaseAuthService:
         return {"status": "success", "message": "Role updated", "user_id": uid}
 
     def update_user_status(self, uid, status):
+        """Mengubah status user tertentu seperti active atau blocked."""
         user = self.get_user_record(uid)
         if not user:
             return {"status": "error", "message": "User data not found"}
@@ -284,6 +299,7 @@ class FirebaseAuthService:
         return {"status": "success", "message": f"Status updated to {status}", "user_id": uid}
 
     def set_user_password(self, uid, new_password):
+        """Mengubah password user tertentu lewat admin client Firebase."""
         try:
             self.admin_client.update_password(uid, new_password)
             return {"status": "success", "message": "Password updated", "user_id": uid}
@@ -291,8 +307,9 @@ class FirebaseAuthService:
             return self._error_result(exc)
 
     def delete_user(self, uid):
+        """Menghapus user dari database dan Auth jika provider mengizinkan."""
         try:
-            # Get user data untuk cek auth provider
+            # Ambil data user untuk cek auth provider.
             user = self.get_user_record(uid)
 
             if not user:
@@ -301,8 +318,8 @@ class FirebaseAuthService:
             auth_provider = user.get("auth_provider", "email")
 
             if auth_provider == "google":
-                # Google Auth users tidak bisa dihapus dari Firebase Auth
-                # Hanya hapus dari database
+                # User Google Auth tidak dihapus dari Firebase Auth.
+                # Yang dihapus hanya entry database-nya.
                 self.db.child("users").child(uid).remove()
                 return {
                     "status": "success",
@@ -311,7 +328,7 @@ class FirebaseAuthService:
                     "warning": "google_auth"
                 }
             else:
-                # Email auth users - bisa dihapus dari Firebase Auth
+                # User email auth bisa dihapus dari Auth dan database.
                 self.admin_client.delete_user(uid)
                 self.db.child("users").child(uid).remove()
                 return {"status": "success", "message": "User deleted successfully", "user_id": uid}
@@ -320,6 +337,7 @@ class FirebaseAuthService:
             return self._error_result(exc)
 
     def approve_user(self, uid):
+        """Menyetujui user pending dan mengaktifkan role final-nya."""
         user = self.get_user_record(uid)
         if not user:
             return {"status": "missing_user_data", "message": "User data not found"}
@@ -334,17 +352,20 @@ class FirebaseAuthService:
         return {"status": "success", "message": "User approved", "user_id": uid}
 
     def reject_user(self, uid):
+        """Menolak user pending dengan menghapus entry database-nya."""
         self.db.child("users").child(uid).remove()
         return {"status": "success", "message": "User rejected", "user_id": uid}
 
     def get_user_record(self, uid):
+        """Mengambil raw user record dari database Firebase."""
         return self.db.child("users").child(uid).get().val()
 
     def _google_auth_login(self):
-        # A local redirect server keeps Google OAuth compatible with a desktop
-        # application without embedding a dedicated web view inside the app.
-        # Gunakan port yang fixed untuk menghindari redirect_uri_mismatch
-        # Pastikan http://localhost:8080 terdaftar di Google Cloud Console
+        """Menjalankan flow OAuth lokal lalu mengambil profil user Google."""
+        # Local redirect server menjaga Google OAuth tetap cocok untuk
+        # desktop app tanpa perlu embed web view khusus.
+        # Gunakan port tetap untuk menghindari redirect_uri_mismatch.
+        # Pastikan http://localhost:8080 terdaftar di Google Cloud Console.
         flow = InstalledAppFlow.from_client_secrets_file(
             str(CLIENT_SECRET),
             scopes=[
@@ -371,6 +392,7 @@ class FirebaseAuthService:
         success_message="Login success",
         pending_message="Waiting admin approval",
     ):
+        """Menyusun hasil login terstandar berdasarkan data user yang ditemukan."""
         if not user_data:
             return {"status": "missing_user_data", "message": "User data not found"}
 
@@ -387,14 +409,17 @@ class FirebaseAuthService:
         return {"status": "success", "message": success_message, "user_id": uid}
 
     def _error_result(self, exc):
+        """Membungkus exception ke format error result yang konsisten."""
         return {"status": "error", "message": str(exc)}
 
     @staticmethod
     def _today():
+        """Menghasilkan tanggal hari ini dalam format `YYYY-MM-DD`."""
         return datetime.now().strftime("%Y-%m-%d")
 
     @staticmethod
     def _normalize_user_record(uid, data):
+        """Menormalkan record user agar field penting selalu tersedia."""
         role = data.get("role", data.get("role_request", "user")) or "user"
         return {
             "uid": uid,
@@ -410,5 +435,6 @@ class FirebaseAuthService:
 
     @staticmethod
     def _status_rank(status):
+        """Memberi ranking status untuk kebutuhan sorting di admin panel."""
         order = {"pending": 0, "active": 1, "blocked": 2}
         return order.get(status, 3)

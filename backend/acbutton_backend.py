@@ -1,59 +1,66 @@
+"""Backend MQTT untuk kontrol AC di dashboard EcoLab."""
+
 from PySide6.QtCore import QObject, Signal
 
 
 class ACButtonBackend(QObject):
     """
-    Backend MQTT untuk kontrol AC
-    - Tidak tahu UI
-    - Tidak tahu Lamp / DHT
-    - Hanya publish command AC
+    Backend MQTT khusus untuk kontrol AC.
+
+    Class ini tidak menangani UI secara langsung.
+    Tugasnya fokus pada publish command AC dan menerima status balik dari MCU.
     """
 
     TOPIC_AC = "ecolab/mcuB/ac/control"
     STATUS_TOPIC = "ecolab/mcuB/ac/status"
 
-    # Signal ketika state berubah
-    status_changed = Signal(bool)  # AC state (ON/OFF)
+    # Signal untuk memberi tahu UI saat state AC berubah.
+    status_changed = Signal(bool)  # AC state: True=ON, False=OFF
 
     def __init__(self, mqtt_client, logger=None):
+        """Menyimpan client MQTT, logger, dan cache state AC terakhir."""
         super().__init__()
         self.mqtt = mqtt_client
         self.logger = logger
         self.state = None
 
     def temp_up(self):
+        """Mengirim command untuk menaikkan temperatur AC."""
         self.mqtt.publish(self.TOPIC_AC, "TEMP_UP")
         print(f"[MQTT] {self.TOPIC_AC} -> TEMP_UP")
         if self.logger:
             self.logger(f"[MQTT] {self.TOPIC_AC} -> TEMP_UP")
 
     def temp_down(self):
+        """Mengirim command untuk menurunkan temperatur AC."""
         self.mqtt.publish(self.TOPIC_AC, "TEMP_DOWN")
         print(f"[MQTT] {self.TOPIC_AC} -> TEMP_DOWN")
         if self.logger:
             self.logger(f"[MQTT] {self.TOPIC_AC} -> TEMP_DOWN")
 
     def mode_cool(self):
+        """Mengirim command untuk mengganti mode AC ke cool."""
         self.mqtt.publish(self.TOPIC_AC, "MODE_COOL")
         print(f"[MQTT] {self.TOPIC_AC} -> MODE_COOL")
         if self.logger:
             self.logger(f"[MQTT] {self.TOPIC_AC} -> MODE_COOL")
 
     def mode_fan(self):
+        """Mengirim command untuk mengganti mode AC ke fan."""
         self.mqtt.publish(self.TOPIC_AC, "MODE_FAN")
         print(f"[MQTT] {self.TOPIC_AC} -> MODE_FAN")
         if self.logger:
             self.logger(f"[MQTT] {self.TOPIC_AC} -> MODE_FAN")
 
     def start(self):
-        # Subscribe ke status AC dari MCU (Opsi 1: MCU Source of Truth)
+        """Mulai subscribe topic status AC dari MCU."""
         self.mqtt.subscribe(self.STATUS_TOPIC, self._on_status)
 
     def power(self, state: bool):
         """
-        Publish command ke MCU
-        Topic: ecolab/mcuB/ac/control
-        Payload: ON/OFF
+        Mengirim command power AC ke MCU.
+
+        Payload yang dikirim adalah `ON` atau `OFF`.
         """
         payload = "ON" if state else "OFF"
         self.mqtt.publish(self.TOPIC_AC, payload)
@@ -64,11 +71,6 @@ class ACButtonBackend(QObject):
             self.logger(f"[AC] {self.TOPIC_AC} -> {payload}")
 
     def _on_status(self, client, userdata, msg):
-        """
-        Terima status dari MCU
-        Topic: ecolab/mcuB/ac/status
-        """
+        """Menerima status AC dari MCU lalu emit ke UI lewat signal."""
         self.state = msg.payload.decode() == "ON"
-
-        # Emit signal untuk update UI real-time
         self.status_changed.emit(self.state)

@@ -1,4 +1,4 @@
-"""Custom glowing lamp widget used on the control-room page."""
+"""Widget lampu custom dengan efek glow untuk halaman control room."""
 
 from PySide6.QtCore import QEasingCurve, Property, QPropertyAnimation, Qt, QTimer, Signal, QSize
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
@@ -6,13 +6,14 @@ from PySide6.QtWidgets import QWidget
 
 
 class LampButton(QWidget):
-    """Lamp-shaped widget with glow and pulse feedback."""
+    """Widget berbentuk lampu dengan efek glow dan pulse feedback."""
 
     toggled = Signal(bool)
 
     def __init__(self, parent=None, size=120,
                  on_color=QColor("#FFD166"),
                  off_color=QColor("#E6EEF5")):
+        """Menyiapkan ukuran, warna, dan animasi dasar tombol lampu."""
         super().__init__(parent)
 
         self.setCursor(Qt.PointingHandCursor)
@@ -36,17 +37,18 @@ class LampButton(QWidget):
         self.setFixedSize(QSize(self._size, int(self._size * 1.4)))
 
     def getGlowOpacity(self):
-        """Expose the animated glow intensity as a Qt property."""
+        """Mengembalikan intensitas glow sebagai Qt property."""
         return self._glow_alpha
 
     def setGlowOpacity(self, value):
+        """Mengubah opacity glow lalu meminta repaint widget."""
         self._glow_alpha = value
         self.update()
 
     glowOpacity = Property(float, getGlowOpacity, setGlowOpacity)
 
     def _pulse(self):
-        """Pulse the glow while the lamp is on."""
+        """Menjalankan efek pulse glow saat lampu dalam keadaan ON."""
         step = 0.015
         self._glow_alpha += step * self._pulse_dir
 
@@ -60,7 +62,7 @@ class LampButton(QWidget):
         self.update()
 
     def setOn(self, state: bool):
-        """Apply a new logical state and start the visual transition."""
+        """Menerapkan state baru lampu dan memulai transisi visualnya."""
         if self._is_on == state:
             return
 
@@ -81,15 +83,17 @@ class LampButton(QWidget):
         self.toggled.emit(state)
 
     def _startPulse(self):
-        """Keep a subtle breathing effect after the initial fade-in finishes."""
+        """Menjaga efek pulse halus setelah fade-in awal selesai."""
         if self._is_on:
             self._pulse_dir = 1
             self.pulse_timer.start()
 
     def isOn(self) -> bool:
+        """Mengembalikan state ON/OFF lampu saat ini."""
         return self._is_on
 
     def mousePressEvent(self, event):
+        """Menangani klik mouse untuk toggle lampu saat widget aktif."""
         if not self.isEnabled():
             return
 
@@ -98,7 +102,7 @@ class LampButton(QWidget):
         super().mousePressEvent(event)
 
     def paintEvent(self, event):
-        """Render the lamp body, glow layers, filament, and base."""
+        """Menggambar body lampu, glow layer, filament, dan base-nya."""
         p = QPainter(self)
         p.setRenderHint(QPainter.Antialiasing)
 
@@ -174,7 +178,7 @@ class LampButton(QWidget):
         p.drawPath(egg)
 
     def setChecked(self, state: bool):
-        """Synchronize the widget from external state without changing ownership."""
+        """Menyinkronkan widget dari state eksternal tanpa mengubah owner logic."""
         if self._is_on == state:
             return
 

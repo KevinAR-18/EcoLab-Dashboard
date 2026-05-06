@@ -1,70 +1,91 @@
 """
-EcoLab Dashboard Launcher
-Entry point baru yang manage login flow dan remember me feature
+Launcher utama untuk aplikasi EcoLab Dashboard.
+
+Modul ini menjadi entry point aplikasi dan mengatur perpindahan
+antara window login, dashboard utama, serta pengelolaan session
+termasuk fitur remember me.
 """
 import sys
 from PySide6.QtWidgets import QApplication, QMessageBox
 from PySide6.QtCore import QObject, Signal, QTimer
 
-# Import Login Window
+# Import window login
 from loginmain import LoginWindow
 
-# Import Main Window (moved here for PyInstaller compatibility)
+# Import window utama dashboard
+# Diletakkan di sini agar kompatibel dengan proses packaging PyInstaller.
 from main import MainWindow
 
-# Import Session Manager
+# Import manager untuk session login
 from auth.session_manager import SessionManager
 
-# Import Theme Helper for light theme
+# Import helper tema terang agar tampilan konsisten
 from ui.ui_theme_helper import get_light_theme_stylesheet
 
 
 class AppLauncher(QObject):
-    """Launcher untuk manage aplikasi flow dari login ke dashboard"""
+    """Mengatur app flow dari login, dashboard, sampai logout."""
 
     # Signal untuk notify saat logout terjadi
     logout_signal = Signal()
 
     def __init__(self):
+        """
+        Menyiapkan object launcher dan state aplikasi level atas.
+
+        Launcher menyimpan referensi window aktif dan session aktif
+        agar perpindahan antar tampilan tidak perlu diurus oleh masing-masing
+        window secara terpisah.
+        """
         super().__init__()
-        # The launcher owns top-level window transitions so individual windows
-        # can stay focused on UI logic instead of application lifecycle rules.
+        # Launcher memegang kontrol perpindahan window tingkat atas supaya
+        # masing-masing window bisa fokus pada logika UI-nya sendiri.
         self.session_manager = SessionManager()
         self.main_window = None
         self.login_window = None
-        self.login_completed_received = False  # Flag untuk track apakah login completed
+        self.login_completed_received = False  # Penanda apakah alur login sudah selesai
         self.current_session = None  # Simpan session yang sedang aktif
 
     def start(self):
-        """Start aplikasi - cek session dulu"""
-        # Setup handler untuk saat aplikasi akan quit
+        """
+        Memulai aplikasi dengan mengecek session yang tersimpan lebih dulu.
+
+        Jika session masih ada, launcher langsung membuka dashboard.
+        Jika tidak ada session, launcher akan menampilkan window login.
+        """
+        # Pasang handler yang dipanggil saat aplikasi akan ditutup.
         QApplication.instance().aboutToQuit.connect(self.on_app_about_to_quit)
 
-        # Cek apakah ada session tersimpan
+        # Cek apakah ada session login yang tersimpan di local storage.
         session = self.session_manager.load_session()
 
         if session:
-            # Session ada → langsung buka dashboard (baik remember_me ON atau OFF)
+            # Jika session ada, langsung buka dashboard.
             print(f"DEBUG: Found session, opening dashboard for user: {session.get('username')}")
             self.open_dashboard(session)
         else:
-            # No session → login dulu
+            # Jika tidak ada session, user harus login terlebih dahulu.
             print("DEBUG: No session found, showing login")
             self.open_login()
 
     def open_login(self):
-        """Buka login window"""
+        """
+        Membuka window login dan memasang signal yang dibutuhkan.
+
+        Fungsi ini menghubungkan event login selesai dan event destroy
+        window agar launcher bisa menentukan langkah berikutnya.
+        """
         try:
-            # Reset flag
+            # Reset penanda agar launcher tahu ini adalah alur login baru.
             self.login_completed_received = False
 
             self.login_window = LoginWindow()
             self.login_window.show()
 
-            # Connect signal login_completed (event-based, bukan polling)
+            # Hubungkan signal login selesai secara event-based, bukan polling.
             self.login_window.login_completed.connect(self.on_login_completed)
 
-            # Connect signal ketika window di-close manual (X button atau destroy)
+            # Hubungkan event saat window ditutup manual atau dihancurkan.
             self.login_window.destroyed.connect(self.on_login_window_destroyed)
 
             return True
@@ -78,79 +99,91 @@ class AppLauncher(QObject):
             return False
 
     def on_login_completed(self):
-        """Handle saat login window selesai (user sudah pilih dashboard/admin)"""
+        """
+        Menangani kondisi saat proses login selesai.
+
+        Setelah login selesai, launcher memeriksa session yang baru dibuat.
+        Jika session tersedia maka dashboard dibuka, jika tidak maka aplikasi keluar.
+        """
         print("DEBUG: Login completed signal received")
         self.login_completed_received = True
 
-        # Cek apakah ada session (berarti user berhasil login)
+        # Cek apakah login berhasil membuat session yang valid.
         session = self.session_manager.load_session()
 
         if session:
             print(f"DEBUG: Session found! Opening dashboard for user: {session.get('username')}")
-            # Simpan session yang sedang aktif
+            # Simpan session aktif agar bisa dipakai di alur selanjutnya.
             self.current_session = session
-            # Login success → buka dashboard
+            # Jika login sukses, buka dashboard.
             self.open_dashboard(session)
         else:
             print("DEBUG: No session found, quitting app")
-            # Login cancelled/failed → exit app
+            # Jika login batal atau gagal, tutup aplikasi.
             QApplication.quit()
 
     def on_login_window_destroyed(self):
-        """Handle saat login window di-close manual (X button atau admin panel)"""
+        """
+        Menangani kondisi saat window login ditutup manual.
+
+        Penutupan window login bisa berarti user membatalkan login,
+        atau bisa juga karena user masuk ke alur lain seperti admin panel.
+        Fungsi ini membedakan kedua kondisi tersebut berdasarkan session.
+        """
         print("DEBUG: Login window destroyed")
 
-        # Cek apakah login completed signal sudah diterima
+        # Cek apakah signal login selesai sudah diterima sebelumnya.
         if self.login_completed_received:
-            # Login sudah completed, dashboard akan dibuka/di-handle oleh on_login_completed
+            # Jika login sudah selesai, event destroy ini tidak perlu diproses lagi.
             print("DEBUG: Login already completed, ignoring destroy event")
             return
 
-        # Login belum completed, berarti user close manual atau buka admin panel
-        # Cek apakah ada session
+        # Jika login belum selesai, cek apakah ternyata sudah ada session aktif.
         session = self.session_manager.load_session()
 
         if session:
-            # Ada session tapi login_completed tidak diterima
-            # Kemungkinan: User buka admin panel (bukan dashboard)
-            # Jangan buka dashboard, biarkan admin panel jalan
+            # Session ada tapi signal login selesai tidak diterima.
+            # Kemungkinan user masuk ke admin panel, jadi jangan paksa buka dashboard.
             print("DEBUG: Session exists but login not completed (likely admin panel), staying alive")
 
-            # Simpan session yang sedang aktif (untuk admin panel case)
+            # Simpan session aktif untuk kasus admin panel.
             self.current_session = session
 
-            # 🔥 BUG FIX: Hapus session SEKARANG JUGA jika remember_me=False
-            # Admin panel tidak akan membuka dashboard, jadi kita harus hapus sekarang
+            # Jika remember me mati dan user tidak lanjut ke dashboard,
+            # session harus dihapus sekarang juga agar tidak tertinggal.
             if not session.get("remember_me", False):
                 print(f"DEBUG: remember_me is OFF (admin panel mode), deleting session IMMEDIATELY")
                 result = self.session_manager.delete_session()
                 print(f"DEBUG: Session delete result: {result}")
-                # Jangan simpan session yang sudah dihapus
+                # Jangan simpan referensi session yang sudah dihapus.
                 self.current_session = None
         else:
-            # Tidak ada session dan window di-close manual → exit app
+            # Jika tidak ada session dan login ditutup manual, keluar dari app.
             print("DEBUG: No session and window closed manually, quitting app")
             QApplication.quit()
 
     def open_dashboard(self, session):
-        """Buka dashboard utama dengan session data"""
+        """
+        Membuka dashboard utama menggunakan data session user aktif.
+
+        Session diteruskan ke MainWindow agar dashboard dapat mengatur
+        hak akses fitur sesuai role user yang sedang login.
+        """
         try:
-            # Simpan session yang sedang aktif
+            # Simpan session aktif di launcher.
             self.current_session = session
 
-            # Buat main window dengan session
-            # The dashboard receives the loaded session so it can enable or
-            # restrict actions according to the current user role.
+            # Buat dashboard utama dengan membawa data session user.
             self.main_window = MainWindow(user_session=session)
 
-            # Connect logout signal
+            # Hubungkan signal logout dari dashboard ke launcher.
             self.main_window.logout_signal.connect(self.handle_logout)
 
-            # Show main window
+            # Tampilkan dashboard utama.
             self.main_window.show()
 
-            # ⚠️ JANGAN hapus session di sini lagi
-            # Session akan dihapus saat aplikasi quit (lihat on_app_about_to_quit)
+            # Jangan hapus session di sini.
+            # Penghapusan session dikelola saat logout atau saat aplikasi ditutup.
 
             return True
 
@@ -163,20 +196,25 @@ class AppLauncher(QObject):
             return False
 
     def handle_logout(self):
-        """Handle logout dari dashboard"""
+        """
+        Menangani proses logout dari dashboard.
+
+        Fungsi ini menghapus session, menutup dashboard aktif,
+        lalu mengembalikan user ke window login.
+        """
         try:
-            # Hapus session
+            # Hapus session login dari penyimpanan lokal.
             self.session_manager.delete_session()
 
-            # Clear current session
+            # Kosongkan referensi session aktif.
             self.current_session = None
 
-            # Close main window jika ada
+            # Tutup dashboard jika masih terbuka.
             if self.main_window:
                 self.main_window.close()
                 self.main_window = None
 
-            # Balik ke login
+            # Kembali ke halaman login.
             self.open_login()
 
         except Exception as e:
@@ -187,12 +225,17 @@ class AppLauncher(QObject):
             )
 
     def on_app_about_to_quit(self):
-        """Handler saat aplikasi akan quit - hapus session jika remember_me=False"""
-        # Cek current session dulu, lalu fallback ke load dari file
+        """
+        Menangani cleanup saat aplikasi akan ditutup.
+
+        Jika session aktif tidak memakai remember me, session akan dihapus
+        agar aplikasi tidak langsung login otomatis pada pembukaan berikutnya.
+        """
+        # Cek session aktif di memori, lalu fallback ke file jika perlu.
         session = self.current_session
 
         if not session:
-            # Fallback: load dari file jika current_session belum di-set
+            # Fallback ke file jika referensi session aktif belum terisi.
             session = self.session_manager.load_session()
 
         if session and not session.get("remember_me", False):
@@ -207,17 +250,22 @@ class AppLauncher(QObject):
 
 
 def main():
-    """Main entry point"""
+    """
+    Menjadi entry point utama aplikasi desktop EcoLab.
+
+    Fungsi ini membuat QApplication, menerapkan stylesheet global,
+    membuat launcher, lalu menjalankan event loop Qt.
+    """
     app = QApplication(sys.argv)
     app.setApplicationName("EcoLab Dashboard")
 
-    # Apply light theme untuk mencegah Dark Mode Windows 11 interference
+    # Terapkan tema terang agar dark mode Windows 11 tidak mengganggu UI.
     app.setStyleSheet(get_light_theme_stylesheet())
 
-    # Buat launcher
+    # Buat object launcher aplikasi.
     launcher = AppLauncher()
 
-    # Start aplikasi
+    # Mulai alur aplikasi.
     launcher.start()
 
     return app.exec()

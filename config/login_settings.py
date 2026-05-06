@@ -1,23 +1,25 @@
 """
-Login UI Settings
-Konfigurasi umum untuk UI Login Page
+Login UI settings untuk EcoLab.
+
+Berisi konfigurasi sederhana yang dipakai oleh login page,
+terutama untuk default behavior dan password field.
 """
 
-# Password Settings
+# Password settings
 PASSWORD_MASK = "•"  # Karakter untuk mask password
 SHOW_PASSWORD_DEFAULT = False  # Default state show password checkbox
 
 
-# UI Behavior Settings
+# UI behavior settings
 REMEMBER_ME_DEFAULT = False  # Default state remember me checkbox
 AUTO_SWITCH_TO_SIGNUP = True  # Otomatis switch ke signup setelah klik "Create Account"
 
 
-# Navigation Settings
+# Navigation settings
 DEFAULT_PAGE = "signin"  # Halaman default: "signin" atau "signup"
 
 
-# Style Settings (bisa dikembangkan)
+# Style settings
 PASSWORD_FIELD_STYLE = """
 QLineEdit {
     background: white;
@@ -34,13 +36,13 @@ QLineEdit:focus {
 
 def get_echo_mode(show_password):
     """
-    Get echo mode untuk password field berdasarkan state show password
+    Mengembalikan echo mode password field berdasarkan state checkbox.
 
     Args:
         show_password (bool): True untuk show, False untuk hide
 
     Returns:
-        QLineEdit.EchoMode: Normal atau Password
+        QLineEdit.EchoMode: Mode normal atau password
     """
     from PySide6.QtWidgets import QLineEdit
 
@@ -49,7 +51,7 @@ def get_echo_mode(show_password):
 
 def toggle_password_visibility(password_field, show_checkbox):
     """
-    Toggle visibility password field
+    Mengubah visibility password field sesuai state checkbox.
 
     Args:
         password_field: QLineEdit password field
@@ -57,8 +59,8 @@ def toggle_password_visibility(password_field, show_checkbox):
     """
     from PySide6.QtWidgets import QLineEdit
 
-    # Both sign-in and sign-up pages use this helper to keep password-field
-    # behavior identical across the login window.
+    # Helper ini dipakai oleh halaman sign in dan sign up agar behavior
+    # password field tetap konsisten di seluruh login window.
 
     if show_checkbox.isChecked():
         password_field.setEchoMode(QLineEdit.EchoMode.Normal)

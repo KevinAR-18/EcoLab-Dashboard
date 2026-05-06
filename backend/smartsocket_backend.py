@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-EcoLab Smart Socket MQTT Backend
-Handle MQTT communication for Smart Socket devices
+Backend MQTT Smart Socket untuk EcoLab.
+
+Modul ini menangani komunikasi MQTT untuk device Smart Socket,
+baik sisi status, monitoring energi, timer, maupun schedule.
 """
 
 import json
@@ -9,9 +11,9 @@ from PySide6.QtCore import QObject, Signal
 
 
 class SmartSocketBackend(QObject):
-    """Backend untuk single Smart Socket device"""
+    """Backend untuk satu device Smart Socket."""
 
-    # Signals untuk update GUI
+    # Signal untuk update UI
     status_changed = Signal(bool)  # Relay state: True=ON, False=OFF
     energy_changed = Signal(dict)  # Energy data: {voltage, current, power, energy, frequency, pf}
     timer_status_changed = Signal(str)  # Timer status: "ACTIVE:XXs" / "INACTIVE"
@@ -19,19 +21,20 @@ class SmartSocketBackend(QObject):
     device_status_changed = Signal(bool)  # Device online: True=ONLINE, False=OFFLINE
 
     def __init__(self, mqtt_client, socket_number, logger=None):
+        """Menyimpan client MQTT, nomor socket, topic, dan state awal device."""
         super().__init__()
         self.mqtt = mqtt_client
         self.socket_number = socket_number
         self.logger = logger
 
-        # State storage
+        # State storage untuk cache status terakhir.
         self.relay_state = None
         self.energy_data = {}
         self.timer_status = "INACTIVE"
         self.schedule_status = {}
         self.device_online = False
 
-        # MQTT topics
+        # Daftar topic MQTT milik socket ini.
         self.topic_prefix = f"ecolab/socket/{socket_number}"
         self.topics = {
             "relay": f"{self.topic_prefix}/relaystatus",
@@ -41,16 +44,16 @@ class SmartSocketBackend(QObject):
             "device": f"{self.topic_prefix}/devicestatus",
         }
 
-        # Tidak perlu subscribe di sini, akan di-handle oleh Manager via register_handler
+        # Subscribe tidak dilakukan di sini, tetapi lewat manager.
         if self.logger:
             self.logger(f"[Smart Socket {self.socket_number}] Backend initialized")
 
     def _subscribe_topics(self):
-        """Method ini tidak dipakai - subscribe di-handle oleh Manager"""
+        """Placeholder lama; subscribe sekarang di-handle oleh manager."""
         pass
 
     def on_message(self, topic, payload):
-        """Handle MQTT message yang diterima"""
+        """Menerima MQTT message lalu meneruskannya ke parser yang sesuai."""
         if topic == self.topics["relay"]:
             self._handle_relay_status(payload)
 
@@ -67,7 +70,7 @@ class SmartSocketBackend(QObject):
             self._handle_device_status(payload)
 
     def _handle_relay_status(self, payload):
-        """Handle relay status update"""
+        """Memproses update status relay."""
         try:
             state = payload == "ON"
             if state != self.relay_state:
@@ -80,12 +83,12 @@ class SmartSocketBackend(QObject):
                 self.logger(f"[Socket {self.socket_number}] Error parsing relay: {e}")
 
     def _handle_energy_data(self, payload):
-        """Handle energy data update"""
+        """Memproses update data energi dari payload JSON."""
         try:
             data = json.loads(payload)
             self.energy_data = data
             self.energy_changed.emit(data)
-            # Log hanya jika ada perubahan signifikan (optional)
+            # Log hanya saat ada daya yang benar-benar terbaca.
             if self.logger and data.get("power", 0) > 0:
                 v = data.get("voltage", 0)
                 i = data.get("current", 0)
@@ -96,7 +99,7 @@ class SmartSocketBackend(QObject):
                 self.logger(f"[Socket {self.socket_number}] Error parsing energy: {e}")
 
     def _handle_timer_status(self, payload):
-        """Handle timer status update"""
+        """Memproses update status timer."""
         if payload != self.timer_status:
             self.timer_status = payload
             self.timer_status_changed.emit(payload)
@@ -104,7 +107,7 @@ class SmartSocketBackend(QObject):
                 self.logger(f"[Socket {self.socket_number}] Timer: {payload}")
 
     def _handle_schedule_status(self, payload):
-        """Handle schedule status update"""
+        """Memproses update status schedule."""
         try:
             data = json.loads(payload)
             self.schedule_status = data
@@ -115,12 +118,12 @@ class SmartSocketBackend(QObject):
                 stop = data.get("stop", "N/A")
                 self.logger(f"[Socket {self.socket_number}] Schedule: {mode} {start}-{stop}")
         except json.JSONDecodeError:
-            # Jika bukan JSON, simpan sebagai string biasa
+            # Jika payload bukan JSON, simpan sebagai raw string.
             self.schedule_status = {"raw": payload}
             self.schedule_status_changed.emit(payload)
 
     def _handle_device_status(self, payload):
-        """Handle device status update (ONLINE/OFFLINE)"""
+        """Memproses update status device ONLINE atau OFFLINE."""
         try:
             online = payload == "ONLINE"
             if online != self.device_online:
@@ -132,73 +135,74 @@ class SmartSocketBackend(QObject):
             if self.logger:
                 self.logger(f"[Socket {self.socket_number}] Error parsing device status: {e}")
 
-    # ================= PUBLISH METHODS =================
+    # ================= METHOD PUBLISH =================
 
     def set_relay(self, state):
-        """Publish relay control command"""
+        """Mengirim command relay ON/OFF ke socket."""
         payload = "ON" if state else "OFF"
-        topic = f"{self.topic_prefix}/control"  # ecolab/socket/1/control
+        topic = f"{self.topic_prefix}/control"  # contoh: ecolab/socket/1/control
         self.mqtt.publish(topic, payload)
         if self.logger:
             self.logger(f"[Socket {self.socket_number}] Control: {payload}")
 
     def set_timer(self, duration_seconds):
-        """Publish timer command"""
+        """Mengirim command timer ke socket."""
         topic = f"{self.topic_prefix}/timer"
         self.mqtt.publish(topic, str(duration_seconds))
         if self.logger:
             self.logger(f"[Socket {self.socket_number}] Timer: {duration_seconds}s")
 
     def cancel_timer(self):
-        """Cancel active timer"""
+        """Membatalkan timer yang sedang aktif."""
         self.set_timer(0)
 
     def set_schedule_start(self, time_str):
-        """Set schedule start time (HH:MM or CLEAR)"""
+        """Mengatur jam mulai schedule, misalnya `HH:MM` atau `CLEAR`."""
         topic = f"{self.topic_prefix}/schedule/start"
         self.mqtt.publish(topic, time_str)
         if self.logger:
             self.logger(f"[Socket {self.socket_number}] Schedule Start: {time_str}")
 
     def set_schedule_stop(self, time_str):
-        """Set schedule stop time (HH:MM or CLEAR)"""
+        """Mengatur jam berhenti schedule, misalnya `HH:MM` atau `CLEAR`."""
         topic = f"{self.topic_prefix}/schedule/stop"
         self.mqtt.publish(topic, time_str)
         if self.logger:
             self.logger(f"[Socket {self.socket_number}] Schedule Stop: {time_str}")
 
     def set_schedule_mode(self, mode):
-        """Set schedule mode (daily/onetime)"""
+        """Mengatur mode schedule seperti `daily` atau `onetime`."""
         topic = f"{self.topic_prefix}/schedule/mode"
         self.mqtt.publish(topic, mode)
         if self.logger:
             self.logger(f"[Socket {self.socket_number}] Schedule Mode: {mode}")
 
     def clear_schedule(self):
-        """Clear all schedule settings"""
+        """Menghapus semua pengaturan schedule pada socket."""
         self.set_schedule_start("CLEAR")
         self.set_schedule_stop("CLEAR")
 
 
 class SmartSocketManager(QObject):
-    """Manager untuk semua Smart Socket devices (1-5)"""
+    """Manager untuk seluruh device Smart Socket, default-nya 1 sampai 5."""
 
     def __init__(self, mqtt_client, logger=None):
+        """Membuat semua backend socket lalu memasang wildcard subscription."""
         super().__init__()
         self.mqtt = mqtt_client
         self.logger = logger
         self.backends = {}
 
-        # Create backend untuk 5 socket
+        # Buat backend untuk lima socket.
         for i in range(1, 6):
             self.backends[i] = SmartSocketBackend(mqtt_client, i, logger)
 
-        # Subscribe ke semua smart socket topics menggunakan wildcard
+        # Subscribe ke semua topic Smart Socket dengan wildcard.
         smartsocket_wildcard = "ecolab/socket/#"
 
-        # Buat wrapper function untuk callback sesuai signature Paho MQTT
+        # Buat wrapper callback sesuai signature bawaan Paho MQTT.
         def _mqtt_callback(client, userdata, msg):
-            """Wrapper untuk convert Paho MQTT callback ke (topic, payload)"""
+            """Wrapper untuk mengubah callback Paho menjadi `(topic, payload)`."""
             topic = msg.topic
             payload = msg.payload.decode()
             self._on_mqtt_message(topic, payload)
@@ -207,8 +211,8 @@ class SmartSocketManager(QObject):
         if self.logger:
             self.logger(f"[SmartSocket Manager] Subscribed: {smartsocket_wildcard}")
 
-        # Request initial status dari semua devices (trigger retained message)
-        # Subscribe ke status topics untuk mendapatkan retained message
+        # Minta status awal semua device dengan subscribe ke topic status,
+        # agar retained message bisa langsung diterima saat startup.
         for i in range(1, 6):
             status_topic = f"ecolab/socket/{i}/devicestatus"
             self.mqtt.subscribe(status_topic, _mqtt_callback)
@@ -216,7 +220,7 @@ class SmartSocketManager(QObject):
                 self.logger(f"[SmartSocket Manager] Requested status: {status_topic}")
 
     def _on_mqtt_message(self, topic, payload):
-        """Route MQTT message ke backend yang sesuai"""
+        """Merutekan MQTT message ke backend socket yang sesuai."""
         # Parse topic: ecolab/socket/{N}/xxx
         parts = topic.split("/")
         if len(parts) >= 3:
@@ -228,10 +232,10 @@ class SmartSocketManager(QObject):
                 pass
 
     def get_backend(self, socket_number):
-        """Get backend untuk specific socket"""
+        """Mengambil backend untuk nomor socket tertentu."""
         return self.backends.get(socket_number)
 
     def start(self):
-        """Start all backends"""
+        """Menandai manager mulai aktif memonitor semua socket."""
         if self.logger:
             self.logger("[SmartSocket Manager] Started monitoring 5 sockets")

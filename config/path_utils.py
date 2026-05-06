@@ -1,6 +1,8 @@
 """
-Path resolution utility untuk PyInstaller
-Menghandle path relatif untuk development dan frozen executable
+Utility path resolution untuk EcoLab.
+
+Modul ini membantu resolve path resource saat aplikasi dijalankan
+di development mode maupun saat sudah dibundle jadi executable.
 """
 import os
 import sys
@@ -8,7 +10,7 @@ from pathlib import Path
 
 
 def _project_root():
-    """Return the application root for dev mode or the executable dir when frozen."""
+    """Mengembalikan root aplikasi untuk mode script atau executable."""
     if getattr(sys, "frozen", False):
         return Path(sys.executable).parent
     return Path(__file__).resolve().parent.parent
@@ -16,13 +18,13 @@ def _project_root():
 
 def get_resource_path(relative_path):
     """
-    Get absolute path ke resource file
+    Mengubah path relatif resource menjadi absolute path.
 
     Args:
         relative_path: Path relatif dari project root
 
     Returns:
-        Absolute path ke file
+        str: Absolute path ke file resource
 
     Contoh:
         # Development
@@ -34,10 +36,10 @@ def get_resource_path(relative_path):
         -> C:\\Users\\...\\AppData\\Local\\Temp\\_MEI12345\\images\\logo.png
     """
     try:
-        # PyInstaller creates temp folder & stores path in _MEIPASS
+        # PyInstaller membuat folder temp dan menyimpannya di `_MEIPASS`.
         base_path = sys._MEIPASS
     except AttributeError:
-        # Development mode: gunakan project root
+        # Development mode: gunakan root project.
         base_path = str(_project_root())
 
     return os.path.join(base_path, relative_path)
@@ -45,10 +47,10 @@ def get_resource_path(relative_path):
 
 def get_base_path():
     """
-    Get base path aplikasi
+    Mengambil base path aplikasi saat ini.
 
     Returns:
-        Base path aplikasi (temp folder untuk frozen, script dir untuk dev)
+        str: Base path aplikasi
     """
     try:
         return sys._MEIPASS
@@ -58,54 +60,55 @@ def get_base_path():
 
 def get_credentials_path(filename):
     """
-    Get path ke credentials folder
+    Menghasilkan absolute path ke file di folder `credentials`.
 
     Args:
         filename: Nama file di credentials folder
 
     Returns:
-        Absolute path ke file credentials
+        str: Absolute path ke file credentials
 
     Note:
-        Credentials TIDAK di-bundle di .exe, jadi selalu ambil dari folder eksternal
+        File credentials tidak di-bundle ke dalam `.exe`,
+        jadi selalu diambil dari folder eksternal.
     """
-    # Credentials selalu di folder eksternal (bukan di .exe)
+    # Credentials selalu berada di folder eksternal, bukan di dalam bundle exe.
     if getattr(sys, 'frozen', False):
-        # Frozen mode: credentials di sebelah .exe
+        # Frozen mode: credentials berada di sebelah file exe.
         exe_dir = os.path.dirname(sys.executable)
         return os.path.join(exe_dir, "credentials", filename)
     else:
-        # Development mode: credentials di project folder
+        # Development mode: credentials berada di folder project.
         return os.path.join(str(_project_root()), "credentials", filename)
 
 
 def get_images_path(filename):
     """
-    Get path ke images folder
+    Menghasilkan absolute path ke file di folder `images`.
 
     Args:
         filename: Nama file di images folder
 
     Returns:
-        Absolute path ke file image
+        str: Absolute path ke file gambar
     """
     return get_resource_path(os.path.join("images", filename))
 
 
 def get_icon_path(filename):
     """
-    Get path ke icon folder
+    Menghasilkan absolute path ke file di folder `icon`.
 
     Args:
         filename: Nama file di icon folder
 
     Returns:
-        Absolute path ke file icon
+        str: Absolute path ke file icon
     """
     return get_resource_path(os.path.join("icon", filename))
 
 
-# Backward compatible aliases
+# Alias untuk backward compatibility
 def resource_path(relative_path):
-    """Alias untuk get_resource_path()"""
+    """Alias lama untuk `get_resource_path()`."""
     return get_resource_path(relative_path)

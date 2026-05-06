@@ -1,16 +1,17 @@
-"""Helpers for wiring Smart Socket backend signals into the dashboard UI."""
+"""Helper untuk menghubungkan signal backend Smart Socket ke UI dashboard."""
 
 
 class SmartSocketSetup:
     @staticmethod
     def setup(main_window):
-        """Connect all Smart Socket backends to MainWindow handlers."""
+        """Menghubungkan semua backend Smart Socket ke handler milik MainWindow."""
         manager = main_window.smartsocket_manager
 
         if hasattr(main_window, "log"):
             main_window.log("[SmartSocket] Starting setup...")
 
-        # The helper keeps repetitive five-socket signal wiring out of MainWindow.
+        # Helper ini menjaga wiring lima socket tetap ringkas dan tidak
+        # menumpuk di constructor MainWindow.
         for socket_number in range(1, 6):
             backend = manager.get_backend(socket_number)
             backend.status_changed.connect(

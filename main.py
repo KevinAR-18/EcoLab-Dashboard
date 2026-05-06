@@ -1,8 +1,9 @@
 """
-Main dashboard window for the EcoLab desktop application.
+Jendela dashboard utama untuk aplikasi desktop EcoLab.
 
-This module integrates the generated UI, custom widgets, MQTT backends,
-Growatt/WeatherCloud services, and role-aware user actions into one window.
+Modul ini menyatukan UI hasil Qt Designer, widget kustom, backend MQTT,
+layanan Growatt dan WeatherCloud, serta aksi user berbasis role
+ke dalam satu jendela utama.
 """
 
 import sys,random,os,time
@@ -31,7 +32,7 @@ from auth.auth_service import FirebaseAuthService
 from config.firebase_settings import get_env, get_env_bool, get_required_env
 from config.path_utils import get_credentials_path, get_resource_path
 
-# Import Theme Helper untuk styled message boxes
+# Import helper tema untuk message box yang konsisten dengan UI
 from ui.ui_theme_helper import (
     show_styled_information,
     show_styled_warning,
@@ -60,10 +61,10 @@ from backend.mcu_status_backend import MCUStatusBackend
 from backend.smartsocket_backend import SmartSocketManager
 
 # ============================================================
-# MQTT TLS CONFIGURATION
+# KONFIGURASI MQTT TLS
 # ============================================================
-# These values are resolved at import time so missing runtime configuration
-# fails early before the dashboard starts creating backend objects.
+# Nilai ini dibaca saat modul di-import agar kesalahan konfigurasi runtime
+# bisa terdeteksi lebih awal sebelum dashboard membuat object backend.
 MQTT_BROKER = get_required_env("ECOLAB_MQTT_BROKER")
 MQTT_PORT = int(get_env("ECOLAB_MQTT_PORT", "8883"))
 MQTT_USERNAME = get_required_env("ECOLAB_MQTT_USERNAME")
@@ -71,10 +72,12 @@ MQTT_PASSWORD = get_required_env("ECOLAB_MQTT_PASSWORD")
 MQTT_CA_CERT = get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt"))
 MQTT_USE_TLS = get_env_bool("ECOLAB_MQTT_USE_TLS", True)
 
-# Class untuk mengatur Hari dan Waktu
+# Helper sederhana untuk menampilkan jam dan tanggal realtime di header.
+# Dipisah dari MainWindow agar tanggung jawab update waktu tetap kecil dan jelas.
 
 class Date:
     def update_time(self, label: QLabel):
+        """Memperbarui label jam dan tanggal pada header dashboard."""
         current_time = QDateTime.currentDateTime()
 
         time_text = current_time.toString("HH:mm")
@@ -82,7 +85,7 @@ class Date:
 
         label.setText(QCoreApplication.translate("MainWindow", f"{time_text} - {date_text}", None))
         
-# Main Window
+# Kelas window utama dashboard
 class MainWindow(QMainWindow):
     # Signal untuk notify launcher saat logout terjadi
     logout_signal = Signal()
@@ -93,46 +96,57 @@ class MainWindow(QMainWindow):
     APP_VERSION = "v2.0"
 
     def __init__(self, user_session=None):
+        """
+        Menginisialisasi seluruh jendela utama dashboard.
+
+        Fungsi ini bertanggung jawab menyiapkan UI, backend data,
+        koneksi MQTT, timer periodik, navigasi halaman, kontrol perangkat,
+        dan fitur berbasis role user.
+        """
         super().__init__()
 
-        # Simpan user session
+        # Simpan sesi user dari launcher/login.
+        # Nilai ini dipakai untuk menentukan role, nama user, dan akses fitur.
         self.user_session = user_session
 
-        # SETUP UI
+        # Inisialisasi UI hasil generate Qt Designer.
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # Method untuk inisialisasi GUI yang saat aplikasi berjalan.
+        # Konfigurasi tampilan dasar window sebelum backend dijalankan.
         self.initUI()
 
-        # Set version label
+        # Tampilkan versi aplikasi pada area footer.
         self.set_app_version(self.APP_VERSION)
 
         self.ui.logPlainEdit.setReadOnly(True)
         self._weather_initial_fetched = False
 
-        # SETUP UI COMPONENTS (Lamp, AC, Arrow) FIRST
+        # Bentuk komponen visual utama lebih dulu agar backend nanti tinggal
+        # mengirim status dan UI sudah siap menerima update.
         LampSetup.setup(self.ui, self)
         ACSetup.setup(self.ui, self)
         ArrowSetup.setup(self.ui, self)
 
-        # SETUP SWITCH BUTTONS
+        # Siapkan semua tombol switch Smart Socket di dashboard.
         SwitchSetup.setup(self.ui, self)
 
-        # Setup user features (Settings page)
+        # Fitur pada halaman settings hanya diisi jika ada sesi user aktif.
         if self.user_session:
             self.setup_user_features()
 
-        # BACKEND: GROWATT
+        # Backend Growatt berjalan terpisah melalui worker agar fetch data
+        # tidak membekukan UI utama.
         self.growatt = GrowattBackend()
         self.growatt_worker = None
         self._last_growatt_data = None
         self.start_growatt_worker()
 
-        # BACKEND: WEATHER CLOUD
+        # Backend cuaca eksternal untuk page monitoring sensor luar ruangan.
         self.weather = WeatherCloudBackend("5476957392")
 
-        # MQTT CORE & BACKEND (with TLS support)
+        # MQTT adalah jalur utama komunikasi ke perangkat IoT.
+        # Semua backend device akan berbagi koneksi MQTT ini.
         self.mqtt = MqttClient(
             broker=MQTT_BROKER,
             port=MQTT_PORT,
@@ -147,20 +161,24 @@ class MainWindow(QMainWindow):
         self.dht = DHT22MQTTBackend(self.mqtt)
         self.dht.start()
 
+        # Backend kontrol lampu dan AC menerima status dari MQTT serta
+        # mengirim command saat user menekan tombol di UI.
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
         self.lampbutton_backend.status_changed.connect(self._on_lamp_status_changed)
         self.acbutton_backend = ACButtonBackend(self.mqtt, logger=self.log)
         self.acbutton_backend.status_changed.connect(self._on_ac_status_changed)
 
-        # BACKEND: SMART SOCKET
-        # Smart Socket features keep additional in-memory and persisted state
-        # because recording, charting, and autosave need more than raw MQTT I/O.
+        # Smart Socket paling kompleks karena selain baca/tulis MQTT, fitur ini
+        # juga menyimpan state monitoring, recording, autosave, dan warning.
         self.smartsocket_manager = SmartSocketManager(self.mqtt, logger=self.log)
         self.smartsocket_manager.start()
         self.smartsocket_recorder = SmartSocketRecorder()
         self.smartsocket_settings_manager = SmartSocketSettingsManager()
         self.global_smartsocket_monitoring_settings = {}
         self.socket_graph_range_overrides = {}
+
+        # State warning disimpan per socket supaya popup warning tidak terus
+        # muncul berulang tanpa kontrol, dan statusnya bisa di-acknowledge user.
         self.socket_load_warnings = {
             socket_number: {
                 "active": False,
@@ -175,15 +193,16 @@ class MainWindow(QMainWindow):
         }
         self._load_smartsocket_monitoring_settings()
 
-        # Simpan format timer per socket untuk display
+        # Simpan preferensi format timer per socket untuk tampilan popup/UI.
         self.socket_timer_formats = {}  # {socket_number: "hms" atau "seconds"}
 
-        # Setup SmartSocket langsung (tanpa delay)
+        # Registrasi signal/slot Smart Socket lebih awal, lalu sinkronisasi
+        # isi UI setelah MQTT punya sedikit waktu untuk menerima state awal.
         SmartSocketSetup.setup(self)
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
 
 
-        # ROOT & BODY LAYOUT
+        # Rapikan margin root layout agar window custom terlihat penuh.
         for w in [self.ui.styleSheet, self.ui.bgApp]:
             w.setContentsMargins(0, 0, 0, 0)
             if w.layout():
@@ -192,11 +211,11 @@ class MainWindow(QMainWindow):
 
         self.ui.contentTopBg.setContentsMargins(0, 0, 0, 0)
 
-        # WINDOW SETTINGS (FRAMELESS)
+        # Window dibuat frameless agar mengikuti desain custom aplikasi.
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
-        # DATE & CLOCK TIMER
+        # Timer ini hanya untuk update jam pada header setiap 1 detik.
         self.date_helper = Date()
         self.timer = QTimer(self)
         self.timer.timeout.connect(
@@ -204,7 +223,8 @@ class MainWindow(QMainWindow):
         )
         self.timer.start(1000)
 
-        # UI FUNCTIONS & WINDOW BUTTONS
+        # Helper UIFunctions menangani perilaku window custom seperti drag,
+        # maximize/restore, dan animasi sidebar.
         self.ui_functions = UIFunctions(self)
 
         self.ui.minimizeAppBtn.clicked.connect(self.showMinimized)
@@ -214,7 +234,7 @@ class MainWindow(QMainWindow):
         self.ui.closeAppBtn.clicked.connect(self.close)
         self.ui.btn_exit.clicked.connect(self.close)
     
-        # DRAG TITLE BAR
+        # AKTIFKAN DRAG PADA TITLE BAR
         self.ui.contentTopBg.mousePressEvent = self.ui_functions.mouse_press
         self.ui.contentTopBg.mouseMoveEvent = self.ui_functions.mouse_move
         self.ui.contentTopBg.mouseDoubleClickEvent = (
@@ -226,12 +246,12 @@ class MainWindow(QMainWindow):
         # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
         # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
-        # TOGGLE LEFT MENU
+        # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
             lambda: self.ui_functions.toggle_left_menu(self.ui.leftMenuBg)
         )
 
-        # STACKED WIDGET NAVIGATION
+        # Navigasi antar halaman utama dashboard memakai stacked widget.
         self.ui.btn_growatt.clicked.connect(
             lambda: self.ui.stackedWidget.setCurrentWidget(
                 self.ui.page1_growattMonitoring
@@ -256,7 +276,7 @@ class MainWindow(QMainWindow):
             )
         )
 
-        # Smart Socket Action Buttons - Open Popup Control
+        # Tiap tombol action socket membuka popup detail socket yang dipilih.
         self.ui.btn_action_socket1.clicked.connect(
             lambda: self.open_smartsocket_popup(1)
         )
@@ -292,7 +312,7 @@ class MainWindow(QMainWindow):
         ]
         
         # ===============================
-        # FLOW INFO POPUP (Growatt)
+        # Popup ini menampilkan rincian aliran daya Growatt saat judul diklik.
         # ===============================
         self.flowInfoPopup = QFrame(self, Qt.Popup)
         self.flowInfoPopup.setObjectName("flowInfoPopup")
@@ -345,7 +365,8 @@ class MainWindow(QMainWindow):
         self.ui.titleFlow.mousePressEvent = self.show_flow_popup
 
         # ===============================
-        # DHT INFO POPUP (Sensor Info)
+        # Popup ini menampilkan data sensor DHT yang lebih detail dibanding
+        # ringkasan yang tampil di halaman monitoring.
         # ===============================
         self.dhtInfoPopup = QFrame(self, Qt.Popup)
         self.dhtInfoPopup.setObjectName("dhtInfoPopup")
@@ -391,7 +412,7 @@ class MainWindow(QMainWindow):
             lbl.setStyleSheet("font-size: 12px; color: #2c2c2c;")
             layoutDHTPopup.addWidget(lbl)
 
-        # Set click handler untuk titleIndoor
+        # Pasang handler klik pada judul sensor indoor.
         self.ui.titleIndoor.mousePressEvent = self.show_dht_popup
        
         self.lampbutton_backend = LampButtonBackend(self.mqtt, logger=self.log)
@@ -408,6 +429,8 @@ class MainWindow(QMainWindow):
         self.ui.btn_cool_ac.clicked.connect(self.ac_mode_cool)
         self.ui.btn_fan_ac.clicked.connect(self.ac_mode_fan)
 
+        # Timer polling periodik untuk backend yang tidak mendorong data secara
+        # realtime sendiri. Interval berbeda sesuai karakter tiap sumber data.
         # TIMERS: GROWATT
         self.timerGrowatt = QTimer(self)
         self.timerGrowatt.timeout.connect(self.start_growatt_worker)
@@ -423,7 +446,8 @@ class MainWindow(QMainWindow):
         self.timerDhtmqtt.timeout.connect(self.update_dht_ui)
         self.timerDhtmqtt.start(1000)  # 1 detik
 
-        # MCU STATUS BACKEND & TIMER
+        # Status MCU dipakai untuk menentukan perangkat kontrol boleh ditekan
+        # atau tidak, terutama saat device offline.
         self.mcu_status = MCUStatusBackend(self.mqtt)
         self.mcu_status.start()
 
@@ -439,10 +463,11 @@ class MainWindow(QMainWindow):
         self.timerACState.timeout.connect(self.update_ac_ui_from_state)
         self.timerACState.start(300)
 
-        # SHOW WINDOW
+        # Tampilkan window setelah seluruh komponen utama siap.
         self.show()
         
     def show_flow_popup(self, event):
+        """Menampilkan popup detail aliran daya Growatt di bawah judul flow."""
         # posisikan popup di bawah titleFlow
         pos = self.ui.titleFlow.mapToGlobal(
             self.ui.titleFlow.rect().bottomLeft()
@@ -451,7 +476,7 @@ class MainWindow(QMainWindow):
         self.flowInfoPopup.show()
 
     def show_dht_popup(self, event):
-        """Show DHT popup di bawah titleIndoor"""
+        """Menampilkan popup detail sensor DHT di bawah judul indoor."""
         pos = self.ui.titleIndoor.mapToGlobal(
             self.ui.titleIndoor.rect().bottomLeft()
         )
@@ -459,28 +484,31 @@ class MainWindow(QMainWindow):
         self.dhtInfoPopup.show()
 
     def update_dht_popup(self, data):
-        """Update DHT info popup dengan data terbaru"""
+        """Memperbarui isi popup DHT menggunakan data sensor terbaru."""
+        # Formatter kecil agar nilai None tidak langsung tampil sebagai teks
+        # Python, tetapi diganti placeholder yang lebih ramah dibaca.
         def fmt(val, unit=""):
+            """Memformat nilai popup DHT dan mengganti None menjadi placeholder."""
             if val is None:
                 return "--"
             return f"{val}{unit}"
 
-        # Update source info
+        # Perbarui informasi sumber data suhu dan kelembaban.
         temp_source = data.get("temp_source", "--")
         hum_source = data.get("hum_source", "--")
 
         self.lblDHTSourceTemp.setText(f"Sumber Suhu: {fmt(temp_source)}")
         self.lblDHTSourceHum.setText(f"Sumber Kelembaban: {fmt(hum_source)}")
 
-        # Update MCU A data
+        # Perbarui data sensor dari MCU A.
         self.lblDHTTempA.setText(f"MCU A Suhu: {fmt(data.get('temp_A'), ' °C')}")
         self.lblDHTHumA.setText(f"MCU A Kelembaban: {fmt(data.get('hum_A'), ' %')}")
 
-        # Update MCU B data
+        # Perbarui data sensor dari MCU B.
         self.lblDHTTempB.setText(f"MCU B Suhu: {fmt(data.get('temp_B'), ' °C')}")
         self.lblDHTHumB.setText(f"MCU B Kelembaban: {fmt(data.get('hum_B'), ' %')}")
 
-        # Update average
+        # Perbarui nilai rata-rata gabungan.
         avg_temp = data.get("avg_temperature")
         avg_hum = data.get("avg_humidity")
         self.lblDHTAvgTemp.setText(f"Rata-rata Suhu: {fmt(avg_temp, ' °C')}")
@@ -488,15 +516,19 @@ class MainWindow(QMainWindow):
 
 
     def update_flow_popup(self, flow):
+        """Memperbarui isi popup flow Growatt berdasarkan data terbaru."""
         if not flow:
             return
 
+        # Formatter dipisah agar string label tetap konsisten dan mudah dibaca.
         def fmt(val, unit="", dec=1):
+            """Memformat angka desimal untuk popup flow Growatt."""
             if val is None:
                 return "--"
             return f"{val:.{dec}f}{unit}"
 
         def fmt_int(val, unit=""):
+            """Memformat angka bilangan bulat untuk popup flow Growatt."""
             if val is None:
                 return "--"
             return f"{int(val)}{unit}"
@@ -574,10 +606,11 @@ class MainWindow(QMainWindow):
             return "--", "kWh"
 
     def update_growatt_ui(self, data: dict):
+        """Mengisi komponen UI Growatt dengan data inverter terbaru."""
         if not data:
             return
 
-        # skip kalau data sama
+        # Hindari redraw UI jika payload identik dengan data terakhir.
         if data == self._last_growatt_data:
             return
         
@@ -586,18 +619,19 @@ class MainWindow(QMainWindow):
         self.ui.currentconsumppower_value.setText(f"{data['load_power']}W//{data['rateVA_power']}VA")
         self.ui.currentsocbat_value.setText(f"SoC Battery：{data['soc']}%")
 
-        # TODAY VALUES (tetap dalam kWh)
+        # Nilai harian tetap ditampilkan langsung dalam kWh.
         self.ui.pvtoday_value.setText(f"{data['pv_today']}")
         self.ui.loadtoday_value.setText(f"{data['load_today']}")
 
-        # TOTAL VALUES - Format ke kWh/mWh dan update satuan label
+        # Nilai total bisa membesar, jadi format satuan disesuaikan otomatis
+        # antara kWh dan mWh agar tampilan lebih enak dibaca.
         # PV Total
         pv_total_val, pv_total_unit = self._format_energy_value(data['pv_total'])
         self.ui.pvtotal_value.setText(pv_total_val)
         if hasattr(self.ui, 'labelkwh2'):
             self.ui.labelkwh2.setText(pv_total_unit)
 
-        # Load Total
+        # Total konsumsi beban
         load_total_val, load_total_unit = self._format_energy_value(data['load_total'])
         self.ui.loadtotal_value.setText(load_total_val)
         if hasattr(self.ui, 'labelkwh4'):
@@ -640,7 +674,7 @@ class MainWindow(QMainWindow):
             self.arrows["soc_dynamic"].set_active(True)
 
                         
-        # ARROW
+        # Arah panah dipakai sebagai indikator visual apakah jalur energi aktif.
         self.arrows["pv"].set_active(data["pv_power"] > 0)
         self.arrows["grid"].set_active(data["grid_import_power"] > 0)
         self.arrows["load"].set_active(data["load_power"] > 0)
@@ -652,6 +686,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def deg_to_compass(deg: float) -> str:
+        """Mengubah derajat arah angin menjadi nama arah mata angin."""
         directions = [
             "North",
             "North East",
@@ -665,7 +700,9 @@ class MainWindow(QMainWindow):
         return directions[round(deg / 45) % 8]
 
     def update_dataWeathercloud(self):
-        
+        """Mengambil data WeatherCloud lalu memperbarui UI cuaca luar ruangan."""
+        # Fetch pertama tetap dijalankan agar halaman sensor punya data awal.
+        # Setelah itu, update dibatasi hanya saat halaman sensor sedang aktif.
         if not self._weather_initial_fetched:
             pass
         else:
@@ -722,12 +759,15 @@ class MainWindow(QMainWindow):
             self.log("dataWeather Cloud:", e)
             
     def update_dht_ui(self):
+        """Memperbarui ringkasan suhu dan kelembaban indoor dari backend DHT."""
+        # Data DHT berasal dari backend MQTT yang menggabungkan pembacaan MCU A
+        # dan MCU B, lalu menghitung nilai rata-rata yang dipakai dashboard.
         data = self.dht.fetch()
 
         avg_temp = data.get("avg_temperature")
         avg_hum = data.get("avg_humidity")
 
-        # ===== DETEKSI DATA PERTAMA =====
+        # Jangan ubah UI sebelum ada data nyata dari MQTT.
         if not hasattr(self, "_dht_initialized"):
             if avg_temp is not None or avg_hum is not None:
                 self._dht_initialized = True
@@ -736,13 +776,13 @@ class MainWindow(QMainWindow):
                 return
         # ===============================
 
-        # Update suhu
+        # Perbarui tampilan suhu indoor.
         if avg_temp is not None:
             if avg_temp != getattr(self, "_last_dht_temp", None):
                 self.ui.tempIndoor_value.setText(f"{avg_temp:.1f} °C")
                 self._last_dht_temp = avg_temp
 
-        # Update kelembaban
+        # Perbarui tampilan kelembaban indoor.
         if avg_hum is not None:
             if avg_hum != getattr(self, "_last_dht_hum", None):
                 self.ui.humidIndoor_value.setText(f"{avg_hum:.1f} %")
@@ -769,42 +809,43 @@ class MainWindow(QMainWindow):
             self.ui.titleHumidIndoor
         )
 
-        # Update DHT info popup
+        # Perbarui isi popup detail DHT.
         self.update_dht_popup(data)
 
 
     def publish_lamp(self, lamp_index: int, state: bool):
+        """Mengirim perintah ON atau OFF ke lampu melalui backend MQTT."""
         # self.lampbutton_backend.set_lamp(lamp_index, state)
         self.lampbutton_backend.publish(lamp_index, state)
         self.log(f"Lamp {lamp_index}: {state}")
 
+    # ===============================
+    # PERINTAH PERANGKAT & LOGGING
+    # ===============================
     def publish_ac_power(self, state: bool):
+        """Mengirim perintah daya utama AC melalui backend MQTT."""
         self.acbutton_backend.power(state)
         print(f"AC Power: {state}")
         self.log(f"AC Power: {state}")
 
     def on_switch_toggled(self, switch_index: int, state: bool):
-        """Handler saat switch button ditekan"""
-        # print(f"[DEBUG] Switch {switch_index} toggled: {state}")  # Debug print
+        """Menangani klik switch Smart Socket lalu meneruskan ke backend."""
         self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
 
-        # Debug: Cek apakah socket_backends ada
-        # print(f"[DEBUG] hasattr(self, 'socket_backends'): {hasattr(self, 'socket_backends')}")
+        # Guard ini penting karena user bisa menekan tombol sebelum backend
+        # Smart Socket selesai terpasang atau sebelum MQTT siap.
         if hasattr(self, 'socket_backends'):
-            # print(f"[DEBUG] socket_backends: {self.socket_backends}")
-            # print(f"[DEBUG] switch_index {switch_index} in socket_backends: {switch_index in self.socket_backends}")
             pass
 
-        # Kirim command ke SmartSocket backend
+        # Jika backend siap, kirim perintah relay ke device yang sesuai.
         if hasattr(self, 'socket_backends') and switch_index in self.socket_backends:
             backend = self.socket_backends[switch_index]
-            # print(f"[DEBUG] Backend found: {backend}")  # Debug print
             backend.set_relay(state)
             self.log(f"[Socket {switch_index}] Relay command sent: {state}")
         else:
-            # print(f"[DEBUG] Backend NOT found!")  # Debug print
             self.log(f"[WARNING] Socket {switch_index} backend not ready yet!")
-            # Tampilkan pesan ke user yang lebih jelas
+            # Jika belum siap, tampilkan pesan yang menjelaskan kemungkinan
+            # penyebab agar user tidak bingung kenapa tombol belum bekerja.
             show_styled_warning(
                 self,
                 "Smart Socket Not Ready",
@@ -817,21 +858,28 @@ class MainWindow(QMainWindow):
             )
 
     def ac_temp_up(self):
+        """Mengirim perintah menaikkan suhu AC."""
         self.acbutton_backend.temp_up()
 
     def ac_temp_down(self):
+        """Mengirim perintah menurunkan suhu AC."""
         self.acbutton_backend.temp_down()
 
     def ac_mode_cool(self):
+        """Mengubah mode AC ke mode pendingin."""
         self.acbutton_backend.mode_cool()
 
     def ac_mode_fan(self):
+        """Mengubah mode AC ke mode kipas."""
         self.acbutton_backend.mode_fan()
         
     def log(self, message: str):
+        """Menjadwalkan penambahan log ke UI secara aman dari event loop Qt."""
+        # Pastikan append log selalu aman dipanggil dari konteks callback/timer.
         QTimer.singleShot(0, lambda: self._append_log(message))
 
     def _append_log(self, message: str):
+        """Menambahkan satu baris log bertimestamp ke panel log dashboard."""
         time = QDateTime.currentDateTime().toString("HH:mm:ss")
         self.ui.logPlainEdit.appendPlainText(f"[{time}] {message}")
         self.ui.logPlainEdit.verticalScrollBar().setValue(
@@ -839,6 +887,8 @@ class MainWindow(QMainWindow):
         )
 
     def start_growatt_worker(self):
+        """Menjalankan worker pengambil data Growatt jika belum ada yang aktif."""
+        # Cegah worker ganda agar request ke Growatt tidak menumpuk.
         if self.growatt_worker and self.growatt_worker.isRunning():
             return
 
@@ -850,9 +900,12 @@ class MainWindow(QMainWindow):
         self.growatt_worker.start()
         
     def update_mcu_status_ui(self):
+        """Memperbarui status online/offline MCU dan enable state kontrol device."""
+        # Status online/offline MCU mempengaruhi apakah tombol device aktif.
         status = self.mcu_status.fetch()
 
-        # Cek apakah guest mode - JANGAN override guest settings!
+        # Guest mode memang dibatasi aksesnya, jadi jangan sampai logika status
+        # MCU justru membuka kembali tombol kontrol untuk guest.
         is_guest = self.user_session.get("role") == "guest" if self.user_session else False
 
         # ===== MCU A =====
@@ -867,7 +920,7 @@ class MainWindow(QMainWindow):
             )
             self.ui.statusmcuA.style().polish(self.ui.statusmcuA)
 
-            # Hanya update enabled state jika BUKAN guest mode
+            # Hanya ubah status aktif tombol jika BUKAN guest mode
             if not is_guest:
                 disabled_lamps = {4}
 
@@ -889,12 +942,13 @@ class MainWindow(QMainWindow):
             )
             self.ui.statusmcuB.style().polish(self.ui.statusmcuB)
 
-            # Hanya update enabled state jika BUKAN guest mode
+            # Hanya ubah status aktif tombol jika BUKAN guest mode
             if not is_guest:
                 for btn in self.ac_buttons:
                     btn.setEnabled(statemcuB)
     
     def update_temp_style(self, temperature, frame, title):
+        """Mengubah warna panel suhu berdasarkan kategori temperatur."""
         if temperature is None:
             return
 
@@ -940,6 +994,7 @@ class MainWindow(QMainWindow):
         """)
         
     def update_heatindex_style(self, heat_index, frame, title):
+        """Mengubah warna panel heat index berdasarkan tingkat panas."""
         if heat_index is None:
             return
 
@@ -989,6 +1044,7 @@ class MainWindow(QMainWindow):
         """)
         
     def update_humidity_style(self, humidity, frame, title):
+        """Mengubah warna panel kelembaban berdasarkan rentang humidity."""
         if humidity is None:
             return
 
@@ -1033,9 +1089,12 @@ class MainWindow(QMainWindow):
         }}
         """)
 
+    # ===============================
+    # DASAR WINDOW & HELPER RESOURCE
+    # ===============================
     def initUI(self):
-        """Pengaturan Awal GUI"""
-        # Mengatur Judul Aplikasi
+        """Menyiapkan properti dasar window seperti judul dan ikon aplikasi."""
+        # Pengaturan dasar window yang tidak bergantung pada backend.
         self.setWindowTitle("EcoLab Dashboard")
 
         # Mengatur Icon Aplikasi
@@ -1044,31 +1103,32 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(icon)
 
     def set_app_version(self, version: str):
-        """Set version label di bottom bar"""
+        """Menampilkan versi aplikasi pada label bagian bawah window."""
         self.ui.version.setText(version)
 
     def get_app_version(self) -> str:
-        """Get current app version"""
+        """Mengembalikan string versi aplikasi yang sedang dipakai."""
         return self.APP_VERSION
         
     def resource_path(self, relative_path):
-        """ Mengonversi path relatif menjadi path absolut.
+        """Mengonversi path relatif resource menjadi path absolut.
         Berguna untuk memastikan file dapat ditemukan dari
         direktori aplikasi saat ini.
 
-        Menggunakan get_resource_path() untuk PyInstaller compatibility.
+        Fungsi ini memakai `get_resource_path()` agar tetap kompatibel
+        saat aplikasi dijalankan sebagai script maupun hasil PyInstaller.
         """
         return get_resource_path(relative_path)
 
     # ===============================
-    # USER FEATURES (Settings Page)
+    # FITUR USER (HALAMAN SETTINGS)
     # ===============================
     def setup_user_features(self):
-        """Setup user features di Settings page"""
+        """Menyiapkan fitur halaman settings sesuai role dan provider login."""
         if not self.user_session:
             return
 
-        # 1. Load user profile data
+        # 1. Muat data profil user
         self.load_user_profile()
 
         # 2. Cek role dan auth provider
@@ -1079,7 +1139,7 @@ class MainWindow(QMainWindow):
         is_admin = user_role == "admin"
         is_google = auth_provider == "google"
 
-        # 3. Setup tombol Admin Panel
+        # 3. Atur tombol Admin Panel
         if is_admin:
             # ADMIN: Enable dan connect tombol Admin Panel
             self.ui.btnAdminpanel.setEnabled(True)
@@ -1093,21 +1153,21 @@ class MainWindow(QMainWindow):
             else:
                 self.ui.btnAdminpanel.setToolTip("Admin access only")
 
-        # 4. Setup tombol Update Password
+        # 4. Atur tombol Update Password
         if is_guest or is_google:
-            # GUEST atau GOOGLE: Disable tombol Update Password
+            # GUEST atau GOOGLE: nonaktifkan tombol Update Password
             self.ui.btnUpdatePassword.setEnabled(False)
             if is_guest:
                 self.ui.btnUpdatePassword.setToolTip("Not available in Guest Mode")
             else:  # is_google
                 self.ui.btnUpdatePassword.setToolTip("Managed by Google authentication")
         else:
-            # REGULAR USER & ADMIN: Enable dan connect tombol Update Password
+            # USER biasa dan ADMIN: aktifkan tombol Update Password
             self.ui.btnUpdatePassword.setEnabled(True)
             self.ui.btnUpdatePassword.setToolTip("")
             self.ui.btnUpdatePassword.clicked.connect(self.handle_update_password)
 
-        # 5. Setup tombol Logout
+        # 5. Atur tombol Logout
         if is_guest:
             # GUEST: Disable tombol Logout
             self.ui.btnLogout.setEnabled(False)
@@ -1118,41 +1178,41 @@ class MainWindow(QMainWindow):
             self.ui.btnLogout.setToolTip("")
             self.ui.btnLogout.clicked.connect(self.handle_logout)
 
-        # 6. Setup kontrol devices (Smart Socket, Lampu, AC)
+        # 6. Atur hak akses kontrol device (Smart Socket, Lampu, AC)
         self.setup_device_controls(is_guest)
 
     def setup_device_controls(self, is_guest):
-        """Setup device controls berdasarkan user role (guest atau bukan)"""
+        """Mengatur hak akses kontrol device berdasarkan mode guest atau bukan."""
         if is_guest:
             # GUEST: Disable semua kontrol devices (read-only mode)
 
-            # === SMART SOCKET ACTION BUTTONS ===
+            # === TOMBOL AKSI SMART SOCKET ===
             for i in range(1, 6):
                 action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
                 if action_btn:
                     action_btn.setEnabled(False)
-                    # Custom widget SmartSocketActionButton akan otomatis
-                    # set style redup via setEnabled() override
+                    # Widget custom SmartSocketActionButton otomatis
+                    # memberi tampilan redup saat disabled.
                     action_btn.setToolTip("Not available in Guest Mode (Read-only)")
 
-            # === SMART SOCKET SWITCH BUTTONS ===
+            # === TOMBOL SWITCH SMART SOCKET ===
             if hasattr(self, 'switches'):
                 for switch in self.switches:
                     switch.setEnabled(False)
                     switch.setToolTip("Not available in Guest Mode (Read-only)")
 
-            # === LAMP BUTTONS ===
+            # === TOMBOL LAMPU ===
             if hasattr(self, 'lamps'):
                 for lamp in self.lamps:
                     lamp.setEnabled(False)
                     lamp.setToolTip("Not available in Guest Mode (Read-only)")
 
-            # === AC BUTTON ===
+            # === TOMBOL AC ===
             if hasattr(self, 'ac_button'):
                 self.ac_button.setEnabled(False)
                 self.ac_button.setToolTip("Not available in Guest Mode (Read-only)")
 
-            # === AC CONTROL BUTTONS ===
+            # === TOMBOL KONTROL AC ===
             ac_control_buttons = ['btn_temp_up', 'btn_temp_down', 'btn_cool_ac', 'btn_fan_ac']
             for btn_name in ac_control_buttons:
                 btn = getattr(self.ui, btn_name, None)
@@ -1161,21 +1221,21 @@ class MainWindow(QMainWindow):
                     btn.setToolTip("Not available in Guest Mode (Read-only)")
         else:
             # USER & ADMIN: Enable semua kontrol devices
-            # Smart Socket Action Buttons
+            # Tombol aksi Smart Socket
             for i in range(1, 6):
                 action_btn = getattr(self.ui, f"btn_action_socket{i}", None)
                 if action_btn:
                     action_btn.setEnabled(True)
-                    # Custom widget akan otomatis menghapus opacity via paintEvent saat enabled
+                    # Widget custom otomatis menghapus efek redup saat aktif.
                     action_btn.setToolTip("")
 
-            # Smart Socket Switch Buttons
+            # Tombol switch Smart Socket
             if hasattr(self, 'switches'):
                 for switch in self.switches:
                     switch.setEnabled(True)
                     switch.setToolTip("")
 
-            # Lamp Buttons
+            # Tombol lampu
             if hasattr(self, 'lamps'):
                 for lamp in self.lamps:
                     # Lamp 4 tetap disabled (sesuai setup awal)
@@ -1183,12 +1243,12 @@ class MainWindow(QMainWindow):
                         lamp.setEnabled(True)
                     lamp.setToolTip("")
 
-            # AC Button
+            # Tombol AC
             if hasattr(self, 'ac_button'):
                 self.ac_button.setEnabled(True)
                 self.ac_button.setToolTip("")
 
-            # === AC CONTROL BUTTONS ===
+            # === TOMBOL KONTROL AC ===
             ac_control_buttons = ['btn_temp_up', 'btn_temp_down', 'btn_cool_ac', 'btn_fan_ac']
             for btn_name in ac_control_buttons:
                 btn = getattr(self.ui, btn_name, None)
@@ -1197,21 +1257,21 @@ class MainWindow(QMainWindow):
                     btn.setToolTip("")
 
     def load_user_profile(self):
-        """Load username dan email ke Settings page"""
+        """Mengisi username dan email user ke form halaman settings."""
         if self.user_session:
-            # Set username dan email ke input fields
+            # Isi username dan email ke field input.
             self.ui.inputUsername.setText(self.user_session.get("username", ""))
             self.ui.inputEmail.setText(self.user_session.get("email", ""))
 
             # Cek apakah guest mode
             is_guest = self.user_session.get("role") == "guest"
 
-            # Set read-only untuk guest mode (styling lewat Qt Designer)
+            # Atur read-only untuk guest mode (styling lewat Qt Designer).
             self.ui.inputUsername.setReadOnly(is_guest)
             self.ui.inputEmail.setReadOnly(is_guest)
 
     def handle_update_password(self):
-        """Handle tombol Update Password diklik"""
+        """Menangani proses update password untuk user non-Google."""
         if not self.user_session:
             return
 
@@ -1244,7 +1304,7 @@ class MainWindow(QMainWindow):
                 )
                 return
 
-            # Update password via Firebase
+            # Jalankan proses update password melalui Firebase.
             try:
                 auth_service = FirebaseAuthService()
 
@@ -1274,7 +1334,7 @@ class MainWindow(QMainWindow):
                 )
 
     def handle_logout(self):
-        """Handle tombol Logout diklik"""
+        """Meminta konfirmasi logout lalu memberi sinyal ke launcher."""
         from PySide6.QtWidgets import QMessageBox
         reply = show_styled_question(
             self,
@@ -1287,11 +1347,11 @@ class MainWindow(QMainWindow):
             self.logout_signal.emit()
 
     def handle_open_admin_panel(self):
-        """Handle tombol Admin Panel diklik"""
+        """Membuka jendela admin panel jika fitur admin tersedia."""
         try:
             from dialogs.admin_window import AdminPanelWindow
 
-            # Buka admin panel window
+            # Buka window admin panel.
             self.admin_panel_window = AdminPanelWindow(self)
             self.admin_panel_window.show()
 
@@ -1302,8 +1362,11 @@ class MainWindow(QMainWindow):
                 f"❌ Failed to open Admin Panel:\n{str(e)}"
             )
 
+    # ===============================
+    # POPUP & ALUR KONTROL SMART SOCKET
+    # ===============================
     def open_smartsocket_popup(self, socket_number):
-        """Buka popup kontrol Smart Socket - Cegah popup ganda"""
+        """Membuka dialog kontrol Smart Socket sambil mencegah popup ganda."""
         # Cek apakah popup untuk socket ini sudah terbuka
         popup_attr = f"_socket{socket_number}_popup"
 
@@ -1340,12 +1403,12 @@ class MainWindow(QMainWindow):
             )
 
     def setup_admin_features(self):
-        """Setup fitur admin (buka admin panel)"""
-        # Tombol Admin Panel sudah di-setup di setup_user_features()
+        """Placeholder untuk logika admin tambahan jika nanti diperlukan."""
+        # Tombol Admin Panel sudah diatur di setup_user_features().
         pass
     def _on_lamp_status_changed(self, lamp_index: int, state: bool):
-        """Callback saat status lamp berubah dari MQTT"""
-        # Update UI untuk lamp yang berubah saja
+        """Menyinkronkan status lampu dari MQTT ke widget lampu terkait."""
+        # Perbarui hanya lampu yang statusnya berubah.
         if 1 <= lamp_index <= len(self.lamps):
             lamp = self.lamps[lamp_index - 1]
             lamp.blockSignals(True)
@@ -1353,6 +1416,7 @@ class MainWindow(QMainWindow):
             lamp.blockSignals(False)
 
     def update_lamp_ui_from_state(self):
+        """Menyamakan tampilan semua tombol lampu dengan state backend terakhir."""
         for idx, lamp in enumerate(self.lamps, start=1):
             state = self.lampbutton_backend.states.get(idx)
             if state is not None:
@@ -1361,29 +1425,35 @@ class MainWindow(QMainWindow):
                 lamp.blockSignals(False)
 
     def _on_ac_status_changed(self, state: bool):
-        """Callback saat status AC berubah dari MQTT"""
-        # Update UI AC button
+        """Menyinkronkan status AC dari MQTT ke tombol dan label UI."""
+        # Perbarui tombol utama AC.
         self.ac_button.blockSignals(True)
         self.ac_button.setChecked(state)
         self.ac_button.blockSignals(False)
 
-        # Update AC status label jika ada
+        # Perbarui label status AC jika helper-nya tersedia.
         if hasattr(self, "update_ac_status"):
             self.update_ac_status(state)
 
     def update_ac_ui_from_state(self):
+        """Menyamakan tombol AC dengan state backend terakhir."""
         state = self.acbutton_backend.state
         if state is not None:
             self.ac_button.blockSignals(True)
             self.ac_button.setChecked(state)
             self.ac_button.blockSignals(False)
 
-            # 🔥 TAMBAHAN WAJIB
+            # Pastikan label status tambahan ikut tersinkron.
             if hasattr(self, "update_ac_status"):
                 self.update_ac_status(state)
 
-    # ================= SMART SOCKET RECORDING API =================
+    # ===============================
+    # RECORDING & PENGATURAN SMART SOCKET
+    # ===============================
+    # Bagian ini mengatur recording data per socket, autosave CSV,
+    # interval sampling, dan penyimpanan preferensi monitoring.
     def start_socket_recording(self, socket_number: int, source="manual"):
+        """Memulai perekaman data monitoring untuk satu Smart Socket."""
         changed = self.smartsocket_recorder.start(socket_number, source=source)
         if changed:
             self.log(f"[Socket {socket_number}] Recording started ({source})")
@@ -1391,6 +1461,7 @@ class MainWindow(QMainWindow):
         return changed
 
     def stop_socket_recording(self, socket_number: int, source="manual"):
+        """Menghentikan perekaman data monitoring untuk satu Smart Socket."""
         changed = self.smartsocket_recorder.stop(socket_number, source=source)
         if changed:
             self.log(f"[Socket {socket_number}] Recording stopped ({source})")
@@ -1398,55 +1469,68 @@ class MainWindow(QMainWindow):
         return changed
 
     def set_socket_follow_schedule(self, socket_number: int, enabled: bool):
+        """Mengatur apakah recording socket mengikuti trigger schedule."""
         self.smartsocket_recorder.set_follow_schedule(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
         self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Follow schedule recording {state}")
 
     def set_socket_record_interval_seconds(self, socket_number: int, seconds: float):
+        """Mengatur interval sampling recording untuk satu Smart Socket."""
         self.smartsocket_recorder.set_record_interval_seconds(socket_number, seconds)
         self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Record interval set to {seconds}s")
 
     def get_socket_record_interval_seconds(self, socket_number: int):
+        """Mengambil interval recording yang aktif untuk satu Smart Socket."""
         return self.smartsocket_recorder.get_record_interval_seconds(socket_number)
 
     def set_socket_autosave_enabled(self, socket_number: int, enabled: bool):
+        """Mengaktifkan atau menonaktifkan autosave CSV untuk satu socket."""
         self.smartsocket_recorder.set_autosave_enabled(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
         self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Autosave {state}")
 
     def is_socket_autosave_enabled(self, socket_number: int):
+        """Mengecek apakah autosave socket sedang aktif."""
         return self.smartsocket_recorder.is_autosave_enabled(socket_number)
 
     def set_socket_autosave_dir(self, socket_number: int, directory: str):
+        """Menyimpan folder tujuan autosave CSV untuk satu socket."""
         self.smartsocket_recorder.set_autosave_dir(socket_number, directory)
         self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Autosave dir: {directory}")
 
     def get_socket_autosave_dir(self, socket_number: int):
+        """Mengambil folder autosave CSV yang dipakai oleh satu socket."""
         return self.smartsocket_recorder.get_autosave_dir(socket_number)
 
     def is_socket_recording(self, socket_number: int):
+        """Mengecek apakah socket tertentu sedang merekam data."""
         return self.smartsocket_recorder.is_recording(socket_number)
 
     def is_socket_follow_schedule(self, socket_number: int):
+        """Mengecek apakah mode follow schedule aktif untuk socket tertentu."""
         return self.smartsocket_recorder.is_follow_schedule(socket_number)
 
     def get_socket_records(self, socket_number: int):
+        """Mengambil data record sementara milik satu socket."""
         return self.smartsocket_recorder.get_records(socket_number)
 
     def clear_socket_records(self, socket_number: int):
+        """Menghapus data record sementara milik satu Smart Socket."""
         self.smartsocket_recorder.clear_records(socket_number)
         self.log(f"[Socket {socket_number}] Recording data cleared")
 
     def export_socket_records_csv(self, socket_number: int, path: str):
+        """Mengekspor data record Smart Socket ke file CSV."""
         count = self.smartsocket_recorder.export_csv(socket_number, path)
         self.log(f"[Socket {socket_number}] Exported {count} rows to CSV")
         return count
 
     def _load_smartsocket_monitoring_settings(self):
+        """Memuat pengaturan monitoring Smart Socket dari penyimpanan lokal."""
         if not hasattr(self, "smartsocket_settings_manager"):
             return
 
@@ -1545,6 +1629,7 @@ class MainWindow(QMainWindow):
         )
 
     def _persist_socket_monitoring_settings(self, socket_number: int):
+        """Menyimpan ulang pengaturan monitoring untuk satu Smart Socket."""
         if not hasattr(self, "smartsocket_settings_manager"):
             return
 
@@ -1557,22 +1642,32 @@ class MainWindow(QMainWindow):
         )
 
     def get_socket_graph_range_overrides(self):
+        """Mengambil override range grafik yang tersimpan untuk semua socket."""
         return dict(getattr(self, "socket_graph_range_overrides", {}))
 
     def set_socket_graph_range_override(self, socket_number: int, metric: str, override: dict):
+        """Menyimpan override range grafik untuk metric socket tertentu."""
         self.socket_graph_range_overrides[(socket_number, metric)] = dict(override)
         if hasattr(self, "smartsocket_settings_manager"):
             self.smartsocket_settings_manager.set_graph_range(socket_number, metric, override)
 
     def clear_socket_graph_range_override(self, socket_number: int, metric: str):
+        """Menghapus override range grafik untuk metric socket tertentu."""
         self.socket_graph_range_overrides.pop((socket_number, metric), None)
         if hasattr(self, "smartsocket_settings_manager"):
             self.smartsocket_settings_manager.set_graph_range(socket_number, metric, None)
 
+    # ===============================
+    # SISTEM PERINGATAN SMART SOCKET
+    # ===============================
+    # Warning arus berlebih dipisahkan dari update data biasa karena perlu
+    # level warning, acknowledge user, dan jeda popup agar tidak spam.
     def get_socket_warning_state(self, socket_number: int):
+        """Mengambil salinan state warning arus untuk satu Smart Socket."""
         return dict(self.socket_load_warnings.get(socket_number, {}))
 
     def acknowledge_socket_warning(self, socket_number: int):
+        """Menandai warning socket sudah diketahui user agar popup tidak berulang."""
         state = self.socket_load_warnings.get(socket_number)
         if not state or not state.get("active"):
             return
@@ -1581,6 +1676,7 @@ class MainWindow(QMainWindow):
             self.socket_warning_state_changed.emit(socket_number)
 
     def _warning_from_current(self, current_value: float, relay_on: bool):
+        """Menentukan level warning berdasarkan arus dan status relay."""
         if not relay_on:
             return {
                 "active": False,
@@ -1618,6 +1714,7 @@ class MainWindow(QMainWindow):
         }
 
     def _warning_popup_title(self, level: str):
+        """Menghasilkan judul popup warning sesuai tingkat bahayanya."""
         return {
             "elevated": "Socket Load Warning",
             "high": "Socket Load Warning",
@@ -1625,6 +1722,7 @@ class MainWindow(QMainWindow):
         }.get(level, "Socket Load Warning")
 
     def _show_socket_warning_popup(self, socket_number: int):
+        """Menampilkan popup warning arus berlebih untuk socket tertentu."""
         state = self.socket_load_warnings.get(socket_number, {})
         if not state.get("active") or state.get("popup_open"):
             return
@@ -1641,6 +1739,7 @@ class MainWindow(QMainWindow):
         state["popup_open"] = False
 
     def _update_socket_warning_state(self, socket_number: int, current_value: float, relay_on: bool):
+        """Memperbarui state warning socket dan memutuskan kapan popup muncul."""
         new_state = self._warning_from_current(current_value, relay_on)
         current_state = self.socket_load_warnings.get(socket_number, {})
 
@@ -1683,6 +1782,7 @@ class MainWindow(QMainWindow):
             self._show_socket_warning_popup(socket_number)
 
     def get_global_socket_monitoring_settings(self):
+        """Mengambil pengaturan monitoring global yang berlaku untuk semua socket."""
         return dict(getattr(self, "global_smartsocket_monitoring_settings", {}))
 
     def apply_global_socket_monitoring_settings(
@@ -1693,6 +1793,7 @@ class MainWindow(QMainWindow):
         autosave_dir: str,
         save_as_default: bool = False,
     ):
+        """Menerapkan satu paket pengaturan monitoring ke seluruh socket."""
         autosave_dir = (autosave_dir or "").strip()
         for socket_number in range(1, 6):
             self.set_socket_follow_schedule(socket_number, follow_schedule)
@@ -1712,37 +1813,43 @@ class MainWindow(QMainWindow):
             self.smartsocket_settings_manager.update_global_settings(**settings)
 
     def start_all_socket_recording(self, source="manual"):
+        """Memulai recording untuk semua Smart Socket sekaligus."""
         for socket_number in range(1, 6):
             self.start_socket_recording(socket_number, source=source)
 
     def stop_all_socket_recording(self, source="manual"):
+        """Menghentikan recording untuk semua Smart Socket sekaligus."""
         for socket_number in range(1, 6):
             self.stop_socket_recording(socket_number, source=source)
 
-    # ================= SMART SOCKET HANDLERS =================
+    # ===============================
+    # HANDLER DATA REALTIME SMART SOCKET
+    # ===============================
+    # Fungsi berikut menerima event dari backend Smart Socket untuk
+    # menyinkronkan relay, energi, timer, jadwal, dan status device ke UI.
     def _on_socket_relay_status(self, socket_number: int, state: bool):
-        """Update relay status UI untuk Smart Socket"""
+        """Menyinkronkan status relay Smart Socket ke switch dan label UI."""
         if 1 <= socket_number <= 5:
-            # Update switch button state
+            # Perbarui state tombol switch.
             if socket_number <= len(self.switches):
                 switch = self.switches[socket_number - 1]
                 switch.blockSignals(True)
                 switch.setOn(state)
                 switch.blockSignals(False)
 
-            # Update label status
+            # Perbarui label status relay.
             label = getattr(self.ui, f"label_switch_status_value{socket_number}", None)
             if label:
                 label.setText("ON" if state else "OFF")
                 label.setProperty("state", "on" if state else "off")
                 label.style().polish(label)
 
-            # Clear energy labels saat relay OFF
+            # Kosongkan label energi saat relay OFF.
             if not state:
                 self._clear_socket_energy_labels(socket_number)
 
     def _on_socket_energy_data(self, socket_number: int, data: dict):
-        """Update energy data UI untuk Smart Socket - Hanya saat relay ON"""
+        """Memperbarui label energi Smart Socket dan data recording terkait."""
         if not data:
             return
 
@@ -1757,7 +1864,7 @@ class MainWindow(QMainWindow):
             display_data["pf"] = 0.0
             display_data["energy"] = 0.0
 
-        # Cek status relay dari backend MQTT, fallback ke switch button.
+        # Cek status relay dari backend MQTT, atau fallback ke switch button.
         backend = self.smartsocket_manager.get_backend(socket_number)
         if backend and backend.relay_state is not None:
             relay_on = backend.relay_state
@@ -1771,7 +1878,7 @@ class MainWindow(QMainWindow):
         if hasattr(self, "smartsocket_recorder"):
             self.smartsocket_recorder.append_energy(socket_number, display_data, relay_on)
 
-        # Get labels for this socket
+        # Ambil semua label UI milik socket ini.
         voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
         current_label = getattr(self.ui, f"label_current{socket_number}", None)
         power_label = getattr(self.ui, f"label_power{socket_number}", None)
@@ -1779,7 +1886,7 @@ class MainWindow(QMainWindow):
         freq_label = getattr(self.ui, f"label_frequency{socket_number}", None)
         pf_label = getattr(self.ui, f"label_powerfactor{socket_number}", None)
 
-        # Update labels HANYA saat relay ON
+        # Perbarui label hanya saat relay ON.
         if relay_on:
             if voltage_label:
                 voltage_label.setText(f"Voltage: {display_data.get('voltage', 0):.1f} V")
@@ -1810,7 +1917,7 @@ class MainWindow(QMainWindow):
                 pf_label.setText("PF: --")
 
     def _clear_socket_energy_labels(self, socket_number: int):
-        """Clear energy labels saat relay OFF"""
+        """Mengosongkan tampilan label energi saat relay socket mati."""
         voltage_label = getattr(self.ui, f"label_voltage{socket_number}", None)
         current_label = getattr(self.ui, f"label_current{socket_number}", None)
         power_label = getattr(self.ui, f"label_power{socket_number}", None)
@@ -1832,12 +1939,12 @@ class MainWindow(QMainWindow):
             pf_label.setText("PF: --")
 
     def _on_socket_timer_status(self, socket_number: int, status: str):
-        """Update timer status UI untuk Smart Socket"""
+        """Memperbarui label timer Smart Socket dari status backend."""
         label = getattr(self.ui, f"label_timer_status{socket_number}", None)
         if label:
-            # Parse status dari backend: "ACTIVE:XXs" atau "INACTIVE"
+            # Parse status dari backend: "ACTIVE:XXs" atau "INACTIVE".
             if status.startswith("ACTIVE:"):
-                # Extract detik
+                # Ambil sisa waktu dalam detik.
                 seconds_str = status.replace("ACTIVE:", "").replace("s", "").strip()
                 try:
                     remaining_seconds = int(seconds_str)
@@ -1865,12 +1972,12 @@ class MainWindow(QMainWindow):
                 label.setText(status)
 
     def _on_socket_schedule_status(self, socket_number: int, status: str):
-        """Update schedule status UI untuk Smart Socket"""
+        """Memperbarui status schedule dan trigger recording berbasis jadwal."""
         import json
         import os
         from datetime import datetime
 
-        # DEBUG: Print raw status dari hardware
+        # DEBUG: cetak status mentah dari hardware
         # print(f"[DEBUG Schedule UI] Socket {socket_number} received: {repr(status)}")
 
         if hasattr(self, "smartsocket_recorder"):
@@ -1885,7 +1992,8 @@ class MainWindow(QMainWindow):
             ):
                 self.stop_socket_recording(socket_number, source="schedule")
 
-                # Autosave when schedule recording ends (user may not be watching).
+                # Lakukan autosave saat recording berbasis jadwal selesai,
+                # karena user bisa saja tidak sedang melihat popup socket.
                 try:
                     if self.smartsocket_recorder.is_autosave_enabled(socket_number):
                         autosave_dir = self.smartsocket_recorder.get_autosave_dir(socket_number)
@@ -1916,7 +2024,7 @@ class MainWindow(QMainWindow):
                 start = data.get("start", "N/A")
                 stop = data.get("stop", "N/A")
 
-                # DEBUG: Print parsed data
+                # DEBUG: cetak hasil parsing data schedule
                 # print(f"[DEBUG Schedule UI] Socket {socket_number} parsed - mode: {mode}, start: {start}, stop: {stop}")
 
                 if start and stop:
@@ -1940,7 +2048,7 @@ class MainWindow(QMainWindow):
             pass
 
     def _on_socket_device_status(self, socket_number: int, online: bool):
-        """Update device status UI untuk Smart Socket"""
+        """Memperbarui label online atau offline device Smart Socket."""
         label = getattr(self.ui, f"statussocket{socket_number}", None)
         if label:
             label.setText("Status Device: Online" if online else "Status Device: Offline")
@@ -1948,25 +2056,28 @@ class MainWindow(QMainWindow):
             label.style().polish(label)
 
     def sync_ui_from_mqtt(self):
-        # sinkron lampu
+        """Menyinkronkan UI awal dengan state backend setelah koneksi aktif."""
+        # Sinkronkan status lampu.
         self.update_lamp_ui_from_state()
 
-        # sinkron AC
+        # Sinkronkan status AC.
         self.update_ac_ui_from_state()
 
-        # Initialize Smart Socket energy labels to "--"
+        # Inisialisasi label energi Smart Socket ke "--".
         for i in range(1, 6):
             self._clear_socket_energy_labels(i)
 
     def _safe_energy_value(self, value, max_limit=100000):
         """
-        Convert value to float safely.
-        Jika invalid / terlalu besar -> return 0
+        Mengubah nilai energi ke float secara aman.
+
+        Jika nilai tidak valid atau terlalu besar akibat bug device,
+        fungsi ini mengembalikan 0 agar UI tetap stabil.
         """
         try:
             val = float(value)
 
-            # jika nilai terlalu besar (bug device)
+            # Jika nilai terlalu besar, kemungkinan ada bug dari device.
             if abs(val) > max_limit:
                 return 0
 
@@ -1975,7 +2086,7 @@ class MainWindow(QMainWindow):
         except (ValueError, TypeError):
             return 0
                     
-# Run Application Mantap Sekali 
+# Jalankan aplikasi saat file ini dieksekusi langsung.
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()

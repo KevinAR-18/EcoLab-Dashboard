@@ -1,11 +1,11 @@
-"""In-memory recording utilities for Smart Socket monitoring data."""
+"""Utility recording in-memory untuk data monitoring Smart Socket."""
 
 import csv
 from datetime import datetime
 
 
 class SmartSocketRecorder:
-    """Store per-socket monitoring samples and export them to CSV."""
+    """Menyimpan sample monitoring per socket lalu mengekspornya ke CSV."""
 
     DEFAULT_RECORD_INTERVAL_SECONDS = 5
 
@@ -31,8 +31,9 @@ class SmartSocketRecorder:
     }
 
     def __init__(self, socket_count=5):
-        # Every socket keeps its own monitoring and recording state so popup
-        # windows can work independently without extra global bookkeeping.
+        """Menyiapkan state recording terpisah untuk setiap Smart Socket."""
+        # Setiap socket menyimpan state monitoring dan recording sendiri
+        # agar popup bisa bekerja independen tanpa global bookkeeping tambahan.
         self._states = {
             socket_number: {
                 "recording": False,
@@ -48,12 +49,13 @@ class SmartSocketRecorder:
         }
 
     def _state(self, socket_number):
+        """Mengambil state internal milik satu socket dengan validasi nomor."""
         if socket_number not in self._states:
             raise ValueError(f"Unknown Smart Socket number: {socket_number}")
         return self._states[socket_number]
 
     def start(self, socket_number, source="manual"):
-        """Start recording for one socket."""
+        """Memulai recording untuk satu socket."""
         state = self._state(socket_number)
         changed = not state["recording"]
         state["recording"] = True
@@ -62,7 +64,7 @@ class SmartSocketRecorder:
         return changed
 
     def stop(self, socket_number, source="manual"):
-        """Stop recording for one socket."""
+        """Menghentikan recording untuk satu socket."""
         state = self._state(socket_number)
         changed = state["recording"]
         state["recording"] = False
@@ -70,37 +72,46 @@ class SmartSocketRecorder:
         return changed
 
     def is_recording(self, socket_number):
+        """Mengecek apakah socket tertentu sedang merekam data."""
         return self._state(socket_number)["recording"]
 
     def set_follow_schedule(self, socket_number, enabled):
+        """Mengatur apakah recording mengikuti trigger schedule."""
         self._state(socket_number)["follow_schedule"] = bool(enabled)
 
     def is_follow_schedule(self, socket_number):
+        """Mengecek apakah mode follow schedule aktif untuk socket tertentu."""
         return self._state(socket_number)["follow_schedule"]
 
     def set_autosave_enabled(self, socket_number, enabled):
+        """Mengaktifkan atau menonaktifkan autosave untuk satu socket."""
         self._state(socket_number)["autosave_enabled"] = bool(enabled)
 
     def is_autosave_enabled(self, socket_number):
+        """Mengecek apakah autosave aktif untuk socket tertentu."""
         return bool(self._state(socket_number)["autosave_enabled"])
 
     def set_autosave_dir(self, socket_number, directory):
+        """Menyimpan folder autosave untuk satu socket."""
         self._state(socket_number)["autosave_dir"] = (directory or "").strip()
 
     def get_autosave_dir(self, socket_number):
+        """Mengambil folder autosave yang dipakai socket tertentu."""
         return self._state(socket_number)["autosave_dir"] or ""
 
     def set_record_interval_seconds(self, socket_number, seconds):
+        """Mengatur interval minimum antar record untuk satu socket."""
         seconds = float(seconds)
         if seconds <= 0:
             raise ValueError("record interval must be > 0 seconds")
         self._state(socket_number)["record_interval_seconds"] = seconds
 
     def get_record_interval_seconds(self, socket_number):
+        """Mengambil interval recording yang aktif untuk satu socket."""
         return float(self._state(socket_number)["record_interval_seconds"])
 
     def handle_schedule_status(self, socket_number, status):
-        """Translate schedule triggers into recorder state changes."""
+        """Menerjemahkan trigger schedule menjadi perubahan state recorder."""
         state = self._state(socket_number)
         if not state["follow_schedule"]:
             return None
@@ -116,7 +127,7 @@ class SmartSocketRecorder:
         return None
 
     def append_energy(self, socket_number, data, relay_state):
-        """Append one monitoring sample if the socket is actively recording."""
+        """Menambahkan satu sample monitoring jika socket sedang recording."""
         state = self._state(socket_number)
         if not state["recording"]:
             return None
@@ -147,16 +158,19 @@ class SmartSocketRecorder:
         return record
 
     def get_records(self, socket_number):
+        """Mengambil salinan record yang tersimpan untuk satu socket."""
         return list(self._state(socket_number)["records"])
 
     def clear_records(self, socket_number):
+        """Menghapus semua record milik satu socket."""
         self._state(socket_number)["records"].clear()
 
     def count(self, socket_number):
+        """Menghitung jumlah record yang tersimpan untuk satu socket."""
         return len(self._state(socket_number)["records"])
 
     def export_csv(self, socket_number, path):
-        """Write all stored samples for one socket to a CSV file."""
+        """Menulis semua sample milik satu socket ke file CSV."""
         records = self.get_records(socket_number)
         with open(path, "w", newline="", encoding="utf-8") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=self.FIELD_NAMES)
@@ -166,6 +180,7 @@ class SmartSocketRecorder:
 
     @staticmethod
     def _to_float(value):
+        """Mengubah nilai ke float secara aman untuk kebutuhan recording/export."""
         try:
             return float(value)
         except (TypeError, ValueError):

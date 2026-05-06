@@ -1,4 +1,4 @@
-"""Helpers for creating and wiring custom lamp widgets."""
+"""Helper untuk membuat dan memasang widget lampu custom."""
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout
@@ -9,7 +9,7 @@ from widgets.lamp_button import LampButton
 class LampSetup:
     @staticmethod
     def setup(ui, main_window):
-        """Create all lamp buttons and connect them to publish callbacks."""
+        """Membuat semua tombol lampu lalu menghubungkannya ke callback publish."""
         frames = [
             ui.framebtnlamp1,
             ui.framebtnlamp2,
@@ -36,13 +36,13 @@ class LampSetup:
 
             lamp = LampButton(size=100)
 
-            # Tooltips make the physical lamp mapping visible to the operator.
+            # Tooltip membantu operator tahu mapping lampu fisik di ruangan.
             lamp.setToolTip(
                 f"Lampu {i}\n"
                 f"Lokasi: {lamp_locations.get(i, '-')}"
             )
 
-            # Lamp 4 is intentionally disabled because that channel is unused.
+            # Lampu 4 sengaja dinonaktifkan karena channel ini tidak dipakai.
             if i == 4:
                 lamp.setEnabled(False)
 

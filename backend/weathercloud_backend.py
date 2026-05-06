@@ -1,15 +1,17 @@
-"""HTTP client for WeatherCloud data shown on the dashboard."""
+"""HTTP client untuk data WeatherCloud yang ditampilkan di dashboard."""
 
 import requests
 
 
 class WeatherCloudBackend:
-    """Fetch and normalize the public WeatherCloud device payload."""
+    """Mengambil dan menormalkan payload public WeatherCloud device."""
 
     def __init__(self, device_id: str):
+        """Menyimpan device ID, endpoint, dan header request WeatherCloud."""
         self.device_id = device_id
         self.url = f"https://app.weathercloud.net/device/values/{device_id}"
-        # WeatherCloud expects a browser-like request for this public JSON endpoint.
+
+        # Endpoint public ini lebih stabil jika request-nya mirip browser biasa.
         self.headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -22,7 +24,7 @@ class WeatherCloudBackend:
         }
 
     def fetch(self) -> dict:
-        """Map the raw WeatherCloud response into dashboard-friendly keys."""
+        """Memetakan response mentah WeatherCloud ke key yang ramah untuk UI."""
         response = requests.get(self.url, headers=self.headers, timeout=10)
         response.raise_for_status()
         data = response.json()

@@ -1,5 +1,8 @@
-import threading
+"""Client MQTT dasar dengan dukungan TLS dan routing handler sederhana."""
+
 import ssl
+import threading
+
 import paho.mqtt.client as mqtt
 
 
@@ -12,46 +15,46 @@ class MqttClient:
         password=None,
         ca_cert_path=None,
         use_tls=False,
-        logger=None
+        logger=None,
     ):
         """
-        MQTT Client with TLS support
+        Menyiapkan MQTT client dengan dukungan TLS opsional.
 
         Args:
-            broker: MQTT broker address
-            port: MQTT port (1883 for plain, 8883 for TLS)
-            username: MQTT username (optional)
-            password: MQTT password (optional)
-            ca_cert_path: Path to CA certificate (required for TLS)
-            use_tls: Enable TLS encryption
-            logger: Logger function for error messages
+            broker: Alamat MQTT broker
+            port: Port MQTT, misalnya 1883 atau 8883
+            username: Username MQTT jika dipakai
+            password: Password MQTT jika dipakai
+            ca_cert_path: Path sertifikat CA untuk TLS
+            use_tls: Menentukan apakah TLS diaktifkan
+            logger: Fungsi logger opsional
         """
         self.broker = broker
         self.port = port
         self.logger = logger
         self._subscriptions = []
-        self._handlers = {}  # Handlers untuk routing messages
+        self._handlers = {}  # Handler untuk routing message global
 
-        # Create MQTT client
+        # Buat object MQTT client dari library Paho.
         self.client = mqtt.Client()
 
-        # TLS Configuration
+        # Konfigurasi TLS jika memang diaktifkan.
         if use_tls:
             if ca_cert_path is None:
                 raise ValueError("ca_cert_path is required when use_tls=True")
 
             self.client.tls_set(
                 ca_certs=ca_cert_path,
-                tls_version=ssl.PROTOCOL_TLSv1_2
+                tls_version=ssl.PROTOCOL_TLSv1_2,
             )
 
-            # Set username/password for TLS
+            # Pasang username/password juga saat memakai TLS.
             if username and password:
                 self.client.username_pw_set(username, password)
 
             self._log(f"[MQTT CORE] TLS enabled (port {port})")
         else:
-            # Plain MQTT with optional auth
+            # Mode MQTT biasa tanpa TLS, auth tetap opsional.
             if username and password:
                 self.client.username_pw_set(username, password)
             self._log(f"[MQTT CORE] Plain MQTT (port {port})")
@@ -60,51 +63,50 @@ class MqttClient:
         self.client.on_message = self._on_message
 
     def _log(self, message):
-        """Helper untuk logging"""
+        """Helper kecil untuk logging ke callback atau console."""
         if self.logger:
             self.logger(message)
         else:
             print(message)
 
     def start(self):
-        """Start MQTT client in daemon thread"""
+        """Menjalankan MQTT client di daemon thread terpisah."""
         threading.Thread(target=self._run, daemon=True).start()
 
     def _run(self):
-        """MQTT loop runner"""
+        """Menjalankan loop koneksi dan event MQTT secara terus-menerus."""
         try:
             self._log(f"[MQTT CORE] Connecting to {self.broker}:{self.port}...")
             self.client.connect(self.broker, self.port, 60)
             self.client.loop_forever()
         except Exception as e:
-            error_msg = f"[MQTT ERROR] Connection failed: {e}"
-            self._log(error_msg)
+            self._log(f"[MQTT ERROR] Connection failed: {e}")
 
     def _on_connect(self, client, userdata, flags, rc):
-        """Callback saat connect ke broker"""
+        """Callback saat koneksi ke broker berhasil atau gagal."""
         if rc == 0:
-            self._log(f"[MQTT CORE] ✅ Connected to {self.broker}:{self.port}")
+            self._log(f"[MQTT CORE] Connected to {self.broker}:{self.port}")
 
-            # 🔥 DAFTARKAN ULANG SEMUA SUBSCRIBE
+            # Daftarkan ulang semua subscription saat reconnect.
             for topic, callback in self._subscriptions:
                 client.subscribe(topic)
                 client.message_callback_add(topic, callback)
                 self._log(f"[MQTT CORE] Subscribed to: {topic}")
         else:
-            self._log(f"[MQTT CORE] ❌ Connection failed (rc={rc})")
+            self._log(f"[MQTT CORE] Connection failed (rc={rc})")
 
     def subscribe(self, topic, callback):
         """
-        Subscribe ke topic dengan callback
+        Subscribe ke topic tertentu dengan callback lokal.
 
         Args:
-            topic: MQTT topic (support wildcard +/#)
-            callback: Function untuk handle message (client, userdata, msg)
+            topic: MQTT topic, termasuk wildcard jika perlu
+            callback: Function handler dengan signature `(client, userdata, msg)`
         """
-        # Simpan untuk resubscribe on reconnect
+        # Simpan agar bisa otomatis subscribe ulang saat reconnect.
         self._subscriptions.append((topic, callback))
 
-        # Kalau sudah connect, langsung subscribe
+        # Jika client sudah connect, langsung subscribe sekarang juga.
         if self.client.is_connected():
             self.client.subscribe(topic)
             self.client.message_callback_add(topic, callback)
@@ -112,12 +114,12 @@ class MqttClient:
 
     def publish(self, topic, payload, retain=False):
         """
-        Publish message ke topic
+        Publish message ke topic tertentu.
 
         Args:
-            topic: MQTT topic
-            payload: Message payload (string)
-            retain: Retain message for new subscribers
+            topic: MQTT topic tujuan
+            payload: Isi message
+            retain: Apakah retain flag diaktifkan
         """
         try:
             self.client.publish(topic, payload, retain=retain)
@@ -126,23 +128,21 @@ class MqttClient:
 
     def register_handler(self, name, handler):
         """
-        Register message handler untuk routing pesan
+        Mendaftarkan handler global untuk routing pesan masuk.
 
         Args:
-            name: Nama handler (untuk identifikasi)
-            handler: Function dengan signature (topic, payload)
+            name: Nama handler untuk identifikasi
+            handler: Function dengan signature `(topic, payload)`
         """
         self._handlers[name] = handler
         self._log(f"[MQTT CORE] Registered handler: {name}")
 
     def _on_message(self, client, userdata, msg):
-        """
-        Global message callback - route ke semua handlers yang terdaftar
-        """
+        """Meneruskan message masuk ke semua handler global yang terdaftar."""
         topic = msg.topic
         payload = msg.payload.decode()
 
-        # Route ke semua handlers yang terdaftar
+        # Route ke semua handler global yang sudah didaftarkan.
         for name, handler in self._handlers.items():
             try:
                 handler(topic, payload)

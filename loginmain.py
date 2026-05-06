@@ -1,6 +1,9 @@
 """
-Login Main Entry Point
-Frameless window dengan centered position, draggable, dan navigasi
+Entry point untuk window login EcoLab.
+
+Modul ini mengatur login window yang frameless, bisa di-drag,
+punya flow sign in, sign up, forgot password, guest mode,
+dan integrasi auth ke Firebase.
 """
 import os
 import sys
@@ -13,20 +16,20 @@ from PySide6.QtGui import QScreen, QPixmap, QIcon
 # Import Qt Resources untuk load gambar
 import resources_rc
 
-# Import UI dan UIFunctions
+# Import UI dan helper UI behavior
 from ui.ui_loginpage import Ui_MainWindow
 from ui.ui_functions import UIFunctions
 
-# Import Login Settings
+# Import login settings
 from config import login_settings
 
-# Import Auth Service untuk Firebase
+# Import auth service untuk Firebase
 from auth.auth_service import FirebaseAuthService
 
-# Import Session Manager untuk remember me
+# Import session manager untuk fitur remember me
 from auth.session_manager import SessionManager
 
-# Import Role Selection Dialog dan Admin Window
+# Import dialog pilihan role dan admin panel
 from ui.ui_role_selection import RoleSelectionDialog
 from dialogs.admin_window import AdminPanelWindow
 from ui.ui_theme_helper import (
@@ -44,49 +47,58 @@ class LoginWindow(QMainWindow):
     login_completed = Signal()
 
     def __init__(self):
+        """
+        Menyiapkan seluruh login window beserta auth flow-nya.
+
+        Constructor ini menginisialisasi UI, auth service, session manager,
+        pengaturan window, serta semua signal yang dipakai pada halaman login.
+        """
         super().__init__()
 
-        # SETUP UI
+        # Setup UI hasil Qt Designer.
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        # SETUP AUTH SERVICE
-        # The login window talks to Firebase only through this service layer.
+        # Setup auth service.
+        # Login window berkomunikasi ke Firebase lewat service layer ini.
         self.auth_service = FirebaseAuthService()
 
-        # SETUP SESSION MANAGER
+        # Setup session manager.
         self.session_manager = SessionManager()
-        self.user_session = None  # Store user session after login
+        self.user_session = None  # Simpan user session setelah login berhasil
 
-        # SETUP UI FUNCTIONS (untuk draggable window)
+        # Setup helper UI untuk drag dan behavior window custom.
         self.ui_functions = UIFunctions(self)
 
-        # WINDOW SETTINGS - FRAMELESS & TRANSPARENT
+        # Window settings: frameless dan transparan.
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
 
-        # Set window title
+        # Set window title.
         self.setWindowTitle("EcoLab Login")
 
-        # Set window icon
+        # Set window icon.
         pixmap = QPixmap(resource_path("icon\\logoecolab.ico"))
         icon = QIcon(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.setWindowIcon(icon)
         apply_light_theme_to_widget(self)
 
-        # Center window on screen
+        # Center window ke tengah screen.
         self.center_window()
 
-        # Connect semua signals
+        # Connect semua signal UI.
         self._connect_signals()
 
-        # Set default page
+        # Set halaman default.
         self._set_default_page()
 
     def _connect_signals(self):
-        """Connect semua UI signals ke handlers"""
-        # Keeping signal wiring here makes the constructor easier to scan and
-        # reduces the chance of missing a UI event during maintenance.
+        """
+        Menghubungkan semua signal UI ke handler yang sesuai.
+
+        Pemisahan wiring signal ke method ini membuat constructor lebih rapi
+        dan memudahkan maintenance saat ada event UI baru.
+        """
 
         # ===== NAVIGASI =====
         # Button untuk pindah ke sign up page
@@ -151,7 +163,7 @@ class LoginWindow(QMainWindow):
         self.ui.googleSignupButton.clicked.connect(self.handle_google_signup)
 
     def _set_default_page(self):
-        """Set halaman default berdasarkan settings"""
+        """Menentukan default page login berdasarkan config saat aplikasi mulai."""
         if login_settings.DEFAULT_PAGE == "signup":
             self.ui.stackedWidget.setCurrentWidget(self.ui.page_signup)
         else:
@@ -159,46 +171,46 @@ class LoginWindow(QMainWindow):
 
     # ===== NAVIGASI =====
     def show_signin_page(self):
-        """Tampilkan halaman sign in"""
+        """Memindahkan stacked widget ke halaman sign in."""
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_signin)
 
     def show_signup_page(self):
-        """Tampilkan halaman sign up"""
+        """Memindahkan stacked widget ke halaman sign up."""
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_signup)
 
     def show_forgot_password_page(self):
-        """Tampilkan halaman forgot password"""
+        """Memindahkan stacked widget ke halaman forgot password."""
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_forgot_password)
 
     # ===== TOGGLE PASSWORD =====
     def _toggle_password_signin(self):
-        """Toggle visibility password di halaman sign in"""
+        """Toggle visibility password pada form sign in."""
         login_settings.toggle_password_visibility(
             self.ui.passwordInput,
             self.ui.showpasssigninCheck
         )
 
     def _toggle_password_signup(self):
-        """Toggle visibility password di halaman sign up"""
+        """Toggle visibility password pada form sign up."""
         login_settings.toggle_password_visibility(
             self.ui.signupPasswordInput,
             self.ui.showpasssignupCheck
         )
 
     def toggle_remember_me(self):
-        """Toggle checkbox Remember Me saat Enter ditekan"""
+        """Toggle checkbox Remember Me saat user menekan Enter."""
         current_state = self.ui.rememberCheck.isChecked()
         self.ui.rememberCheck.setChecked(not current_state)
 
     def _is_valid_email(self, email):
         """
-        Validasi format email menggunakan regex
+        Mengecek format email dengan regex sederhana.
 
         Args:
             email: Email string yang akan divalidasi
 
         Returns:
-            bool: True jika format valid, False jika tidak
+            bool: True jika format email valid, False jika tidak
         """
         import re
 
@@ -211,34 +223,34 @@ class LoginWindow(QMainWindow):
 
     # ===== HANDLERS =====
     def handle_signin(self):
-        """Handle tombol sign in diklik"""
+        """Menangani proses sign in dengan email dan password."""
         email = self.ui.emailInput.text().strip()
         password = self.ui.passwordInput.text()
 
-        # Validasi input
+        # Validasi input dasar.
         if not email or not password:
             self.show_message_box("warning", "Login Error", "Please enter email and password!")
             return
 
-        # Panggil auth service untuk login
+        # Panggil auth service untuk proses login.
         result = self.auth_service.login_with_email(email, password)
         self._handle_auth_result(result, "Login")
 
     def handle_forgot_password_send_email(self):
-        """Handle tombol send reset email diklik"""
+        """Menangani pengiriman email reset password ke user."""
         email = self.ui.forgotPasswordEmailInput.text().strip()
 
-        # Validasi input
+        # Validasi input dasar.
         if not email:
             self.show_message_box("warning", "Email Required", "Please enter your email address!")
             return
 
-        # Validasi format email
+        # Validasi format email.
         if not self._is_valid_email(email):
             self.show_message_box("warning", "Invalid Email", "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com")
             return
 
-        # Konfirmasi sebelum kirim
+        # Minta konfirmasi sebelum kirim email reset.
         reply = show_styled_question(
             self,
             "Send Reset Email",
@@ -246,7 +258,7 @@ class LoginWindow(QMainWindow):
         )
 
         if reply == QMessageBox.StandardButton.Yes:
-            # Kirim reset email via Firebase
+            # Kirim reset email via Firebase.
             result = self.auth_service.send_reset_password(email)
 
             if result["status"] == "success":
@@ -257,7 +269,7 @@ class LoginWindow(QMainWindow):
                     "Please check your inbox (and spam folder).\n"
                     "Follow the link in the email to reset your password."
                 )
-                # Clear input dan kembali ke sign in page
+                # Clear input lalu kembali ke halaman sign in.
                 self.ui.forgotPasswordEmailInput.clear()
                 self.show_signin_page()
             else:
@@ -271,22 +283,22 @@ class LoginWindow(QMainWindow):
                 )
 
     def handle_signup(self):
-        """Handle tombol sign up diklik"""
+        """Menangani proses sign up dengan email, username, dan password."""
         username = self.ui.usernameInput.text().strip()
         email = self.ui.signupEmailInput.text().strip()
         password = self.ui.signupPasswordInput.text()
 
-        # Validasi input
+        # Validasi input dasar.
         if not username or not email or not password:
             self.show_message_box("warning", "Signup Error", "Please fill all fields!\nUsername, Email, and Password are required.")
             return
 
-        # Validasi format email
+        # Validasi format email.
         if not self._is_valid_email(email):
             self.show_message_box("warning", "Signup Error", "Invalid email format!\n\nPlease enter a valid email address.\nExample: user@example.com")
             return
 
-        # Cek apakah email sudah terdaftar
+        # Cek apakah email sudah terdaftar.
         email_check = self.auth_service.check_email_exists(email)
 
         if email_check["exists"]:
@@ -306,13 +318,13 @@ class LoginWindow(QMainWindow):
             self.show_message_box("warning", "Signup Error", "Password must be at least 6 characters!")
             return
 
-        # Panggil auth service untuk signup
+        # Panggil auth service untuk proses signup.
         result = self.auth_service.signup_with_email(email, password, username=username)
         self._handle_auth_result(result, "Signup", signup_username=username)
 
     def handle_guest_login(self):
-        """Handle tombol guest login diklik"""
-        # Buat guest session object
+        """Membuat guest session lalu langsung masuk ke mode monitoring tamu."""
+        # Buat object session untuk guest mode.
         self.user_session = {
             "uid": "guest_temp",
             "username": "Guest Viewer",
@@ -322,12 +334,12 @@ class LoginWindow(QMainWindow):
             "remember_me": False
         }
 
-        # Simpan guest session
+        # Simpan guest session.
         print(f"DEBUG: Guest session created: {self.user_session}")
         result = self.session_manager.save_session(self.user_session)
         print(f"DEBUG: Save result: {result}")
 
-        # Tampilkan notifikasi
+        # Tampilkan notifikasi mode guest.
         self.show_message_box(
             "information",
             "Guest Mode",
@@ -344,17 +356,17 @@ class LoginWindow(QMainWindow):
             "Enjoy browsing! 👀"
         )
 
-        # Emit signal dan close window
+        # Emit signal lalu tutup login window.
         self.login_completed.emit()
         self.close()
 
     def handle_google_signin(self):
-        """Handle tombol Google sign in diklik - HANYA LOGIN, jangan create account"""
+        """Menangani Google sign in tanpa membuat account baru otomatis."""
         try:
-            # Panggil auth service untuk Google sign in (JANGAN create account)
+            # Panggil auth service untuk Google sign in tanpa auto create account.
             result = self.auth_service.login_with_google(create_if_not_exists=False)
 
-            # Handle hasil
+            # Proses hasil auth.
             self._handle_auth_result(result, "Google Sign In")
 
         except Exception as e:
@@ -365,12 +377,12 @@ class LoginWindow(QMainWindow):
             )
 
     def handle_google_signup(self):
-        """Handle tombol Google sign up diklik - Auto create account jika belum ada"""
+        """Menangani Google sign up dengan auto create account jika perlu."""
         try:
-            # Panggil auth service untuk Google sign up (BOLEH create account)
+            # Panggil auth service untuk Google sign up dengan create account.
             result = self.auth_service.login_with_google(create_if_not_exists=True)
 
-            # Handle hasil
+            # Proses hasil auth.
             self._handle_auth_result(result, "Google Sign Up")
 
         except Exception as e:
@@ -381,10 +393,10 @@ class LoginWindow(QMainWindow):
             )
 
     def show_admin_selection_dialog(self):
-        """Tampilkan popup pilihan dashboard/admin panel"""
+        """Menampilkan dialog pilihan dashboard atau admin panel untuk admin."""
         dialog = RoleSelectionDialog(self)
 
-        # Show dialog dengan animation
+        # Tampilkan dialog dengan animation.
         if dialog.exec_with_animation() == QDialog.DialogCode.Accepted:
             choice = dialog.choice
 
@@ -393,29 +405,29 @@ class LoginWindow(QMainWindow):
             elif choice == "admin_panel":
                 self._open_admin_panel()
 
-        # NOTE: Jangan emit login_completed di sini
-        # Signal akan di-emit oleh masing-masing method (_open_dashboard / _open_admin_panel)
+        # Jangan emit login_completed di sini.
+        # Signal akan di-emit oleh method tujuan yang dipilih user.
 
     def _handle_auth_result(self, result, operation_type, signup_username=None):
         """
-        Handle hasil operasi authentication (login/signup)
+        Menangani hasil operasi authentication dari auth service.
 
         Args:
             result: Dict hasil dari auth_service
-            operation_type: "Login" atau "Signup"
-            signup_username: Username (untuk signup saja)
+            operation_type: Jenis operasi seperti "Login" atau "Signup"
+            signup_username: Username tambahan untuk flow signup
         """
         status = result.get("status")
         message = result.get("message", "")
         user_id = result.get("user_id")
 
-        # The auth service normalizes Firebase responses into a small set of
-        # status values so the UI can keep all navigation decisions here.
+        # Auth service sudah menormalkan response Firebase ke beberapa status
+        # inti agar semua keputusan UI bisa dipusatkan di method ini.
         # ===== ADMIN LOGIN SUCCESS =====
         if status == "admin":
-            # Load user data dari Firebase
+            # Load user data dari Firebase.
             if self._load_and_save_user_session(user_id):
-                # Tampilkan popup pilihan
+                # Tampilkan popup pilihan role admin.
                 self.show_admin_selection_dialog()
             else:
                 self.show_message_box(
@@ -427,7 +439,7 @@ class LoginWindow(QMainWindow):
         # ===== SUCCESS =====
         elif status == "success":
             if operation_type == "Signup":
-                # Signup berhasil - user perlu approval admin
+                # Signup berhasil, tapi user masih perlu approval admin.
                 self.show_message_box(
                     "information",
                     "Registration Successful",
@@ -437,18 +449,18 @@ class LoginWindow(QMainWindow):
                     f"⏳ Your account is pending admin approval.\n"
                     f"Please wait for confirmation before logging in."
                 )
-                # Clear form dan kembali ke sign in page
+                # Clear form lalu kembali ke halaman sign in.
                 self._clear_signup_form()
                 self.show_signin_page()
             else:
-                # Login berhasil - load user session
+                # Login berhasil, lanjut load user session.
                 if self._load_and_save_user_session(user_id):
                     self.show_message_box(
                         "information",
                         "Login Successful",
                         f"Welcome back! 🎉\n\n{message}"
                     )
-                    # Emit signal dan close window
+                    # Emit signal lalu tutup login window.
                     self.login_completed.emit()
                     self.close()
                 else:
@@ -480,16 +492,16 @@ class LoginWindow(QMainWindow):
 
         # ===== ERROR =====
         elif status == "error":
-            # Tampilkan pesan error yang lebih user-friendly
+            # Tampilkan pesan error yang lebih user-friendly.
             if operation_type == "Login":
-                # Untuk login error, tampilkan pesan sederhana
+                # Untuk login error, tampilkan pesan yang singkat.
                 self.show_message_box(
                     "warning",
                     "Login Gagal",
                     "Username atau Password salah\n\nSilakan coba lagi."
                 )
             else:
-                # Untuk signup error, tampilkan pesan yang lebih jelas
+                # Untuk signup error, tampilkan pesan yang lebih jelas.
                 self.show_message_box(
                     "warning",
                     f"{operation_type} Gagal",
@@ -506,7 +518,7 @@ class LoginWindow(QMainWindow):
 
     def _load_and_save_user_session(self, uid):
         """
-        Load user data dari Firebase dan simpan ke session
+        Load user data dari Firebase lalu simpan ke session lokal.
 
         Args:
             uid: User ID dari Firebase
@@ -515,14 +527,14 @@ class LoginWindow(QMainWindow):
             bool: True jika berhasil, False jika gagal
         """
         try:
-            # Get user record dari Firebase
+            # Ambil user record dari Firebase.
             user_data = self.auth_service.get_user_record(uid)
 
             if not user_data:
                 print(f"ERROR: User data not found for uid: {uid}")
                 return False
 
-            # Build session object
+            # Build object session untuk user aktif.
             self.user_session = {
                 "uid": uid,
                 "username": user_data.get("username", ""),
@@ -534,7 +546,8 @@ class LoginWindow(QMainWindow):
 
             print(f"DEBUG: User session created: {self.user_session}")
 
-            # SIMPAN SESSION SETIAP LOGIN SUCCESS (ignore remember_me sementara)
+            # Simpan session setiap login success.
+            # Nilai remember_me tetap ikut disimpan dari checkbox UI.
             print(f"DEBUG: Saving session...")
             result = self.session_manager.save_session(self.user_session)
             print(f"DEBUG: Save result: {result}")
@@ -549,29 +562,29 @@ class LoginWindow(QMainWindow):
 
     def get_user_session(self):
         """
-        Get user session setelah login success
+        Mengambil user session setelah login success.
 
         Returns:
-            dict: User session data atau None
+            dict: Data session user atau None
         """
         return self.user_session
 
     def _open_dashboard(self):
-        """Buka dashboard utama"""
-        # Emit signal dulu untuk notify launcher
+        """Mengirim signal ke launcher untuk membuka dashboard utama."""
+        # Emit signal dulu agar launcher tahu flow login sudah selesai.
         self.login_completed.emit()
 
-        # Lalu close login window agar launcher bisa buka dashboard
+        # Setelah itu tutup login window agar launcher bisa lanjut buka dashboard.
         self.close()
 
     def _open_admin_panel(self):
-        """Buka admin panel"""
+        """Membuka admin panel untuk user dengan role admin."""
         try:
-            # Buat admin panel window dengan reference ke login window
+            # Buat admin panel window dengan reference ke login window.
             self.admin_window = AdminPanelWindow(self)
             self.admin_window.show()
 
-            # Tampilkan notifikasi sukses
+            # Tampilkan notifikasi sukses.
             self.show_message_box(
                 "information",
                 "Admin Panel",
@@ -588,7 +601,7 @@ class LoginWindow(QMainWindow):
             )
 
     def _clear_signup_form(self):
-        """Clear form signup setelah berhasil"""
+        """Membersihkan form signup setelah proses registrasi selesai."""
         self.ui.usernameInput.clear()
         self.ui.signupEmailInput.clear()
         self.ui.signupPasswordInput.clear()
@@ -596,69 +609,69 @@ class LoginWindow(QMainWindow):
 
     # ===== WINDOW POSITION =====
     def center_window(self):
-        """Center window on screen"""
-        # Get screen geometry
+        """Meletakkan login window di tengah area screen yang aktif."""
+        # Ambil geometry screen.
         screen = QScreen.availableGeometry(self.screen())
 
-        # Get window geometry
+        # Ambil geometry window.
         window = self.geometry()
 
-        # Calculate center position
+        # Hitung posisi tengah.
         x = (screen.width() - window.width()) // 2
         y = (screen.height() - window.height()) // 2
 
-        # Set position
+        # Terapkan posisi ke window.
         self.move(x, y)
 
     # ===== DRAGGABLE WINDOW =====
-    # NOTE: Kode ini untuk DEVELOPMENT mode - seluruh window bisa digeser
-    #       Untuk PRODUCTION, hanya contentTopBg yang draggable (lihat __init__)
+    # NOTE: Kode ini dipakai untuk development mode.
+    # Untuk production, biasanya hanya contentTopBg yang dibuat draggable.
     def mousePressEvent(self, event):
-        """Handle mouse press untuk drag window"""
+        """Meneruskan mouse press ke helper drag window."""
         if event.button() == Qt.MouseButton.LeftButton:
             self.ui_functions.mouse_press(event)
 
     def mouseMoveEvent(self, event):
-        """Handle mouse move untuk drag window"""
+        """Meneruskan mouse move ke helper drag window."""
         self.ui_functions.mouse_move(event)
 
     def eventFilter(self, obj, event):
         """
-        Event filter untuk menangani key press pada widget tertentu
+        Event filter untuk menangani key press pada widget tertentu.
 
         Args:
             obj: Widget yang mengirim event
-            event: Event yang terjadi
+            event: Event yang sedang diproses
 
         Returns:
-            True jika event ditangani, False jika tidak
+            bool: True jika event ditangani, False jika dibiarkan default
         """
-        # Cek apakah event adalah KeyPress
+        # Cek apakah event adalah KeyPress.
         if event.type() == QEvent.Type.KeyPress:
-            # Handle Enter pada checkbox Remember Me
+            # Handle Enter pada checkbox Remember Me.
             if obj == self.ui.rememberCheck:
                 if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
-                    # Toggle checkbox
+                    # Toggle checkbox.
                     self.toggle_remember_me()
-                    return True  # Event ditangani
+                    return True  # Event sudah ditangani
 
-            # Handle Enter pada tombol Sign In
+            # Handle Enter pada tombol Sign In.
             elif obj == self.ui.signinButton:
                 if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
-                    # Klik tombol Sign In
+                    # Jalankan aksi sign in.
                     self.handle_signin()
-                    return True  # Event ditangani
+                    return True  # Event sudah ditangani
 
-        return False  # Biarkan event diproses secara default
+        return False  # Biarkan event diproses default
 
     def show_message_box(self, icon_type, title, text):
         """
-        Tampilkan QMessageBox dengan icon EcoLab
+        Menampilkan styled message box sesuai jenis icon yang diminta.
 
         Args:
-            icon_type: "information", "warning", "critical", "question"
+            icon_type: Jenis icon seperti information, warning, critical, atau question
             title: Judul message box
-            text: Isi pesan
+            text: Isi pesan yang ditampilkan
         """
         if icon_type == "information":
             show_styled_information(self, title, text)
@@ -673,6 +686,7 @@ class LoginWindow(QMainWindow):
 
 
 def main():
+    """Menjadi entry point lokal untuk menjalankan login window secara langsung."""
     app = QApplication(sys.argv)
     window = LoginWindow()
     window.show()

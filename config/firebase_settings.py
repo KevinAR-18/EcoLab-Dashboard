@@ -1,3 +1,5 @@
+"""Helper config Firebase dan environment variable untuk aplikasi EcoLab."""
+
 import os
 import sys
 from pathlib import Path
@@ -5,16 +7,16 @@ from pathlib import Path
 
 def _get_base_dir():
     """
-    Tentukan base directory berdasarkan mode running (EXE vs script)
+    Menentukan base directory berdasarkan mode running aplikasi.
 
     Returns:
-        Path: Base directory untuk aplikasi
+        Path: Folder dasar aplikasi
     """
     if getattr(sys, 'frozen', False):
-        # Running dari EXE - gunakan folder yang sama dengan EXE
+        # Jika running dari EXE, pakai folder yang sama dengan executable.
         base_dir = Path(sys.executable).parent
     else:
-        # Running dari script - gunakan project root
+        # Jika running dari script, pakai root project.
         base_dir = Path(__file__).resolve().parent.parent
 
     return base_dir
@@ -49,7 +51,7 @@ _DEFAULT_ADMIN_SERVICE_ACCOUNT = CREDENTIALS_DIR / "firebase_service_account.jso
 
 
 def _load_dotenv():
-    """Load simple KEY=VALUE pairs from a local .env file."""
+    """Memuat pasangan `KEY=VALUE` sederhana dari file `.env` lokal."""
     if not ENV_FILE.is_file():
         return
 
@@ -72,7 +74,7 @@ _load_dotenv()
 
 
 def get_firebase_config():
-    """Build the Firebase web config expected by Pyrebase."""
+    """Menyusun Firebase web config yang dibutuhkan oleh Pyrebase."""
     config = {}
 
     for key, env_name in _FIREBASE_ENV_MAP.items():
@@ -90,7 +92,7 @@ def get_firebase_config():
 
 
 def get_firebase_project_id():
-    """Return the project id used by Firestore/Admin SDK flows."""
+    """Mengambil project ID Firebase untuk flow admin dan database."""
     project_id = os.getenv("ECOLAB_FIREBASE_PROJECT_ID", _FIREBASE_DEFAULTS["projectId"])
     if not project_id:
         raise RuntimeError(
@@ -100,7 +102,7 @@ def get_firebase_project_id():
 
 
 def get_firebase_web_api_key():
-    """Return the Firebase Web API key used by auth requests."""
+    """Mengambil Firebase Web API key untuk request authentication."""
     api_key = os.getenv("ECOLAB_FIREBASE_API_KEY", _FIREBASE_DEFAULTS["apiKey"])
     if not api_key:
         raise RuntimeError(
@@ -110,7 +112,7 @@ def get_firebase_web_api_key():
 
 
 def get_admin_service_account_path():
-    """Resolve the Admin SDK credential path with an optional env override."""
+    """Menentukan path service account Admin SDK, termasuk env override jika ada."""
     configured_path = os.getenv("ECOLAB_FIREBASE_SERVICE_ACCOUNT")
     if configured_path:
         return Path(configured_path)
@@ -119,12 +121,12 @@ def get_admin_service_account_path():
 
 
 def get_env(name, default=""):
-    """Read an environment variable after .env has been loaded."""
+    """Membaca environment variable setelah `.env` selesai dimuat."""
     return os.getenv(name, default)
 
 
 def get_required_env(name):
-    """Read a required environment variable and raise if missing."""
+    """Membaca environment variable wajib dan raise error jika kosong."""
     value = os.getenv(name, "").strip()
     if not value:
         raise RuntimeError(f"Required environment variable is missing: {name}")
@@ -132,7 +134,7 @@ def get_required_env(name):
 
 
 def get_env_bool(name, default=False):
-    """Read a boolean environment variable."""
+    """Membaca environment variable boolean dengan parsing sederhana."""
     value = os.getenv(name)
     if value is None:
         return bool(default)
