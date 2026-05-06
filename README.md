@@ -48,7 +48,7 @@ The system currently supports:
 - **Firebase Authentication**
 - **Pyrebase4**
 - **MQTT** (`paho-mqtt`) for IoT device communication
-- **Growatt data integration** for inverter monitoring on page 1
+- **Growatt data integration** for inverter monitoring
 - **Weather data integration** for Weather Station monitoring
 - **Google Cloud / OAuth config** for Google login
 
@@ -75,14 +75,25 @@ Python 3.10 or higher
 pip install -r requirements.txt
 ```
 
+### Runtime configuration
+
+The application needs three external setup areas:
+
+1. Firebase web configuration in `.env`
+2. Google OAuth client credential in `credentials/client_secret.json`
+3. MQTT TLS certificate in `credentials/ca.crt` or `credentials/ca2.crt`
+
+See [credentials/README.md](credentials/README.md) for the detailed credential guide.
+
 ### Firebase setup
 
-1. Create a project in Firebase Console.
-2. Enable Authentication for Email/Password and Google Sign-In.
-3. Set up Firebase Realtime Database if required by the project configuration.
-4. Provide the required runtime values through `.env` and the `credentials/` folder.
+1. Create or open the EcoLab project in Firebase Console.
+2. Enable Authentication for Email/Password.
+3. Enable Google Sign-In in Firebase Authentication if you want Google login.
+4. Copy the Firebase web app values into the root `.env` file.
+5. Generate a service account key and place it in `credentials/firebase_service_account.json`.
 
-Example Firebase web config:
+Example Firebase web config values:
 
 ```json
 {
@@ -94,6 +105,95 @@ Example Firebase web config:
   "messagingSenderId": "YOUR_SENDER_ID",
   "appId": "YOUR_APP_ID"
 }
+```
+
+Required `.env` keys:
+
+```env
+ECOLAB_FIREBASE_API_KEY=
+ECOLAB_FIREBASE_AUTH_DOMAIN=
+ECOLAB_FIREBASE_DATABASE_URL=
+ECOLAB_FIREBASE_PROJECT_ID=
+ECOLAB_FIREBASE_STORAGE_BUCKET=
+ECOLAB_FIREBASE_MESSAGING_SENDER_ID=
+ECOLAB_FIREBASE_APP_ID=
+ECOLAB_FIREBASE_SERVICE_ACCOUNT=
+```
+
+Notes:
+
+- Leave `ECOLAB_FIREBASE_SERVICE_ACCOUNT` empty if you use `credentials/firebase_service_account.json`.
+- Fill `ECOLAB_FIREBASE_SERVICE_ACCOUNT` only if the service account file is stored somewhere else.
+
+### Google OAuth setup
+
+Google Sign-In does not use only Firebase settings. It also needs a Google OAuth client JSON file.
+
+Prepare:
+
+- `credentials/client_secret.json`
+
+Steps:
+
+1. Open Google Cloud Console.
+2. Select the same Google Cloud project linked to EcoLab.
+3. Go to `APIs & Services` -> `Credentials`.
+4. Create or open the OAuth client used by the app.
+5. Download the client JSON.
+6. Rename it to `client_secret.json`.
+7. Place it inside the `credentials/` folder.
+
+If Google Sign-In fails, the first thing to verify is whether `credentials/client_secret.json` matches the active Google Cloud project.
+
+### MQTT TLS setup
+
+MQTT communication for the IoT devices uses TLS and requires a CA certificate file.
+
+Prepare:
+
+- `credentials/ca.crt` as the default CA certificate
+- `credentials/ca2.crt` as an optional backup CA certificate for some simulator or broker setups
+
+Required `.env` keys:
+
+```env
+ECOLAB_MQTT_BROKER=
+ECOLAB_MQTT_PORT=8883
+ECOLAB_MQTT_USERNAME=
+ECOLAB_MQTT_PASSWORD=
+ECOLAB_MQTT_CA_CERT=credentials/ca.crt
+ECOLAB_MQTT_USE_TLS=true
+```
+
+What to prepare for MQTT TLS:
+
+1. MQTT broker hostname or IP
+2. MQTT username and password
+3. TLS-enabled MQTT port, usually `8883`
+4. CA certificate file, usually `credentials/ca.crt`
+5. Fallback CA certificate if your simulator or broker setup uses `ca2.crt`
+
+Notes:
+
+- `main.py` defaults to `credentials/ca.crt` when `ECOLAB_MQTT_CA_CERT` is not overridden.
+- Some simulator files in `hardware_TA/` still point to `ca2.crt`, so keep both certificate files available unless you are standardizing them.
+- Do not embed certificate contents directly into the firmware.
+
+### Minimum files checklist
+
+Before running the app, make sure these files exist:
+
+```text
+.env
+credentials/client_secret.json
+credentials/firebase_service_account.json
+credentials/ca.crt
+```
+
+Optional but recommended:
+
+```text
+credentials/ca2.crt
 ```
 
 ---
