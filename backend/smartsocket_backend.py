@@ -118,8 +118,13 @@ class SmartSocketBackend(QObject):
                 stop = data.get("stop", "N/A")
                 self.logger(f"[Socket {self.socket_number}] Schedule: {mode} {start}-{stop}")
         except json.JSONDecodeError:
-            # Jika payload bukan JSON, simpan sebagai raw string.
-            self.schedule_status = {"raw": payload}
+            # Jika payload bukan JSON, pertahankan detail jadwal terakhir
+            # lalu simpan trigger mentah agar status aktif tidak hilang.
+            previous = self.schedule_status if isinstance(self.schedule_status, dict) else {}
+            self.schedule_status = {
+                **previous,
+                "raw": payload,
+            }
             self.schedule_status_changed.emit(payload)
 
     def _handle_device_status(self, payload):

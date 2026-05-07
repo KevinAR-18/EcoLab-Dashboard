@@ -1,4 +1,5 @@
 from datetime import datetime
+import time
 
 from PySide6.QtCharts import QChart, QChartView, QLineSeries, QValueAxis, QDateTimeAxis
 from PySide6.QtCore import Qt, QTimer, QSize, QDateTime, QPoint
@@ -1537,6 +1538,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         current_value = float(state.get("current", 0.0) or 0.0)
         message = state.get("message", "") or ""
         acknowledged = bool(state.get("acknowledged", False))
+        critical_stage = int(state.get("critical_stage", 0) or 0)
+        critical_deadline = float(state.get("critical_deadline", 0.0) or 0.0)
 
         if not active:
             self.label_warning_level.setText("Status: Safe")
@@ -1568,12 +1571,23 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             f"Current: {current_value:.3f} A\n"
             f"{message}"
         )
-        self.label_warning_ack.setText(
-            "Acknowledgement: Acknowledged"
-            if acknowledged else
-            "Acknowledgement: Waiting for acknowledgement"
-        )
-        self.btn_warning_ack.setEnabled(not acknowledged)
+        if level == "critical":
+            if critical_stage == 2 and critical_deadline > 0:
+                remaining_seconds = max(0, int(round(critical_deadline - time.time())))
+                ack_text = f"Protection: Auto OFF dalam {remaining_seconds} detik"
+            elif critical_stage == 1:
+                ack_text = "Protection: Menunggu verifikasi pengurangan beban"
+            else:
+                ack_text = "Protection: Critical mode aktif"
+            self.label_warning_ack.setText(ack_text)
+            self.btn_warning_ack.setEnabled(False)
+        else:
+            self.label_warning_ack.setText(
+                "Acknowledgement: Acknowledged"
+                if acknowledged else
+                "Acknowledgement: Waiting for acknowledgement"
+            )
+            self.btn_warning_ack.setEnabled(not acknowledged)
 
     def _fmt(self, value, decimals):
         return f"{self._to_float(value):.{decimals}f}"

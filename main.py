@@ -94,6 +94,14 @@ class MainWindow(QMainWindow):
 
     # APP VERSION
     APP_VERSION = "v2.0"
+    SOCKET_WARNING_ELEVATED_CURRENT = 6.0
+    SOCKET_WARNING_HIGH_CURRENT = 6.5
+    SOCKET_WARNING_CRITICAL_CURRENT = 7.0
+    SOCKET_WARNING_ELEVATED_POPUP_INTERVAL_SECONDS = 60.0
+    SOCKET_WARNING_HIGH_POPUP_INTERVAL_SECONDS = 30.0
+    SOCKET_CRITICAL_RECHECK_DELAY_SECONDS = 15
+    SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS = 10
+    SOCKET_CRITICAL_FIRST_RESPONSE_SECONDS = 15
 
     def __init__(self, user_session=None):
         """
@@ -185,12 +193,35 @@ class MainWindow(QMainWindow):
                 "level": "normal",
                 "message": "",
                 "current": 0.0,
+                "relay_on": False,
                 "acknowledged": False,
                 "last_popup_at": 0.0,
                 "popup_open": False,
+                "critical_stage": 0,
+                "critical_recheck_pending": False,
+                "critical_recheck_due_at": 0.0,
+                "critical_second_popup_shown": False,
+                "critical_deadline": 0.0,
+                "auto_off_sent": False,
             }
             for socket_number in range(1, 6)
         }
+        self.socket_critical_recheck_timers = {}
+        self.socket_critical_auto_off_timers = {}
+        for socket_number in range(1, 6):
+            recheck_timer = QTimer(self)
+            recheck_timer.setSingleShot(True)
+            recheck_timer.timeout.connect(
+                lambda n=socket_number: self._recheck_socket_critical_load(n, force=True)
+            )
+            self.socket_critical_recheck_timers[socket_number] = recheck_timer
+
+            auto_off_timer = QTimer(self)
+            auto_off_timer.setSingleShot(True)
+            auto_off_timer.timeout.connect(
+                lambda n=socket_number: self._handle_socket_critical_timeout(n)
+            )
+            self.socket_critical_auto_off_timers[socket_number] = auto_off_timer
         self._load_smartsocket_monitoring_settings()
 
         # Simpan preferensi format timer per socket untuk tampilan popup/UI.
@@ -241,10 +272,10 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
-        # # SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        # SEMENTARA: DRAG BG APP (seluruh background)
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
@@ -1669,7 +1700,7 @@ class MainWindow(QMainWindow):
     def acknowledge_socket_warning(self, socket_number: int):
         """Menandai warning socket sudah diketahui user agar popup tidak berulang."""
         state = self.socket_load_warnings.get(socket_number)
-        if not state or not state.get("active"):
+        if not state or not state.get("active") or state.get("level") == "critical":
             return
         if not state.get("acknowledged"):
             state["acknowledged"] = True
@@ -1683,34 +1714,39 @@ class MainWindow(QMainWindow):
                 "level": "normal",
                 "message": "",
                 "current": 0.0,
+                "relay_on": False,
             }
 
-        if current_value >= 10.0:
+        if current_value >= self.SOCKET_WARNING_CRITICAL_CURRENT:
             return {
                 "active": True,
                 "level": "critical",
-                "message": "Kurangi beban segera",
+                "message": "Cabut atau kurangi beban segera",
                 "current": current_value,
+                "relay_on": relay_on,
             }
-        if current_value >= 8.0:
+        if current_value >= self.SOCKET_WARNING_HIGH_CURRENT:
             return {
                 "active": True,
                 "level": "high",
-                "message": "Beban tinggi, harap waspada",
+                "message": "Beban tinggi, harap kurangi beban",
                 "current": current_value,
+                "relay_on": relay_on,
             }
-        if current_value >= 6.0:
+        if current_value >= self.SOCKET_WARNING_ELEVATED_CURRENT:
             return {
                 "active": True,
                 "level": "elevated",
                 "message": "Beban cukup tinggi",
                 "current": current_value,
+                "relay_on": relay_on,
             }
         return {
             "active": False,
             "level": "normal",
             "message": "",
             "current": current_value,
+            "relay_on": relay_on,
         }
 
     def _warning_popup_title(self, level: str):
@@ -1721,13 +1757,12 @@ class MainWindow(QMainWindow):
             "critical": "Socket Load Critical",
         }.get(level, "Socket Load Warning")
 
-    def _show_socket_warning_popup(self, socket_number: int):
-        """Menampilkan popup warning arus berlebih untuk socket tertentu."""
+    def _show_socket_high_warning_popup(self, socket_number: int):
+        """Menampilkan popup warning untuk level high."""
         state = self.socket_load_warnings.get(socket_number, {})
-        if not state.get("active") or state.get("popup_open"):
+        if not state.get("active") or state.get("popup_open") or state.get("level") != "high":
             return
 
-        title = self._warning_popup_title(state.get("level", "high"))
         text = (
             f"Smart Socket {socket_number}\n"
             f"Current: {float(state.get('current', 0.0)):.3f} A\n"
@@ -1735,8 +1770,337 @@ class MainWindow(QMainWindow):
         )
         state["last_popup_at"] = time.time()
         state["popup_open"] = True
-        show_styled_warning(self, title, text)
-        state["popup_open"] = False
+        show_styled_warning(self, self._warning_popup_title("high"), text)
+        current_state = self.socket_load_warnings.get(socket_number)
+        if current_state is not None:
+            current_state["popup_open"] = False
+
+    def _show_socket_elevated_warning_popup(self, socket_number: int):
+        """Menampilkan popup ringan untuk level elevated."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state.get("active") or state.get("popup_open") or state.get("level") != "elevated":
+            return
+
+        text = (
+            f"Smart Socket {socket_number}\n"
+            f"Current: {float(state.get('current', 0.0)):.3f} A\n"
+            "Beban mulai meningkat. Pantau perangkat dan kurangi beban bila perlu."
+        )
+        state["last_popup_at"] = time.time()
+        state["popup_open"] = True
+        show_styled_information(self, self._warning_popup_title("elevated"), text)
+        current_state = self.socket_load_warnings.get(socket_number)
+        if current_state is not None:
+            current_state["popup_open"] = False
+
+    def _run_socket_critical_action_dialog(self, socket_number: int):
+        """Menampilkan dialog aksi untuk overload critical tahap pertama."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state.get("active") or state.get("level") != "critical" or state.get("popup_open"):
+            return
+
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Socket Load Critical")
+        msg_box.setIcon(QMessageBox.Icon.Critical)
+        msg_box.setText(
+            f"Smart Socket {socket_number}\n"
+            f"Current: {float(state.get('current', 0.0)):.3f} A\n"
+            f"Batas aman: {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A\n\n"
+            "Cabut atau kurangi beban sekarang."
+        )
+        btn_shutdown = msg_box.addButton("Matikan Sekarang", QMessageBox.ButtonRole.DestructiveRole)
+        btn_recheck = msg_box.addButton("Saya Sudah Kurangi Beban", QMessageBox.ButtonRole.AcceptRole)
+        msg_box.setDefaultButton(btn_recheck)
+        msg_box.setEscapeButton(btn_shutdown)
+        msg_box.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        msg_box.setStyleSheet("""
+            QMessageBox {
+                background-color: #FFFFFF;
+            }
+            QMessageBox QLabel {
+                color: #000000;
+                background-color: transparent;
+                font-size: 10pt;
+            }
+            QMessageBox QPushButton {
+                color: #000000;
+                background-color: #FDECEC;
+                border: 1px solid #E7B4B4;
+                padding: 6px 16px;
+                border-radius: 4px;
+                min-width: 120px;
+                font-size: 9pt;
+            }
+            QMessageBox QPushButton:hover {
+                background-color: #F8DADA;
+                border: 1px solid #C53030;
+            }
+        """)
+
+        response_deadline = time.time() + self.SOCKET_CRITICAL_FIRST_RESPONSE_SECONDS
+        auto_shutdown = {"value": False}
+
+        def update_dialog_countdown():
+            remaining_seconds = max(
+                0,
+                int(round(response_deadline - time.time()))
+            )
+            msg_box.setInformativeText(
+                "Pilih 'Matikan Sekarang' untuk memutus daya, "
+                "atau pilih 'Saya Sudah Kurangi Beban' untuk verifikasi ulang.\n\n"
+                f"Auto OFF dalam {remaining_seconds} detik jika tidak ada respons."
+            )
+
+            if remaining_seconds <= 0:
+                auto_shutdown["value"] = True
+                countdown_timer.stop()
+                msg_box.done(0)
+
+        countdown_timer = QTimer(msg_box)
+        countdown_timer.setInterval(1000)
+        countdown_timer.timeout.connect(update_dialog_countdown)
+        update_dialog_countdown()
+        countdown_timer.start()
+
+        state["popup_open"] = True
+        msg_box.exec()
+        current_state = self.socket_load_warnings.get(socket_number)
+        if current_state is not None:
+            current_state["popup_open"] = False
+        countdown_timer.stop()
+        state = self.socket_load_warnings.get(socket_number, state)
+        clicked_button = msg_box.clickedButton()
+
+        if auto_shutdown["value"]:
+            self.log(
+                f"[Socket {socket_number}] Critical overload ignored for "
+                f"{int(self.SOCKET_CRITICAL_FIRST_RESPONSE_SECONDS)}s, auto protection starting"
+            )
+            self._shutdown_socket_for_overload(socket_number, automatic=True)
+            return
+
+        if clicked_button == btn_shutdown:
+            self.log(f"[Socket {socket_number}] User chose immediate shutdown from critical popup")
+            self._shutdown_socket_for_overload(socket_number, automatic=False)
+            return
+
+        state["critical_stage"] = 1
+        state["critical_recheck_pending"] = True
+        state["critical_recheck_due_at"] = (
+            time.time() + self.SOCKET_CRITICAL_RECHECK_DELAY_SECONDS
+        )
+        self.socket_warning_state_changed.emit(socket_number)
+        recheck_timer = self.socket_critical_recheck_timers.get(socket_number)
+        if recheck_timer is not None:
+            recheck_timer.start(int(self.SOCKET_CRITICAL_RECHECK_DELAY_SECONDS * 1000))
+        self.log(
+            f"[Socket {socket_number}] User reported load reduced, grace period "
+            f"{int(self.SOCKET_CRITICAL_RECHECK_DELAY_SECONDS)}s started"
+        )
+
+    def _show_socket_critical_countdown_popup(self, socket_number: int):
+        """Menampilkan popup kedua sebelum auto-off saat overload tetap tinggi."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if (
+            not state.get("active")
+            or state.get("level") != "critical"
+            or state.get("popup_open")
+            or state.get("critical_second_popup_shown")
+        ):
+            return
+
+        state["critical_stage"] = 2
+        state["critical_second_popup_shown"] = True
+        state["critical_deadline"] = time.time() + self.SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS
+        self.socket_warning_state_changed.emit(socket_number)
+        self.log(
+            f"[Socket {socket_number}] Load still above "
+            f"{self.SOCKET_WARNING_CRITICAL_CURRENT:.1f}A after grace period, "
+            f"final warning shown"
+        )
+        auto_off_timer = self.socket_critical_auto_off_timers.get(socket_number)
+        if auto_off_timer is not None:
+            auto_off_timer.start(int(self.SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS * 1000))
+
+        text = (
+            f"Smart Socket {socket_number}\n"
+            f"Current: {float(state.get('current', 0.0)):.3f} A\n"
+            f"Beban masih di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A.\n"
+            f"Socket akan dimatikan otomatis dalam "
+            f"{int(self.SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS)} detik jika arus tidak turun."
+        )
+        state["last_popup_at"] = time.time()
+        state["popup_open"] = True
+        show_styled_critical(self, "Socket Load Critical", text)
+        current_state = self.socket_load_warnings.get(socket_number)
+        if current_state is not None:
+            current_state["popup_open"] = False
+
+    def _recheck_socket_critical_load(self, socket_number: int, force: bool = False):
+        """Memverifikasi ulang arus setelah user mengaku sudah mengurangi beban."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state:
+            return
+
+        due_at = float(state.get("critical_recheck_due_at", 0.0) or 0.0)
+        if (
+            not force
+            and state.get("critical_recheck_pending")
+            and due_at
+            and time.time() < due_at
+        ):
+            return
+
+        state["critical_recheck_pending"] = False
+        state["critical_recheck_due_at"] = 0.0
+        live_current, relay_on = self._get_socket_live_load_state(socket_number)
+        if (
+            state.get("active")
+            and state.get("level") == "critical"
+            and not state.get("auto_off_sent")
+            and live_current >= self.SOCKET_WARNING_CRITICAL_CURRENT
+            and relay_on
+        ):
+            self._show_socket_critical_countdown_popup(socket_number)
+        else:
+            self.log(
+                f"[Socket {socket_number}] Load recovered during grace period "
+                f"({live_current:.3f}A), auto protection cancelled"
+            )
+            self.socket_warning_state_changed.emit(socket_number)
+
+    def _get_socket_live_load_state(self, socket_number: int):
+        """Mengambil arus dan relay state terbaru dari backend jika tersedia."""
+        backend = self.smartsocket_manager.get_backend(socket_number)
+        live_current = 0.0
+        relay_on = False
+
+        if backend is not None:
+            try:
+                live_current = float(
+                    (getattr(backend, "energy_data", {}) or {}).get("current", 0.0) or 0.0
+                )
+            except (TypeError, ValueError):
+                live_current = 0.0
+
+            relay_state = getattr(backend, "relay_state", None)
+            if relay_state is not None:
+                relay_on = bool(relay_state)
+
+        if not relay_on and socket_number <= len(getattr(self, "switches", [])):
+            relay_on = bool(self.switches[socket_number - 1].isOn())
+
+        if live_current <= 0.0:
+            state = self.socket_load_warnings.get(socket_number, {})
+            try:
+                live_current = float(state.get("current", 0.0) or 0.0)
+            except (TypeError, ValueError):
+                live_current = 0.0
+
+        return live_current, relay_on
+
+    def _socket_has_active_schedule(self, backend) -> bool:
+        """Menentukan apakah socket masih memiliki schedule aktif yang perlu dihapus."""
+        if backend is None:
+            return False
+
+        schedule_status = getattr(backend, "schedule_status", {}) or {}
+        if not isinstance(schedule_status, dict):
+            return False
+
+        for key in ("start", "stop"):
+            value = str(schedule_status.get(key, "") or "").strip().upper()
+            if value and value not in {"N/A", "CLEAR", "NONE", "NULL"}:
+                return True
+
+        raw_status = str(schedule_status.get("raw", "") or "").strip().upper()
+        return raw_status == "START_TRIGGER"
+        
+    def _stop_socket_critical_timers(self, socket_number: int):
+        """Menghentikan timer proteksi critical milik socket tertentu."""
+        recheck_timer = self.socket_critical_recheck_timers.get(socket_number)
+        if recheck_timer is not None:
+            recheck_timer.stop()
+
+        auto_off_timer = self.socket_critical_auto_off_timers.get(socket_number)
+        if auto_off_timer is not None:
+            auto_off_timer.stop()
+
+    def _shutdown_socket_for_overload(self, socket_number: int, automatic: bool):
+        """Mematikan socket akibat overload dan menghapus schedule bila perlu."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if state.get("auto_off_sent") and automatic:
+            return
+
+        backend = self.smartsocket_manager.get_backend(socket_number)
+        if backend is None:
+            return
+
+        self._stop_socket_critical_timers(socket_number)
+        if self._socket_has_active_schedule(backend):
+            backend.clear_schedule()
+            self.log(f"[Socket {socket_number}] Schedule cleared due to overload protection")
+
+        backend.set_relay(False)
+        self.log(
+            f"[Socket {socket_number}] Relay forced OFF due to "
+            f"{'automatic overload protection' if automatic else 'manual overload shutdown'}"
+        )
+
+        state["auto_off_sent"] = True
+        state["critical_recheck_pending"] = False
+        state["critical_recheck_due_at"] = 0.0
+        state["critical_stage"] = 2 if automatic else 1
+        self.socket_warning_state_changed.emit(socket_number)
+
+        if automatic:
+            show_styled_critical(
+                self,
+                "Socket Auto-Off",
+                (
+                    f"Smart Socket {socket_number} dimatikan otomatis karena "
+                    f"arus tetap di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A."
+                ),
+            )
+
+    def _handle_socket_critical_timeout(self, socket_number: int):
+        """Menjalankan auto-off bila overload critical tetap bertahan hingga deadline."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state:
+            return
+
+        if (
+            not state.get("active")
+            or state.get("level") != "critical"
+            or not state.get("relay_on")
+            or state.get("auto_off_sent")
+            or state.get("critical_stage") != 2
+        ):
+            return
+
+        deadline = float(state.get("critical_deadline", 0.0) or 0.0)
+        if deadline and time.time() + 0.25 < deadline:
+            return
+
+        live_current, relay_on = self._get_socket_live_load_state(socket_number)
+        if relay_on and live_current >= self.SOCKET_WARNING_CRITICAL_CURRENT:
+            self._shutdown_socket_for_overload(socket_number, automatic=True)
+
+    def _show_socket_warning_popup(self, socket_number: int):
+        """Menampilkan popup warning arus berlebih untuk socket tertentu."""
+        state = self.socket_load_warnings.get(socket_number, {})
+        if not state.get("active") or state.get("popup_open"):
+            return
+
+        level = state.get("level", "high")
+        if level == "critical":
+            self._run_socket_critical_action_dialog(socket_number)
+            return
+        if level == "high":
+            self._show_socket_high_warning_popup(socket_number)
+            return
+        if level == "elevated":
+            self._show_socket_elevated_warning_popup(socket_number)
 
     def _update_socket_warning_state(self, socket_number: int, current_value: float, relay_on: bool):
         """Memperbarui state warning socket dan memutuskan kapan popup muncul."""
@@ -1750,32 +2114,87 @@ class MainWindow(QMainWindow):
         )
 
         if not new_state["active"]:
+            self._stop_socket_critical_timers(socket_number)
             if current_state.get("active") or current_state.get("current", 0.0) != 0.0:
+                previous_level = current_state.get("level", "normal")
                 self.socket_load_warnings[socket_number] = {
                     **new_state,
                     "acknowledged": False,
                     "last_popup_at": 0.0,
                     "popup_open": False,
+                    "critical_stage": 0,
+                    "critical_recheck_pending": False,
+                    "critical_recheck_due_at": 0.0,
+                    "critical_second_popup_shown": False,
+                    "critical_deadline": 0.0,
+                    "auto_off_sent": False,
                 }
+                if previous_level != "normal":
+                    self.log(
+                        f"[Socket {socket_number}] Warning cleared from {previous_level} "
+                        f"({float(current_state.get('current', 0.0) or 0.0):.3f}A)"
+                    )
                 self.socket_warning_state_changed.emit(socket_number)
             return
 
         acknowledged = False if changed else bool(current_state.get("acknowledged", False))
         last_popup_at = 0.0 if changed else float(current_state.get("last_popup_at", 0.0) or 0.0)
         popup_open = bool(current_state.get("popup_open", False))
+        critical_stage = 0 if changed else int(current_state.get("critical_stage", 0) or 0)
+        critical_recheck_pending = False if changed else bool(current_state.get("critical_recheck_pending", False))
+        critical_recheck_due_at = 0.0 if changed else float(current_state.get("critical_recheck_due_at", 0.0) or 0.0)
+        critical_second_popup_shown = False if changed else bool(current_state.get("critical_second_popup_shown", False))
+        critical_deadline = 0.0 if changed else float(current_state.get("critical_deadline", 0.0) or 0.0)
+        auto_off_sent = False if changed else bool(current_state.get("auto_off_sent", False))
+
+        if new_state["level"] not in {"elevated", "high"}:
+            acknowledged = False
+
         self.socket_load_warnings[socket_number] = {
             **new_state,
             "acknowledged": acknowledged,
             "last_popup_at": last_popup_at,
             "popup_open": popup_open,
+            "critical_stage": critical_stage,
+            "critical_recheck_pending": critical_recheck_pending,
+            "critical_recheck_due_at": critical_recheck_due_at,
+            "critical_second_popup_shown": critical_second_popup_shown,
+            "critical_deadline": critical_deadline,
+            "auto_off_sent": auto_off_sent,
         }
+        if changed:
+            previous_level = current_state.get("level", "normal")
+            self.log(
+                f"[Socket {socket_number}] Warning level "
+                f"{previous_level} -> {new_state['level']} "
+                f"at {float(new_state.get('current', 0.0) or 0.0):.3f}A"
+            )
         self.socket_warning_state_changed.emit(socket_number)
 
+        if new_state["level"] == "critical":
+            if changed and not popup_open:
+                self._show_socket_warning_popup(socket_number)
+            elif critical_recheck_pending and critical_recheck_due_at:
+                self._recheck_socket_critical_load(socket_number)
+            elif critical_stage == 2 and critical_deadline:
+                self._handle_socket_critical_timeout(socket_number)
+            return
+
+        self._stop_socket_critical_timers(socket_number)
+        if new_state["level"] != "high":
+            if new_state["level"] != "elevated":
+                return
+
+        popup_interval = (
+            self.SOCKET_WARNING_HIGH_POPUP_INTERVAL_SECONDS
+            if new_state["level"] == "high"
+            else self.SOCKET_WARNING_ELEVATED_POPUP_INTERVAL_SECONDS
+        )
         should_popup = (
             not acknowledged and
             not popup_open and (
                 changed or
-                (time.time() - last_popup_at) >= 30.0
+                (time.time() - last_popup_at) >= popup_interval
             )
         )
         if should_popup:
