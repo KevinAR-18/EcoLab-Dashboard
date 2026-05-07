@@ -208,6 +208,14 @@ class MainWindow(QMainWindow):
         }
         self.socket_critical_recheck_timers = {}
         self.socket_critical_auto_off_timers = {}
+        self._last_mcu_status = {"mcuA": None, "mcuB": None}
+        self._style_state_cache = {}
+        self._socket_energy_label_cache = {
+            socket_number: {}
+            for socket_number in range(1, 6)
+        }
+        self._last_lamp_ui_states = {}
+        self._last_ac_ui_state = None
         for socket_number in range(1, 6):
             recheck_timer = QTimer(self)
             recheck_timer.setSingleShot(True)
@@ -488,11 +496,14 @@ class MainWindow(QMainWindow):
         
         self.timerLampState = QTimer(self)
         self.timerLampState.timeout.connect(self.update_lamp_ui_from_state)
-        self.timerLampState.start(300)
+        self.timerLampState.start(700)
         
         self.timerACState = QTimer(self)
         self.timerACState.timeout.connect(self.update_ac_ui_from_state)
-        self.timerACState.start(300)
+        self.timerACState.start(700)
+
+        if hasattr(self.ui, "logPlainEdit"):
+            self.ui.logPlainEdit.document().setMaximumBlockCount(500)
 
         # Tampilkan window setelah seluruh komponen utama siap.
         self.show()
@@ -917,6 +928,58 @@ class MainWindow(QMainWindow):
             self.ui.logPlainEdit.verticalScrollBar().maximum()
         )
 
+    @staticmethod
+    def _set_text_if_changed(widget, text: str):
+        """Menghindari repaint bila teks widget tidak berubah."""
+        if widget is not None and widget.text() != text:
+            widget.setText(text)
+
+    def _set_socket_metric_text(self, socket_number: int, metric: str, label, text: str):
+        """Menyimpan cache teks label Smart Socket agar update identik dilewati."""
+        if label is None:
+            return
+
+        cache = self._socket_energy_label_cache.setdefault(socket_number, {})
+        if cache.get(metric) == text:
+            return
+
+        cache[metric] = text
+        label.setText(text)
+
+    def _apply_sensor_panel_style(
+        self,
+        cache_key: str,
+        category: str,
+        frame,
+        title,
+        frame_color: str,
+        border_color: str,
+        title_bg: str,
+    ):
+        """Menerapkan stylesheet panel sensor hanya saat kategorinya berubah."""
+        if self._style_state_cache.get(cache_key) == category:
+            return
+
+        self._style_state_cache[cache_key] = category
+        frame.setStyleSheet(f"""
+        QFrame#{frame.objectName()} {{
+            background-color: {frame_color};
+            border: 2px solid {border_color};
+            border-radius: 10px;
+        }}
+        """)
+
+        title.setStyleSheet(f"""
+        QLabel#{title.objectName()} {{
+            font: bold 14pt "Segoe UI";
+            color: white;
+            background-color: {title_bg};
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid {title_bg};
+        }}
+        """)
+
     def start_growatt_worker(self):
         """Menjalankan worker pengambil data Growatt jika belum ada yang aktif."""
         # Cegah worker ganda agar request ke Growatt tidak menumpuk.
@@ -942,41 +1005,52 @@ class MainWindow(QMainWindow):
         # ===== MCU A =====
         if status["mcuA"] is not None:
             statemcuA = status["mcuA"]
+            changed_a = self._last_mcu_status.get("mcuA") != statemcuA
 
-            self.ui.statusmcuA.setText(
-                "MCU A: ONLINE" if statemcuA else "MCU A: OFFLINE"
-            )
-            self.ui.statusmcuA.setProperty(
-                "state", "on" if statemcuA else "off"
-            )
-            self.ui.statusmcuA.style().polish(self.ui.statusmcuA)
+            if changed_a:
+                self._set_text_if_changed(
+                    self.ui.statusmcuA,
+                    "MCU A: ONLINE" if statemcuA else "MCU A: OFFLINE"
+                )
+                self.ui.statusmcuA.setProperty(
+                    "state", "on" if statemcuA else "off"
+                )
+                self.ui.statusmcuA.style().polish(self.ui.statusmcuA)
+                self._last_mcu_status["mcuA"] = statemcuA
 
             # Hanya ubah status aktif tombol jika BUKAN guest mode
-            if not is_guest:
+            if not is_guest and changed_a:
                 disabled_lamps = {4}
 
                 for idx, lamp in enumerate(self.lamps, start=1):
                     if idx in disabled_lamps:
-                        lamp.setEnabled(False)
+                        if lamp.isEnabled():
+                            lamp.setEnabled(False)
                     else:
-                        lamp.setEnabled(statemcuA)
+                        if lamp.isEnabled() != statemcuA:
+                            lamp.setEnabled(statemcuA)
 
         # ===== MCU B =====
         if status["mcuB"] is not None:
             statemcuB = status["mcuB"]
+            changed_b = self._last_mcu_status.get("mcuB") != statemcuB
 
-            self.ui.statusmcuB.setText(
-                "MCU B: ONLINE" if statemcuB else "MCU B: OFFLINE"
-            )
-            self.ui.statusmcuB.setProperty(
-                "state", "on" if statemcuB else "off"
-            )
-            self.ui.statusmcuB.style().polish(self.ui.statusmcuB)
+            if changed_b:
+                self._set_text_if_changed(
+                    self.ui.statusmcuB,
+                    "MCU B: ONLINE" if statemcuB else "MCU B: OFFLINE"
+                )
+                self.ui.statusmcuB.setProperty(
+                    "state", "on" if statemcuB else "off"
+                )
+                self.ui.statusmcuB.style().polish(self.ui.statusmcuB)
+                self._last_mcu_status["mcuB"] = statemcuB
 
             # Hanya ubah status aktif tombol jika BUKAN guest mode
-            if not is_guest:
+            if not is_guest and changed_b:
                 for btn in self.ac_buttons:
-                    btn.setEnabled(statemcuB)
+                    if btn.isEnabled() != statemcuB:
+                        btn.setEnabled(statemcuB)
     
     def update_temp_style(self, temperature, frame, title):
         """Mengubah warna panel suhu berdasarkan kategori temperatur."""
