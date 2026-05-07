@@ -26,6 +26,7 @@ The system currently supports:
 - **Session Management**: remember-me support
 - **Admin Panel**: laboratory user account management
 - **Smart Socket Control**: relay, timer, schedule, and energy monitoring
+- **Smart Socket Safety Protection**: load warning, overload popup, and automatic cutoff
 - **Smart Socket Recording**: store monitoring data in application memory
 - **Smart Socket Export**: export per-socket data to CSV
 - **Smart Socket Graph**: per-socket monitoring charts inside the control popup
@@ -238,6 +239,10 @@ The current Smart Socket feature set includes:
 - Configurable recording interval from the popup
 - **Follow Schedule** option to automatically start recording when a schedule becomes active
 - **Autosave CSV** when schedule-based recording ends
+- Load warning levels for **elevated**, **high**, and **critical** current
+- Light warning popup for elevated load with cooldown control
+- Critical overload protection with user response popup, grace period, and automatic relay cutoff
+- Automatic schedule clearing before forced OFF when overload protection is triggered during an active schedule
 - Per-socket CSV export
 - Per-socket charts with selectable metrics
 - Table and chart refresh only while recording is active
@@ -426,6 +431,8 @@ python smartsocket_simulator.py
 - Countdown timer
 - Automatic scheduling
 - Real-time energy monitoring
+- Multi-level current warning system
+- Automatic overload cutoff for critical current conditions
 - Data recording, CSV export, and charts
 
 ### Smart Lamp
