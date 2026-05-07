@@ -829,6 +829,9 @@ class MainWindow(QMainWindow):
             if avg_hum != getattr(self, "_last_dht_hum", None):
                 self.ui.humidIndoor_value.setText(f"{avg_hum:.1f} %")
                 self._last_dht_hum = avg_hum
+
+        if self.ui.stackedWidget.currentWidget() != self.ui.page3_monitoringSensor:
+            return
                    
         if avg_temp is not None:
             if not hasattr(self, "_last_dht_log"):
@@ -1063,40 +1066,34 @@ class MainWindow(QMainWindow):
             return
 
         if temp < 20:
+            category = "cold"
             frame_color = "#E3F2FD"
             border_color = "#90CAF9"
             title_bg = "#42A5F5"
         elif temp < 26:
+            category = "mild"
             frame_color = "#FFF3E6"
             border_color = "#FFD6B0"
             title_bg = "#F4A261"
         elif temp < 32:
+            category = "warm"
             frame_color = "#FFF8E1"
             border_color = "#FFE082"
             title_bg = "#F9A825"
         else:
+            category = "hot"
             frame_color = "#FDECEA"
             border_color = "#F5C6CB"
             title_bg = "#E53935"
-
-        frame.setStyleSheet(f"""
-        QFrame#{frame.objectName()} {{
-            background-color: {frame_color};
-            border: 2px solid {border_color};
-            border-radius: 10px;
-        }}
-        """)
-
-        title.setStyleSheet(f"""
-        QLabel#{title.objectName()} {{
-            font: bold 14pt "Segoe UI";
-            color: white;
-            background-color: {title_bg};
-            border-radius: 8px;
-            padding: 6px 10px;
-            border: 1px solid {title_bg};
-        }}
-        """)
+        self._apply_sensor_panel_style(
+            f"temp:{frame.objectName()}",
+            category,
+            frame,
+            title,
+            frame_color,
+            border_color,
+            title_bg,
+        )
         
     def update_heatindex_style(self, heat_index, frame, title):
         """Mengubah warna panel heat index berdasarkan tingkat panas."""
@@ -1109,44 +1106,39 @@ class MainWindow(QMainWindow):
             return
 
         if hi < 27:
+            category = "safe"
             frame_color = "#E8F5E9"   # hijau muda
             border_color = "#A5D6A7"
             title_bg = "#43A047"
         elif hi < 32:
+            category = "caution"
             frame_color = "#FFFDE7"   # kuning muda
             border_color = "#FFF59D"
             title_bg = "#FBC02D"
         elif hi < 41:
+            category = "warning"
             frame_color = "#FFF3E0"   # oranye muda
             border_color = "#FFCC80"
             title_bg = "#FB8C00"
         elif hi < 54:
+            category = "danger"
             frame_color = "#FDECEA"   # merah muda
             border_color = "#EF9A9A"
             title_bg = "#E53935"
         else:
+            category = "extreme"
             frame_color = "#4E342E"   # maroon gelap
             border_color = "#3E2723"
             title_bg = "#212121"
-
-        frame.setStyleSheet(f"""
-        QFrame#{frame.objectName()} {{
-            background-color: {frame_color};
-            border: 2px solid {border_color};
-            border-radius: 10px;
-        }}
-        """)
-
-        title.setStyleSheet(f"""
-        QLabel#{title.objectName()} {{
-            font: bold 14pt "Segoe UI";
-            color: white;
-            background-color: {title_bg};
-            border-radius: 8px;
-            padding: 6px 10px;
-            border: 1px solid {title_bg};
-        }}
-        """)
+        self._apply_sensor_panel_style(
+            f"heat:{frame.objectName()}",
+            category,
+            frame,
+            title,
+            frame_color,
+            border_color,
+            title_bg,
+        )
         
     def update_humidity_style(self, humidity, frame, title):
         """Mengubah warna panel kelembaban berdasarkan rentang humidity."""
@@ -1159,40 +1151,34 @@ class MainWindow(QMainWindow):
             return
 
         if h < 30:
+            category = "dry"
             frame_color = "#E3F2FD"   # kering (biru)
             border_color = "#90CAF9"
             title_bg = "#42A5F5"
         elif h < 60:
+            category = "ideal"
             frame_color = "#E8F5E9"   # ideal (hijau)
             border_color = "#A5D6A7"
             title_bg = "#43A047"
         elif h < 70:
+            category = "humid"
             frame_color = "#E0F2F1"   # lembap (toska)
             border_color = "#80CBC4"
             title_bg = "#26A69A"
         else:
+            category = "very_humid"
             frame_color = "#F3E5F5"   # sangat lembap (ungu)
             border_color = "#CE93D8"
             title_bg = "#8E24AA"
-
-        frame.setStyleSheet(f"""
-        QFrame#{frame.objectName()} {{
-            background-color: {frame_color};
-            border: 2px solid {border_color};
-            border-radius: 10px;
-        }}
-        """)
-
-        title.setStyleSheet(f"""
-        QLabel#{title.objectName()} {{
-            font: bold 14pt "Segoe UI";
-            color: white;
-            background-color: {title_bg};
-            border-radius: 8px;
-            padding: 6px 10px;
-            border: 1px solid {title_bg};
-        }}
-        """)
+        self._apply_sensor_panel_style(
+            f"hum:{frame.objectName()}",
+            category,
+            frame,
+            title,
+            frame_color,
+            border_color,
+            title_bg,
+        )
 
     # ===============================
     # DASAR WINDOW & HELPER RESOURCE
@@ -1513,44 +1499,46 @@ class MainWindow(QMainWindow):
         pass
     def _on_lamp_status_changed(self, lamp_index: int, state: bool):
         """Menyinkronkan status lampu dari MQTT ke widget lampu terkait."""
-        # Perbarui hanya lampu yang statusnya berubah.
         if 1 <= lamp_index <= len(self.lamps):
             lamp = self.lamps[lamp_index - 1]
-            lamp.blockSignals(True)
-            lamp.setChecked(state)
-            lamp.blockSignals(False)
+            if lamp.isChecked() != state:
+                lamp.blockSignals(True)
+                lamp.setChecked(state)
+                lamp.blockSignals(False)
+            self._last_lamp_ui_states[lamp_index] = state
 
     def update_lamp_ui_from_state(self):
         """Menyamakan tampilan semua tombol lampu dengan state backend terakhir."""
         for idx, lamp in enumerate(self.lamps, start=1):
             state = self.lampbutton_backend.states.get(idx)
-            if state is not None:
+            if state is not None and self._last_lamp_ui_states.get(idx) != state:
                 lamp.blockSignals(True)
-                lamp.setChecked(state)   # ✅ BENAR
+                lamp.setChecked(state)
                 lamp.blockSignals(False)
+                self._last_lamp_ui_states[idx] = state
 
     def _on_ac_status_changed(self, state: bool):
         """Menyinkronkan status AC dari MQTT ke tombol dan label UI."""
-        # Perbarui tombol utama AC.
-        self.ac_button.blockSignals(True)
-        self.ac_button.setChecked(state)
-        self.ac_button.blockSignals(False)
-
-        # Perbarui label status AC jika helper-nya tersedia.
-        if hasattr(self, "update_ac_status"):
-            self.update_ac_status(state)
-
-    def update_ac_ui_from_state(self):
-        """Menyamakan tombol AC dengan state backend terakhir."""
-        state = self.acbutton_backend.state
-        if state is not None:
+        if self.ac_button.isChecked() != state:
             self.ac_button.blockSignals(True)
             self.ac_button.setChecked(state)
             self.ac_button.blockSignals(False)
 
-            # Pastikan label status tambahan ikut tersinkron.
+        if hasattr(self, "update_ac_status") and self._last_ac_ui_state != state:
+            self.update_ac_status(state)
+        self._last_ac_ui_state = state
+
+    def update_ac_ui_from_state(self):
+        """Menyamakan tombol AC dengan state backend terakhir."""
+        state = self.acbutton_backend.state
+        if state is not None and self._last_ac_ui_state != state:
+            self.ac_button.blockSignals(True)
+            self.ac_button.setChecked(state)
+            self.ac_button.blockSignals(False)
+
             if hasattr(self, "update_ac_status"):
                 self.update_ac_status(state)
+            self._last_ac_ui_state = state
 
     # ===============================
     # RECORDING & PENGATURAN SMART SOCKET
@@ -2326,16 +2314,21 @@ class MainWindow(QMainWindow):
             # Perbarui state tombol switch.
             if socket_number <= len(self.switches):
                 switch = self.switches[socket_number - 1]
-                switch.blockSignals(True)
-                switch.setOn(state)
-                switch.blockSignals(False)
+                if switch.isOn() != state:
+                    switch.blockSignals(True)
+                    switch.setOn(state)
+                    switch.blockSignals(False)
 
             # Perbarui label status relay.
             label = getattr(self.ui, f"label_switch_status_value{socket_number}", None)
             if label:
-                label.setText("ON" if state else "OFF")
-                label.setProperty("state", "on" if state else "off")
-                label.style().polish(label)
+                desired_text = "ON" if state else "OFF"
+                desired_state = "on" if state else "off"
+                if label.text() != desired_text:
+                    label.setText(desired_text)
+                if label.property("state") != desired_state:
+                    label.setProperty("state", desired_state)
+                    label.style().polish(label)
 
             # Kosongkan label energi saat relay OFF.
             if not state:
@@ -2382,32 +2375,62 @@ class MainWindow(QMainWindow):
         # Perbarui label hanya saat relay ON.
         if relay_on:
             if voltage_label:
-                voltage_label.setText(f"Voltage: {display_data.get('voltage', 0):.1f} V")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "voltage",
+                    voltage_label,
+                    f"Voltage: {display_data.get('voltage', 0):.1f} V",
+                )
             if current_label:
-                current_label.setText(f"Current: {display_data.get('current', 0):.3f} A")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "current",
+                    current_label,
+                    f"Current: {display_data.get('current', 0):.3f} A",
+                )
             if power_label:
-                power_label.setText(f"Power: {display_data.get('power', 0):.1f} W")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "power",
+                    power_label,
+                    f"Power: {display_data.get('power', 0):.1f} W",
+                )
             if energy_label:
-                energy_label.setText(f"Energy: {display_data.get('energy', 0):.3f} kWh")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "energy",
+                    energy_label,
+                    f"Energy: {display_data.get('energy', 0):.3f} kWh",
+                )
             if freq_label:
-                freq_label.setText(f"Frequency: {display_data.get('frequency', 0):.1f} Hz")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "frequency",
+                    freq_label,
+                    f"Frequency: {display_data.get('frequency', 0):.1f} Hz",
+                )
             if pf_label:
-                pf_label.setText(f"PF: {display_data.get('pf', 0):.2f}")
+                self._set_socket_metric_text(
+                    socket_number,
+                    "pf",
+                    pf_label,
+                    f"PF: {display_data.get('pf', 0):.2f}",
+                )
         else:
             # Tampilkan "--" saat relay OFF
             self._update_socket_warning_state(socket_number, 0.0, False)
             if voltage_label:
-                voltage_label.setText("Voltage: -- V")
+                self._set_socket_metric_text(socket_number, "voltage", voltage_label, "Voltage: -- V")
             if current_label:
-                current_label.setText("Current: -- A")
+                self._set_socket_metric_text(socket_number, "current", current_label, "Current: -- A")
             if power_label:
-                power_label.setText("Power: -- W")
+                self._set_socket_metric_text(socket_number, "power", power_label, "Power: -- W")
             if energy_label:
-                energy_label.setText("Energy: -- kWh")
+                self._set_socket_metric_text(socket_number, "energy", energy_label, "Energy: -- kWh")
             if freq_label:
-                freq_label.setText("Frequency: -- Hz")
+                self._set_socket_metric_text(socket_number, "frequency", freq_label, "Frequency: -- Hz")
             if pf_label:
-                pf_label.setText("PF: --")
+                self._set_socket_metric_text(socket_number, "pf", pf_label, "PF: --")
 
     def _clear_socket_energy_labels(self, socket_number: int):
         """Mengosongkan tampilan label energi saat relay socket mati."""
@@ -2419,17 +2442,17 @@ class MainWindow(QMainWindow):
         pf_label = getattr(self.ui, f"label_powerfactor{socket_number}", None)
 
         if voltage_label:
-            voltage_label.setText("Voltage: -- V")
+            self._set_socket_metric_text(socket_number, "voltage", voltage_label, "Voltage: -- V")
         if current_label:
-            current_label.setText("Current: -- A")
+            self._set_socket_metric_text(socket_number, "current", current_label, "Current: -- A")
         if power_label:
-            power_label.setText("Power: -- W")
+            self._set_socket_metric_text(socket_number, "power", power_label, "Power: -- W")
         if energy_label:
-            energy_label.setText("Energy: -- kWh")
+            self._set_socket_metric_text(socket_number, "energy", energy_label, "Energy: -- kWh")
         if freq_label:
-            freq_label.setText("Frequency: -- Hz")
+            self._set_socket_metric_text(socket_number, "frequency", freq_label, "Frequency: -- Hz")
         if pf_label:
-            pf_label.setText("PF: --")
+            self._set_socket_metric_text(socket_number, "pf", pf_label, "PF: --")
 
     def _on_socket_timer_status(self, socket_number: int, status: str):
         """Memperbarui label timer Smart Socket dari status backend."""
@@ -2451,18 +2474,18 @@ class MainWindow(QMainWindow):
                         minutes = (remaining_seconds % 3600) // 60
                         seconds = remaining_seconds % 60
                         display_time = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-                        label.setText(f"Active: {display_time}")
+                        self._set_text_if_changed(label, f"Active: {display_time}")
                     else:
                         # Tampilkan dalam detik
-                        label.setText(f"Active: {remaining_seconds}s")
+                        self._set_text_if_changed(label, f"Active: {remaining_seconds}s")
 
                     # Jangan ubah warna - biarkan stylesheet asli
                 except ValueError:
-                    label.setText(status)
+                    self._set_text_if_changed(label, status)
             elif status == "INACTIVE":
-                label.setText("Inactive")
+                self._set_text_if_changed(label, "Inactive")
             else:
-                label.setText(status)
+                self._set_text_if_changed(label, status)
 
     def _on_socket_schedule_status(self, socket_number: int, status: str):
         """Memperbarui status schedule dan trigger recording berbasis jadwal."""
@@ -2544,9 +2567,13 @@ class MainWindow(QMainWindow):
         """Memperbarui label online atau offline device Smart Socket."""
         label = getattr(self.ui, f"statussocket{socket_number}", None)
         if label:
-            label.setText("Status Device: Online" if online else "Status Device: Offline")
-            label.setProperty("state", "on" if online else "off")
-            label.style().polish(label)
+            desired_text = "Status Device: Online" if online else "Status Device: Offline"
+            desired_state = "on" if online else "off"
+            if label.text() != desired_text:
+                label.setText(desired_text)
+            if label.property("state") != desired_state:
+                label.setProperty("state", desired_state)
+                label.style().polish(label)
 
     def sync_ui_from_mqtt(self):
         """Menyinkronkan UI awal dengan state backend setelah koneksi aktif."""
