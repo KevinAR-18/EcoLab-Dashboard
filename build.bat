@@ -96,6 +96,13 @@ if exist credentials (
     echo   - WARNING: credentials\ folder not found
 )
 
+if exist icon (
+    xcopy icon "dist\icon\" /E /I /Y >nul
+    echo   - Copied icon\
+) else (
+    echo   - WARNING: icon\ folder not found
+)
+
 echo.
 echo ========================================
 echo PyInstaller build complete!
@@ -103,7 +110,7 @@ echo Output: dist\EcoLab Dashboard.exe
 echo ========================================
 echo.
 echo Next steps:
-echo 1. Verify dist\.env and dist\credentials\
+echo 1. Verify dist\.env, dist\credentials\, and dist\icon\
 echo 2. Test EcoLab Dashboard.exe
 echo ========================================
 pause
