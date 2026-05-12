@@ -20,6 +20,8 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFileDialog,
+    QGridLayout,
+    QGroupBox,
     QHBoxLayout,
     QHeaderView,
     QLabel,
@@ -113,6 +115,8 @@ class _ComboArrowStyle(QProxyStyle):
 
 class GlobalRecordingSettingsDialog(QDialog):
     """Dialog untuk mengatur recording semua Smart Socket sekaligus."""
+    WINDOW_RADIUS_PX = 12
+
     def __init__(self, main_window, parent=None):
         """Menyiapkan form global settings untuk semua socket."""
         super().__init__(parent)
@@ -120,17 +124,12 @@ class GlobalRecordingSettingsDialog(QDialog):
         self.setWindowTitle("All Sockets Recording Settings")
         self.setModal(True)
         self.setMinimumWidth(560)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self._old_pos = None
         apply_light_theme_to_widget(self)
         self.setStyleSheet("""
-            QDialog {
-                background: qlineargradient(
-                    x1: 0, y1: 0, x2: 0, y2: 1,
-                    stop: 0 #E7F4FB,
-                    stop: 1 #F8FCFF
-                );
-                border: 1px solid #B8D4E3;
-                border-radius: 12px;
-            }
+            QDialog { background: transparent; }
             QLabel {
                 color: #1F2D3A;
                 background: transparent;
@@ -179,8 +178,15 @@ class GlobalRecordingSettingsDialog(QDialog):
             settings = self.main_window.get_global_socket_monitoring_settings()
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setContentsMargins(18, 18, 18, 18)
         layout.setSpacing(10)
+
+        title = QLabel("All Sockets Recording Settings", self)
+        title.setStyleSheet(
+            "font-size: 17px; font-weight: 700; color: #0F4165; "
+            "padding-bottom: 4px;"
+        )
+        layout.addWidget(title)
 
         info = QLabel(
             "Apply recording settings to all Smart Socket devices at once."
@@ -261,6 +267,66 @@ class GlobalRecordingSettingsDialog(QDialog):
         self.btn_start_all.clicked.connect(self._start_all)
         self.btn_stop_all.clicked.connect(self._stop_all)
         self.btn_close.clicked.connect(self.accept)
+        self._update_rounded_mask()
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        rect = self.rect().adjusted(1, 1, -1, -1)
+        if rect.width() <= 2 or rect.height() <= 2:
+            return
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        path = QPainterPath()
+        path.addRoundedRect(rect, float(self.WINDOW_RADIUS_PX), float(self.WINDOW_RADIUS_PX))
+
+        gradient = QLinearGradient(rect.left(), rect.top(), rect.left(), rect.bottom())
+        gradient.setColorAt(0.0, QColor("#E7F4FB"))
+        gradient.setColorAt(1.0, QColor("#F8FCFF"))
+        painter.fillPath(path, gradient)
+
+        pen = QPen(QColor("#B8D4E3"))
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawPath(path)
+
+    def _update_rounded_mask(self):
+        """Membuat bentuk window benar-benar rounded tanpa title bar bawaan."""
+        rect = self.rect()
+        if rect.isEmpty():
+            return
+
+        path = QPainterPath()
+        path.addRoundedRect(
+            rect.adjusted(0, 0, -1, -1),
+            self.WINDOW_RADIUS_PX,
+            self.WINDOW_RADIUS_PX,
+        )
+        self.setMask(QRegion(path.toFillPolygon().toPolygon()))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._update_rounded_mask()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._update_rounded_mask()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._old_pos = event.globalPosition().toPoint()
+
+    def mouseMoveEvent(self, event):
+        if self._old_pos and event.buttons() == Qt.LeftButton:
+            delta = event.globalPosition().toPoint() - self._old_pos
+            self.move(self.pos() + delta)
+            self._old_pos = event.globalPosition().toPoint()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self._old_pos = None
 
     def _pick_folder(self):
         """Membuka folder picker untuk memilih lokasi autosave global."""
@@ -549,14 +615,21 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         self.data_tab = QWidget(self.tabs)
         self.graph_tab = QWidget(self.tabs)
         self.warning_tab = QWidget(self.tabs)
+        self.setting_tab = QWidget(self.tabs)
         self._build_data_tab()
         self._build_graph_tab()
         self._build_warning_tab()
+        self._build_setting_tab()
 
         self.tabs.addTab(self.control_tab, "Control")
         self.tabs.addTab(self.data_tab, "Data")
         self.tabs.addTab(self.graph_tab, "Graph")
         self.tabs.addTab(self.warning_tab, "Warning")
+        self.tabs.addTab(self.setting_tab, "Setting")
+        if not getattr(self.main_window, "is_admin_user", lambda: False)():
+            setting_index = self.tabs.indexOf(self.setting_tab)
+            if setting_index >= 0:
+                self.tabs.setTabEnabled(setting_index, False)
         self.verticalLayout.addWidget(self.tabs)
 
     def _build_data_tab(self):
@@ -910,6 +983,149 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         action_row.addStretch()
         layout.addLayout(action_row)
         layout.addStretch()
+        self._update_setting_tab_access()
+
+    def _build_setting_tab(self):
+        layout = QVBoxLayout(self.setting_tab)
+        layout.setContentsMargins(14, 14, 14, 14)
+        layout.setSpacing(10)
+        self.setting_tab.setStyleSheet("""
+            QWidget {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QLabel {
+                color: #1F2D3A;
+                background: transparent;
+            }
+            QCheckBox {
+                color: #1F2D3A;
+                spacing: 6px;
+            }
+            QCheckBox::indicator {
+                width: 16px;
+                height: 16px;
+                border: 1px solid #A8C7DC;
+                border-radius: 4px;
+                background: #FFFFFF;
+            }
+            QCheckBox::indicator:checked {
+                background: #005C99;
+                border-color: #005C99;
+            }
+            QLineEdit, QComboBox {
+                color: #1F2D3A;
+                background: #FFFFFF;
+                border: 1px solid #B8D4E3;
+                border-radius: 5px;
+                padding: 5px 8px;
+            }
+            QGroupBox {
+                border: 1px solid #C7DCEC;
+                border-radius: 8px;
+                margin-top: 12px;
+                padding: 12px;
+                background: #F8FCFF;
+                font-weight: 700;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 4px;
+            }
+        """)
+
+        info = QLabel(
+            "Konfigurasi ini mengatur apakah Smart Socket boleh dimatikan oleh user biasa. "
+            "Admin selalu dapat bypass proteksi saat menekan OFF."
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+
+        self.group_protection = QGroupBox("Edit Protection")
+        group_layout = QVBoxLayout(self.group_protection)
+        group_layout.setSpacing(10)
+
+        self.chk_protection_enabled = QCheckBox("Enable power-off protection", self.group_protection)
+        group_layout.addWidget(self.chk_protection_enabled)
+
+        mode_row = QHBoxLayout()
+        mode_row.addWidget(QLabel("Mode:"))
+        self.combo_protection_mode = QComboBox(self.group_protection)
+        self.combo_protection_mode.addItem("Blocked", "blocked")
+        self.combo_protection_mode.addItem("Password required", "password")
+        mode_row.addWidget(self.combo_protection_mode)
+        mode_row.addStretch()
+        group_layout.addLayout(mode_row)
+
+        password_row = QHBoxLayout()
+        password_row.addWidget(QLabel("Password:"))
+        self.input_protection_password = QLineEdit(self.group_protection)
+        self.input_protection_password.setEchoMode(QLineEdit.EchoMode.Password)
+        self.input_protection_password.setPlaceholderText("Leave blank to keep current password")
+        password_row.addWidget(self.input_protection_password)
+        group_layout.addLayout(password_row)
+
+        self.label_password_state = QLabel("Saved password: loading...")
+        self.label_password_state.setStyleSheet("color: #52606D; font-weight: 500;")
+        group_layout.addWidget(self.label_password_state)
+
+        note_row = QHBoxLayout()
+        note_row.addWidget(QLabel("Description:"))
+        self.input_protection_note = QLineEdit(self.group_protection)
+        self.input_protection_note.setPlaceholderText("Example: Supply Raspberry Pi server")
+        note_row.addWidget(self.input_protection_note)
+        group_layout.addLayout(note_row)
+
+        helper = QLabel(
+            "Mode Blocked: user biasa tidak bisa OFF.\n"
+            "Mode Password required: user biasa harus konfirmasi lalu memasukkan password."
+        )
+        helper.setWordWrap(True)
+        helper.setStyleSheet("color: #52606D; font-weight: 500;")
+        group_layout.addWidget(helper)
+
+        layout.addWidget(self.group_protection)
+
+        action_row = QHBoxLayout()
+        action_row.addStretch()
+        self.btn_protection_reload = QPushButton("Reload")
+        self.btn_protection_reload.setStyleSheet(self._button_style("#6B7280"))
+        self.btn_protection_save = QPushButton("Save")
+        self.btn_protection_save.setStyleSheet(self._button_style("#0F8B4C"))
+        action_row.addWidget(self.btn_protection_reload)
+        action_row.addWidget(self.btn_protection_save)
+        layout.addLayout(action_row)
+        layout.addStretch()
+
+        self.chk_protection_enabled.stateChanged.connect(
+            self._on_protection_controls_changed
+        )
+        self.combo_protection_mode.currentIndexChanged.connect(
+            self._on_protection_controls_changed
+        )
+        self.btn_protection_reload.clicked.connect(
+            lambda: self._reload_socket_protection_settings(show_feedback=True)
+        )
+        self.btn_protection_save.clicked.connect(self._save_socket_protection_settings)
+        self._reload_socket_protection_settings(show_feedback=False)
+        self._on_protection_controls_changed()
+        self._update_setting_tab_access()
+
+    def _update_setting_tab_access(self):
+        is_admin = getattr(self.main_window, "is_admin_user", lambda: False)()
+        for widget in (
+            getattr(self, "group_protection", None),
+            getattr(self, "btn_protection_reload", None),
+            getattr(self, "btn_protection_save", None),
+        ):
+            if widget is not None:
+                widget.setEnabled(is_admin)
+
+        if hasattr(self, "setting_tab"):
+            self.setting_tab.setToolTip(
+                "" if is_admin else "Setting tab is available for admin only."
+            )
 
     def _create_socket_combo(self):
         combo = QComboBox(self)
@@ -1527,6 +1743,150 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _on_warning_state_changed(self, socket_number):
         if socket_number == self.socket_number:
             self._refresh_warning_tab(socket_number)
+
+    def _selected_protection_mode(self):
+        if not hasattr(self, "combo_protection_mode"):
+            return "blocked"
+        text = (self.combo_protection_mode.currentText() or "").strip().lower()
+        return "password" if "password" in text else "blocked"
+
+    def _reload_socket_protection_settings(self, show_feedback=False):
+        load_success, _ = self._load_socket_protection_settings()
+        self._on_protection_controls_changed()
+        if not show_feedback:
+            return
+
+        if load_success:
+            QMessageBox.information(
+                self,
+                "Reload Complete",
+                f"Smart Socket {self.socket_number} protection reloaded from Firebase.",
+            )
+        else:
+            QMessageBox.warning(
+                self,
+                "Reload Failed",
+                "Failed to reload protection from Firebase. Showing cached value.",
+            )
+
+    def _load_socket_protection_settings(self):
+        load_success = True
+        protection = None
+        if hasattr(self.main_window, "reload_one_socket_power_off_protection"):
+            load_success, protection = self.main_window.reload_one_socket_power_off_protection(
+                self.socket_number
+            )
+        elif hasattr(self.main_window, "reload_socket_power_off_protection"):
+            load_success = bool(self.main_window.reload_socket_power_off_protection())
+
+        if not hasattr(self.main_window, "get_socket_power_off_protection"):
+            return False, {}
+
+        if not isinstance(protection, dict):
+            protection = self.main_window.get_socket_power_off_protection(self.socket_number)
+        self.chk_protection_enabled.blockSignals(True)
+        self.combo_protection_mode.blockSignals(True)
+        self.input_protection_password.blockSignals(True)
+        self.input_protection_note.blockSignals(True)
+
+        self.chk_protection_enabled.setChecked(bool(protection.get("enabled")))
+        if (protection.get("mode", "blocked") or "blocked") == "password":
+            self.combo_protection_mode.setCurrentText("Password required")
+        else:
+            self.combo_protection_mode.setCurrentText("Blocked")
+        self.input_protection_password.clear()
+        self.input_protection_note.setText(protection.get("note", "") or "")
+        self._update_password_state_label(protection, load_success)
+
+        self.chk_protection_enabled.blockSignals(False)
+        self.combo_protection_mode.blockSignals(False)
+        self.input_protection_password.blockSignals(False)
+        self.input_protection_note.blockSignals(False)
+        return load_success, protection
+
+    def _update_password_state_label(self, protection: dict, load_success: bool):
+        if not hasattr(self, "label_password_state"):
+            return
+
+        has_password = bool(protection.get("password_hash"))
+        status_text = f"Saved password: {'Set' if has_password else 'Not set'}"
+
+        if not load_success:
+            status_text += " | Firebase reload failed, showing cached value."
+
+        self.label_password_state.setText(status_text)
+
+    def _on_protection_controls_changed(self, *_):
+        enabled = (
+            self.chk_protection_enabled.isChecked()
+            if hasattr(self, "chk_protection_enabled")
+            else False
+        )
+        password_mode = (
+            enabled
+            and hasattr(self, "combo_protection_mode")
+            and self._selected_protection_mode() == "password"
+        )
+        if hasattr(self, "combo_protection_mode"):
+            self.combo_protection_mode.setEnabled(enabled)
+        if hasattr(self, "input_protection_password"):
+            self.input_protection_password.setEnabled(password_mode)
+        if hasattr(self, "input_protection_note"):
+            self.input_protection_note.setEnabled(enabled)
+
+    def _save_socket_protection_settings(self):
+        if not getattr(self.main_window, "is_admin_user", lambda: False)():
+            QMessageBox.warning(
+                self,
+                "Admin Only",
+                "Only admin can change Smart Socket protection settings.",
+            )
+            return
+
+        enabled = self.chk_protection_enabled.isChecked()
+        mode = self._selected_protection_mode()
+        note = self.input_protection_note.text().strip()
+        password_text = self.input_protection_password.text().strip()
+        current = self.main_window.get_socket_power_off_protection(self.socket_number)
+        password_hash = None
+
+        if enabled and mode == "password":
+            if password_text:
+                password_hash = self.main_window._hash_socket_protection_password(
+                    password_text
+                )
+            elif not current.get("password_hash"):
+                QMessageBox.warning(
+                    self,
+                    "Password Required",
+                    "Mode password membutuhkan password untuk Smart Socket ini.",
+                )
+                self.input_protection_password.setFocus()
+                return
+
+        try:
+            saved = self.main_window.set_socket_power_off_protection(
+                self.socket_number,
+                enabled=enabled,
+                mode=mode,
+                password_hash=password_hash,
+                note=note,
+            )
+        except Exception as exc:
+            QMessageBox.critical(
+                self,
+                "Protection Save Failed",
+                f"Failed to save Smart Socket protection to Firebase:\n{exc}",
+            )
+            return
+        self._update_password_state_label(saved, True)
+        self._reload_socket_protection_settings(show_feedback=False)
+        self._on_protection_controls_changed()
+        QMessageBox.information(
+            self,
+            "Protection Saved",
+            f"Protection for Smart Socket {self.socket_number} saved.",
+        )
 
     def _refresh_warning_tab(self, socket_number):
         if not hasattr(self.main_window, "get_socket_warning_state"):

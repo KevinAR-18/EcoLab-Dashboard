@@ -6,7 +6,7 @@ layanan Growatt dan WeatherCloud, serta aksi user berbasis role
 ke dalam satu jendela utama.
 """
 
-import sys,random,os,time
+import sys,random,os,time,hashlib
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
     QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject,
@@ -47,6 +47,7 @@ from app.setup.arrow_setup import ArrowSetup
 from dialogs.smartsocket_popup import SmartSocketPopup
 from app.setup.smartsocket_setup import SmartSocketSetup
 from services.smartsocket_recorder import SmartSocketRecorder
+from services.smartsocket_protection_store import SmartSocketProtectionStore
 from services.smartsocket_settings_manager import SmartSocketSettingsManager
 
 from widgets.lamp_button import LampButton
@@ -60,17 +61,16 @@ from backend.growatt_worker import GrowattWorker
 from backend.mcu_status_backend import MCUStatusBackend
 from backend.smartsocket_backend import SmartSocketManager
 
-# ============================================================
-# KONFIGURASI MQTT TLS
-# ============================================================
-# Nilai ini dibaca saat modul di-import agar kesalahan konfigurasi runtime
-# bisa terdeteksi lebih awal sebelum dashboard membuat object backend.
-MQTT_BROKER = get_required_env("ECOLAB_MQTT_BROKER")
-MQTT_PORT = int(get_env("ECOLAB_MQTT_PORT", "8883"))
-MQTT_USERNAME = get_required_env("ECOLAB_MQTT_USERNAME")
-MQTT_PASSWORD = get_required_env("ECOLAB_MQTT_PASSWORD")
-MQTT_CA_CERT = get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt"))
-MQTT_USE_TLS = get_env_bool("ECOLAB_MQTT_USE_TLS", True)
+def _load_mqtt_runtime_config():
+    """Membaca konfigurasi MQTT saat dashboard akan dibuat."""
+    return {
+        "broker": get_required_env("ECOLAB_MQTT_BROKER"),
+        "port": int(get_env("ECOLAB_MQTT_PORT", "8883")),
+        "username": get_required_env("ECOLAB_MQTT_USERNAME"),
+        "password": get_required_env("ECOLAB_MQTT_PASSWORD"),
+        "ca_cert_path": get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt")),
+        "use_tls": get_env_bool("ECOLAB_MQTT_USE_TLS", True),
+    }
 
 # Helper sederhana untuk menampilkan jam dan tanggal realtime di header.
 # Dipisah dari MainWindow agar tanggung jawab update waktu tetap kecil dan jelas.
@@ -155,13 +155,14 @@ class MainWindow(QMainWindow):
 
         # MQTT adalah jalur utama komunikasi ke perangkat IoT.
         # Semua backend device akan berbagi koneksi MQTT ini.
+        mqtt_config = _load_mqtt_runtime_config()
         self.mqtt = MqttClient(
-            broker=MQTT_BROKER,
-            port=MQTT_PORT,
-            username=MQTT_USERNAME,
-            password=MQTT_PASSWORD,
-            ca_cert_path=MQTT_CA_CERT,
-            use_tls=MQTT_USE_TLS,
+            broker=mqtt_config["broker"],
+            port=mqtt_config["port"],
+            username=mqtt_config["username"],
+            password=mqtt_config["password"],
+            ca_cert_path=mqtt_config["ca_cert_path"],
+            use_tls=mqtt_config["use_tls"],
             logger=self.log
         )
         self.mqtt.start()
@@ -182,8 +183,11 @@ class MainWindow(QMainWindow):
         self.smartsocket_manager.start()
         self.smartsocket_recorder = SmartSocketRecorder()
         self.smartsocket_settings_manager = SmartSocketSettingsManager()
+        self.smartsocket_protection_store = SmartSocketProtectionStore()
         self.global_smartsocket_monitoring_settings = {}
         self.socket_graph_range_overrides = {}
+        self.socket_power_off_protection = {}
+        self.socket_protection_controls = {}
 
         # State warning disimpan per socket supaya popup warning tidak terus
         # muncul berulang tanpa kontrol, dan statusnya bisa di-acknowledge user.
@@ -281,9 +285,9 @@ class MainWindow(QMainWindow):
         )
 
         # SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
@@ -877,6 +881,14 @@ class MainWindow(QMainWindow):
         """Menangani klik switch Smart Socket lalu meneruskan ke backend."""
         self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
 
+        if not state:
+            allowed, reason = self._authorize_socket_power_off(switch_index)
+            if not allowed:
+                self._revert_socket_switch_state(switch_index, True)
+                if reason:
+                    self.log(f"[Socket {switch_index}] OFF cancelled: {reason}")
+                return
+
         # Guard ini penting karena user bisa menekan tombol sebelum backend
         # Smart Socket selesai terpasang atau sebelum MQTT siap.
         if hasattr(self, 'socket_backends'):
@@ -901,6 +913,192 @@ class MainWindow(QMainWindow):
                 f"• MQTT Broker (Mosquitto) sudah jalan\n"
                 f"• Simulator smartsocket_simulator.py sudah berjalan"
             )
+
+    def _revert_socket_switch_state(self, switch_index: int, state: bool):
+        """Mengembalikan state visual switch tanpa memicu command baru."""
+        if not (1 <= switch_index <= len(getattr(self, "switches", []))):
+            return
+
+        switch = self.switches[switch_index - 1]
+
+        def _apply():
+            switch.blockSignals(True)
+            switch.setOn(state)
+            switch.blockSignals(False)
+            switch.update()
+
+        QTimer.singleShot(0, _apply)
+
+    def _current_user_role(self):
+        """Mengambil role user aktif dengan fallback aman."""
+        if not self.user_session:
+            return "user"
+        return (self.user_session.get("role") or "user").strip().lower()
+
+    def is_admin_user(self):
+        """Mengecek apakah session aktif adalah admin."""
+        return self._current_user_role() == "admin"
+
+    def _hash_socket_protection_password(self, password: str):
+        """Membuat hash password proteksi socket."""
+        password = (password or "").strip()
+        if not password:
+            return ""
+        return hashlib.sha256(password.encode("utf-8")).hexdigest()
+
+    def get_socket_power_off_protection(self, socket_number: int):
+        """Mengambil konfigurasi proteksi OFF socket dari cache lokal."""
+        default = {
+            "enabled": False,
+            "mode": "blocked",
+            "password_hash": "",
+            "note": "",
+        }
+        state = getattr(self, "socket_power_off_protection", {}).get(socket_number)
+        if not isinstance(state, dict):
+            return dict(default)
+
+        payload = dict(default)
+        payload.update(state)
+        payload["enabled"] = bool(payload.get("enabled", False))
+        payload["mode"] = (payload.get("mode") or "blocked").strip().lower()
+        payload["password_hash"] = payload.get("password_hash", "") or ""
+        payload["note"] = payload.get("note", "") or ""
+        return payload
+
+    def reload_socket_power_off_protection(self):
+        """Menyegarkan cache proteksi Smart Socket dari Firebase."""
+        defaults = {
+            socket_number: {
+                "enabled": False,
+                "mode": "blocked",
+                "password_hash": "",
+                "note": "",
+            }
+            for socket_number in range(1, 6)
+        }
+
+        try:
+            remote = self.smartsocket_protection_store.get_all()
+        except Exception as exc:
+            self.log(f"[SmartSocket Protection] Failed to load from Firebase: {exc}")
+            if not getattr(self, "socket_power_off_protection", None):
+                self.socket_power_off_protection = dict(defaults)
+            return False
+
+        defaults.update(remote)
+        self.socket_power_off_protection = defaults
+        return True
+
+    def reload_one_socket_power_off_protection(self, socket_number: int):
+        """Menyegarkan satu proteksi Smart Socket langsung dari Firebase."""
+        try:
+            protection = self.smartsocket_protection_store.get_one(socket_number)
+        except Exception as exc:
+            self.log(
+                f"[SmartSocket Protection] Failed to load socket {socket_number} from Firebase: {exc}"
+            )
+            return False, self.get_socket_power_off_protection(socket_number)
+
+        self.socket_power_off_protection[socket_number] = dict(protection)
+        return True, dict(protection)
+
+    def set_socket_power_off_protection(
+        self,
+        socket_number: int,
+        enabled: bool,
+        mode: str,
+        password_hash=None,
+        note: str = "",
+    ):
+        """Menyimpan proteksi OFF socket ke cache dan file settings."""
+        current = self.get_socket_power_off_protection(socket_number)
+        updated = {
+            "enabled": bool(enabled),
+            "mode": (mode or "blocked").strip().lower(),
+            "password_hash": current.get("password_hash", ""),
+            "note": (note or "").strip(),
+        }
+        if password_hash is not None:
+            updated["password_hash"] = password_hash or ""
+        saved = self.smartsocket_protection_store.set_one(socket_number, updated)
+        self.socket_power_off_protection[socket_number] = dict(saved)
+        return dict(saved)
+
+    def _socket_protection_message(self, socket_number: int, protection: dict):
+        """Menyusun isi pesan proteksi OFF socket."""
+        note = (protection.get("note", "") or "").strip()
+        lines = [f"Smart Socket {socket_number} diproteksi untuk aksi OFF."]
+        if note:
+            lines.extend(["", f"Reason: {note}"])
+        return "\n".join(lines)
+
+    def _prompt_socket_protection_password(self, socket_number: int, protection: dict):
+        """Meminta password proteksi sebelum mengizinkan OFF."""
+        expected_hash = protection.get("password_hash", "") or ""
+        if not expected_hash:
+            show_styled_warning(
+                self,
+                "Protection Password Missing",
+                (
+                    f"Smart Socket {socket_number} memakai mode password, "
+                    f"tetapi password belum tersimpan."
+                ),
+            )
+            return False
+
+        password, ok = QInputDialog.getText(
+            self,
+            "Socket Protection Password",
+            f"Enter password to turn OFF Smart Socket {socket_number}:",
+            QLineEdit.EchoMode.Password,
+            "",
+        )
+        if not ok:
+            return False
+
+        password = (password or "").strip()
+        return bool(password) and (
+            self._hash_socket_protection_password(password) == expected_hash
+        )
+
+    def _authorize_socket_power_off(self, socket_number: int):
+        """Menentukan apakah aksi OFF socket boleh diteruskan."""
+        if self.is_admin_user():
+            return True, "admin bypass"
+
+        protection = self.get_socket_power_off_protection(socket_number)
+        if not protection.get("enabled"):
+            return True, "protection disabled"
+
+        mode = protection.get("mode", "blocked")
+        message = self._socket_protection_message(socket_number, protection)
+
+        if mode == "blocked":
+            show_styled_warning(
+                self,
+                "Socket Protected",
+                f"{message}\n\nUser biasa tidak dapat mematikan socket ini."
+            )
+            return False, "blocked for non-admin"
+
+        reply = show_styled_question(
+            self,
+            "Confirm Socket OFF",
+            f"{message}\n\nAre you sure you want to turn it OFF?"
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return False, "user cancelled confirmation"
+
+        if self._prompt_socket_protection_password(socket_number, protection):
+            return True, "password verified"
+
+        show_styled_warning(
+            self,
+            "Wrong Password",
+            f"Password untuk mematikan Smart Socket {socket_number} tidak valid."
+        )
+        return False, "invalid password"
 
     def ac_temp_up(self):
         """Mengirim perintah menaikkan suhu AC."""
@@ -1347,6 +1545,178 @@ class MainWindow(QMainWindow):
                     btn.setEnabled(True)
                     btn.setToolTip("")
 
+    def setup_socket_protection_settings_ui(self):
+        """Membangun panel admin untuk mengatur proteksi OFF Smart Socket."""
+        if hasattr(self, "admin_socket_protection_frame"):
+            self.refresh_socket_protection_settings_ui()
+            self._update_socket_protection_panel_visibility()
+            return
+
+        frame = QFrame(self.ui.settingsandlogFrame)
+        frame.setObjectName("adminSocketProtectionFrame")
+        frame.setStyleSheet(
+            "#adminSocketProtectionFrame {"
+            "background-color: #F6FBFF;"
+            "border: 2px solid #D6E2F1;"
+            "border-radius: 10px;"
+            "}"
+            "QLabel#adminSocketProtectionTitle {"
+            "font: bold 12pt 'Segoe UI';"
+            "color: white;"
+            "background-color: #246B9F;"
+            "border-radius: 8px;"
+            "padding: 6px 10px;"
+            "}"
+            "QLineEdit, QComboBox {"
+            "background-color: #FFFFFF;"
+            "border: 1px solid #C9D8E6;"
+            "border-radius: 6px;"
+            "padding: 5px 8px;"
+            "}"
+            "QCheckBox { color: #1F2D3A; }"
+        )
+        layout = QVBoxLayout(frame)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+
+        title = QLabel("Socket Power-Off Protection", frame)
+        title.setObjectName("adminSocketProtectionTitle")
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
+
+        info = QLabel(
+            "Admin dapat mengatur socket mana yang tidak boleh dimatikan atau "
+            "memerlukan password khusus saat user biasa menekan OFF.",
+            frame,
+        )
+        info.setWordWrap(True)
+        layout.addWidget(info)
+
+        grid = QGridLayout()
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(10)
+        headers = ["Socket", "Enable", "Mode", "Password", "Description"]
+        for col, header in enumerate(headers):
+            label = QLabel(header, frame)
+            label.setStyleSheet("font-weight: 700; color: #1F2D3A;")
+            grid.addWidget(label, 0, col)
+
+        self.socket_protection_controls = {}
+        for row, socket_number in enumerate(range(1, 6), start=1):
+            socket_label = QLabel(f"Socket {socket_number}", frame)
+            enabled_checkbox = QCheckBox(frame)
+            mode_combo = QComboBox(frame)
+            mode_combo.addItem("Blocked", "blocked")
+            mode_combo.addItem("Password required", "password")
+            password_input = QLineEdit(frame)
+            password_input.setEchoMode(QLineEdit.EchoMode.Password)
+            password_input.setPlaceholderText("Leave blank to keep current password")
+            note_input = QLineEdit(frame)
+            note_input.setPlaceholderText("Example: Supply Raspberry Pi server")
+
+            grid.addWidget(socket_label, row, 0)
+            grid.addWidget(enabled_checkbox, row, 1, alignment=Qt.AlignCenter)
+            grid.addWidget(mode_combo, row, 2)
+            grid.addWidget(password_input, row, 3)
+            grid.addWidget(note_input, row, 4)
+
+            self.socket_protection_controls[socket_number] = {
+                "enabled": enabled_checkbox,
+                "mode": mode_combo,
+                "password": password_input,
+                "note": note_input,
+            }
+
+        grid.setColumnStretch(3, 1)
+        grid.setColumnStretch(4, 2)
+        layout.addLayout(grid)
+
+        actions = QHBoxLayout()
+        actions.addStretch()
+        refresh_button = QPushButton("Reload", frame)
+        refresh_button.clicked.connect(self.refresh_socket_protection_settings_ui)
+        save_button = QPushButton("Save Protection", frame)
+        save_button.setStyleSheet(
+            "QPushButton { background-color: #0F8B4C; color: #FFFFFF; "
+            "border: none; border-radius: 6px; padding: 8px 16px; font-weight: 700; }"
+            "QPushButton:hover { background-color: #12A95D; }"
+        )
+        save_button.clicked.connect(self.save_socket_protection_settings)
+        actions.addWidget(refresh_button)
+        actions.addWidget(save_button)
+        layout.addLayout(actions)
+
+        self.admin_socket_protection_frame = frame
+        self.ui.verticalLayout_23.insertWidget(1, frame)
+        self.refresh_socket_protection_settings_ui()
+        self._update_socket_protection_panel_visibility()
+
+    def _update_socket_protection_panel_visibility(self):
+        """Menyesuaikan visibilitas panel proteksi berdasarkan role."""
+        frame = getattr(self, "admin_socket_protection_frame", None)
+        if frame is None:
+            return
+        frame.setVisible(self.is_admin_user())
+
+    def refresh_socket_protection_settings_ui(self):
+        """Mengisi ulang form proteksi socket dari settings tersimpan."""
+        controls = getattr(self, "socket_protection_controls", {})
+        if not controls:
+            return
+
+        for socket_number, widgets in controls.items():
+            protection = self.get_socket_power_off_protection(socket_number)
+            widgets["enabled"].setChecked(bool(protection.get("enabled")))
+            mode_index = widgets["mode"].findData(protection.get("mode", "blocked"))
+            widgets["mode"].setCurrentIndex(max(0, mode_index))
+            widgets["password"].clear()
+            widgets["note"].setText(protection.get("note", "") or "")
+
+    def save_socket_protection_settings(self):
+        """Menyimpan pengaturan proteksi OFF per socket dari panel admin."""
+        if not self.is_admin_user():
+            show_styled_warning(
+                self,
+                "Admin Only",
+                "Hanya admin yang dapat mengubah proteksi Smart Socket."
+            )
+            return
+
+        for socket_number, widgets in self.socket_protection_controls.items():
+            enabled = widgets["enabled"].isChecked()
+            mode = widgets["mode"].currentData() or "blocked"
+            note = widgets["note"].text().strip()
+            password_text = widgets["password"].text().strip()
+            current = self.get_socket_power_off_protection(socket_number)
+            password_hash = None
+
+            if enabled and mode == "password":
+                if password_text:
+                    password_hash = self._hash_socket_protection_password(password_text)
+                elif not current.get("password_hash"):
+                    show_styled_warning(
+                        self,
+                        "Password Required",
+                        f"Socket {socket_number} memakai mode password, jadi password harus diisi."
+                    )
+                    widgets["password"].setFocus()
+                    return
+
+            self.set_socket_power_off_protection(
+                socket_number,
+                enabled=enabled,
+                mode=mode,
+                password_hash=password_hash,
+                note=note,
+            )
+
+        self.refresh_socket_protection_settings_ui()
+        show_styled_information(
+            self,
+            "Protection Saved",
+            "Pengaturan proteksi OFF Smart Socket berhasil disimpan."
+        )
+
     def load_user_profile(self):
         """Mengisi username dan email user ke form halaman settings."""
         if self.user_session:
@@ -1720,6 +2090,7 @@ class MainWindow(QMainWindow):
         self.socket_graph_range_overrides = (
             self.smartsocket_settings_manager.get_all_graph_ranges()
         )
+        self.reload_socket_power_off_protection()
 
     def _persist_socket_monitoring_settings(self, socket_number: int):
         """Menyimpan ulang pengaturan monitoring untuk satu Smart Socket."""

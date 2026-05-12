@@ -103,6 +103,13 @@ class MqttClient:
             topic: MQTT topic, termasuk wildcard jika perlu
             callback: Function handler dengan signature `(client, userdata, msg)`
         """
+        if any(
+            existing_topic == topic and existing_callback == callback
+            for existing_topic, existing_callback in self._subscriptions
+        ):
+            self._log(f"[MQTT CORE] Subscription already registered: {topic}")
+            return
+
         # Simpan agar bisa otomatis subscribe ulang saat reconnect.
         self._subscriptions.append((topic, callback))
 

@@ -88,6 +88,35 @@ class SmartSocketSettingsManager:
 
         self.save_data(data)
 
+    def get_socket_power_off_protection(self, socket_number):
+        """Mengambil konfigurasi proteksi OFF untuk satu socket."""
+        settings = self.get_socket_settings(socket_number)
+        return {
+            "enabled": bool(settings.get("power_off_protection_enabled", False)),
+            "mode": settings.get("power_off_protection_mode", "blocked") or "blocked",
+            "password_hash": settings.get("power_off_protection_password_hash", "") or "",
+            "note": settings.get("power_off_protection_note", "") or "",
+        }
+
+    def update_socket_power_off_protection(
+        self,
+        socket_number,
+        enabled,
+        mode,
+        password_hash=None,
+        note=None,
+    ):
+        """Menyimpan konfigurasi proteksi OFF untuk satu socket."""
+        payload = {
+            "power_off_protection_enabled": bool(enabled),
+            "power_off_protection_mode": (mode or "blocked").strip().lower(),
+        }
+        if password_hash is not None:
+            payload["power_off_protection_password_hash"] = password_hash or ""
+        if note is not None:
+            payload["power_off_protection_note"] = (note or "").strip()
+        self.update_socket_settings(socket_number, **payload)
+
     def get_all_graph_ranges(self):
         """Meratakan override range grafik ke key tuple agar mudah dipakai UI."""
         data = self.load_data()

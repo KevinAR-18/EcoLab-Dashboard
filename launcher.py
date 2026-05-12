@@ -12,10 +12,6 @@ from PySide6.QtCore import QObject, Signal, QTimer
 # Import window login
 from loginmain import LoginWindow
 
-# Import window utama dashboard
-# Diletakkan di sini agar kompatibel dengan proses packaging PyInstaller.
-from main import MainWindow
-
 # Import manager untuk session login
 from auth.session_manager import SessionManager
 
@@ -170,6 +166,10 @@ class AppLauncher(QObject):
         hak akses fitur sesuai role user yang sedang login.
         """
         try:
+            # Import dashboard saat benar-benar dibutuhkan agar launcher/login
+            # tidak ikut gagal jika konfigurasi runtime dashboard belum lengkap.
+            from main import MainWindow
+
             # Simpan session aktif di launcher.
             self.current_session = session
 

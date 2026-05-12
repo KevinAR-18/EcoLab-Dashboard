@@ -216,14 +216,6 @@ class SmartSocketManager(QObject):
         if self.logger:
             self.logger(f"[SmartSocket Manager] Subscribed: {smartsocket_wildcard}")
 
-        # Minta status awal semua device dengan subscribe ke topic status,
-        # agar retained message bisa langsung diterima saat startup.
-        for i in range(1, 6):
-            status_topic = f"ecolab/socket/{i}/devicestatus"
-            self.mqtt.subscribe(status_topic, _mqtt_callback)
-            if self.logger:
-                self.logger(f"[SmartSocket Manager] Requested status: {status_topic}")
-
     def _on_mqtt_message(self, topic, payload):
         """Merutekan MQTT message ke backend socket yang sesuai."""
         # Parse topic: ecolab/socket/{N}/xxx

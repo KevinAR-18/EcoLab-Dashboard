@@ -27,6 +27,7 @@ The system currently supports:
 - **Admin Panel**: laboratory user account management
 - **Smart Socket Control**: relay, timer, schedule, and energy monitoring
 - **Smart Socket Safety Protection**: load warning, overload popup, and automatic cutoff
+- **Smart Socket Power-Off Protection**: admin-configured blocked/password mode with Firebase sync
 - **Smart Socket Recording**: store monitoring data in application memory
 - **Smart Socket Export**: export per-socket data to CSV
 - **Smart Socket Graph**: per-socket monitoring charts inside the control popup
@@ -78,11 +79,12 @@ pip install -r requirements.txt
 
 ### Runtime configuration
 
-The application needs three external setup areas:
+The application needs four external setup areas:
 
 1. Firebase web configuration in `.env`
 2. Google OAuth client credential in `credentials/client_secret.json`
 3. MQTT TLS certificate in `credentials/ca.crt` or `credentials/ca2.crt`
+4. Growatt account credential in `.env`
 
 See [credentials/README.md](credentials/README.md) for the detailed credential guide.
 
@@ -180,6 +182,20 @@ Notes:
 - Some simulator files in `hardware_TA/` still point to `ca2.crt`, so keep both certificate files available unless you are standardizing them.
 - Do not embed certificate contents directly into the firmware.
 
+### Growatt setup
+
+Dashboard startup currently initializes the Growatt panel during `MainWindow` creation, so these `.env` keys are required when opening the dashboard:
+
+```env
+ECOLAB_GROWATT_USERNAME=
+ECOLAB_GROWATT_PASSWORD=
+```
+
+Notes:
+
+- Use the same Growatt account that has access to the target storage/inverter plant.
+- If the account has no accessible plant or storage device, the Growatt panel will fail during startup.
+
 ### Minimum files checklist
 
 Before running the app, make sure these files exist:
@@ -196,6 +212,12 @@ Optional but recommended:
 ```text
 credentials/ca2.crt
 ```
+
+Minimum required `.env` groups for a full dashboard launch:
+
+- Firebase web config keys
+- MQTT connection keys
+- Growatt account keys
 
 ---
 
@@ -234,7 +256,7 @@ The current Smart Socket feature set includes:
 - Per-socket timer
 - Start/stop schedules with **daily** and **onetime** modes
 - Monitoring for **Voltage, Current, Power, Energy, Frequency, PF**
-- Control popup with **Control**, **Data**, and **Graph** tabs
+- Control popup with **Control**, **Data**, **Graph**, **Warning**, and **Setting** tabs
 - Per-socket monitoring data recording
 - Configurable recording interval from the popup
 - **Follow Schedule** option to automatically start recording when a schedule becomes active
@@ -243,6 +265,9 @@ The current Smart Socket feature set includes:
 - Light warning popup for elevated load with cooldown control
 - Critical overload protection with user response popup, grace period, and automatic relay cutoff
 - Automatic schedule clearing before forced OFF when overload protection is triggered during an active schedule
+- Admin-only Smart Socket **Setting** tab inside the popup to configure power-off protection per socket
+- Power-off protection modes: **Blocked** and **Password required**
+- Protection configuration stored in **Firebase Realtime Database** so it can be shared across multiple PCs
 - Per-socket CSV export
 - Per-socket charts with selectable metrics
 - Table and chart refresh only while recording is active
@@ -279,6 +304,7 @@ Aplikasi EcoLab -  New/
 |   `-- smartsocket_popup.py
 |-- services/
 |   |-- smartsocket_recorder.py
+|   |-- smartsocket_protection_store.py
 |   `-- smartsocket_settings_manager.py
 |-- app/
 |   `-- setup/
@@ -341,6 +367,7 @@ Aplikasi EcoLab -  New/
 - `loginmain.py` handles login, sign-up, forgot password, guest mode, and the admin/dashboard selection flow.
 - `dialogs/admin_window.py` contains the admin panel.
 - `dialogs/smartsocket_popup.py` contains the detailed Smart Socket control and monitoring popup.
+- `services/smartsocket_protection_store.py` stores Smart Socket power-off protection data in Firebase Realtime Database.
 
 ### Setup Helpers
 
@@ -433,6 +460,8 @@ python smartsocket_simulator.py
 - Real-time energy monitoring
 - Multi-level current warning system
 - Automatic overload cutoff for critical current conditions
+- Admin-only power-off protection settings inside the Smart Socket popup
+- Power-off protection synced through Firebase so the same socket rules can be read from different PCs
 - Data recording, CSV export, and charts
 
 ### Smart Lamp
