@@ -93,7 +93,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.0"
+    APP_VERSION = "v2.1"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
