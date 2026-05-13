@@ -32,7 +32,9 @@ class SmartSocketBackend(QObject):
         self.energy_data = {}
         self.timer_status = "INACTIVE"
         self.schedule_status = {}
-        self.device_online = False
+        # Samakan dengan backend MCU lamp: state awal unknown dulu, supaya
+        # retained OFFLINE pertama tetap dianggap update valid oleh UI.
+        self.device_online = None
 
         # Daftar topic MQTT milik socket ini.
         self.topic_prefix = f"ecolab/socket/{socket_number}"
@@ -215,6 +217,14 @@ class SmartSocketManager(QObject):
         self.mqtt.subscribe(smartsocket_wildcard, _mqtt_callback)
         if self.logger:
             self.logger(f"[SmartSocket Manager] Subscribed: {smartsocket_wildcard}")
+
+        # Minta status awal semua device dengan subscribe ke topic status,
+        # agar retained message bisa langsung diterima saat startup.
+        for i in range(1, 6):
+            status_topic = f"ecolab/socket/{i}/devicestatus"
+            self.mqtt.subscribe(status_topic, _mqtt_callback)
+            if self.logger:
+                self.logger(f"[SmartSocket Manager] Requested status: {status_topic}")
 
     def _on_mqtt_message(self, topic, payload):
         """Merutekan MQTT message ke backend socket yang sesuai."""

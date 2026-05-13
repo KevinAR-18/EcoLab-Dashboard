@@ -61,16 +61,17 @@ from backend.growatt_worker import GrowattWorker
 from backend.mcu_status_backend import MCUStatusBackend
 from backend.smartsocket_backend import SmartSocketManager
 
-def _load_mqtt_runtime_config():
-    """Membaca konfigurasi MQTT saat dashboard akan dibuat."""
-    return {
-        "broker": get_required_env("ECOLAB_MQTT_BROKER"),
-        "port": int(get_env("ECOLAB_MQTT_PORT", "8883")),
-        "username": get_required_env("ECOLAB_MQTT_USERNAME"),
-        "password": get_required_env("ECOLAB_MQTT_PASSWORD"),
-        "ca_cert_path": get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt")),
-        "use_tls": get_env_bool("ECOLAB_MQTT_USE_TLS", True),
-    }
+# ============================================================
+# KONFIGURASI MQTT TLS
+# ============================================================
+# Nilai ini dibaca saat modul di-import agar kesalahan konfigurasi runtime
+# bisa terdeteksi lebih awal sebelum dashboard membuat object backend.
+MQTT_BROKER = get_required_env("ECOLAB_MQTT_BROKER")
+MQTT_PORT = int(get_env("ECOLAB_MQTT_PORT", "8883"))
+MQTT_USERNAME = get_required_env("ECOLAB_MQTT_USERNAME")
+MQTT_PASSWORD = get_required_env("ECOLAB_MQTT_PASSWORD")
+MQTT_CA_CERT = get_env("ECOLAB_MQTT_CA_CERT", get_credentials_path("ca.crt"))
+MQTT_USE_TLS = get_env_bool("ECOLAB_MQTT_USE_TLS", True)
 
 # Helper sederhana untuk menampilkan jam dan tanggal realtime di header.
 # Dipisah dari MainWindow agar tanggung jawab update waktu tetap kecil dan jelas.
@@ -155,14 +156,13 @@ class MainWindow(QMainWindow):
 
         # MQTT adalah jalur utama komunikasi ke perangkat IoT.
         # Semua backend device akan berbagi koneksi MQTT ini.
-        mqtt_config = _load_mqtt_runtime_config()
         self.mqtt = MqttClient(
-            broker=mqtt_config["broker"],
-            port=mqtt_config["port"],
-            username=mqtt_config["username"],
-            password=mqtt_config["password"],
-            ca_cert_path=mqtt_config["ca_cert_path"],
-            use_tls=mqtt_config["use_tls"],
+            broker=MQTT_BROKER,
+            port=MQTT_PORT,
+            username=MQTT_USERNAME,
+            password=MQTT_PASSWORD,
+            ca_cert_path=MQTT_CA_CERT,
+            use_tls=MQTT_USE_TLS,
             logger=self.log
         )
         self.mqtt.start()
@@ -243,6 +243,8 @@ class MainWindow(QMainWindow):
         # isi UI setelah MQTT punya sedikit waktu untuk menerima state awal.
         SmartSocketSetup.setup(self)
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
+        QTimer.singleShot(1500, self._sync_socket_states_from_backend)
+        QTimer.singleShot(3000, self._sync_socket_states_from_backend)
 
 
         # Rapikan margin root layout agar window custom terlihat penuh.
@@ -1067,7 +1069,16 @@ class MainWindow(QMainWindow):
         if self.is_admin_user():
             return True, "admin bypass"
 
-        protection = self.get_socket_power_off_protection(socket_number)
+        load_success, protection = self.reload_one_socket_power_off_protection(socket_number)
+        if not load_success:
+            self.log(
+                f"[SmartSocket Protection] Using cached protection for socket {socket_number}"
+            )
+        else:
+            self.log(
+                f"[SmartSocket Protection] Refreshed protection for socket {socket_number} from Firebase"
+            )
+
         if not protection.get("enabled"):
             return True, "protection disabled"
 
@@ -1871,7 +1882,7 @@ class MainWindow(QMainWindow):
         """Menyinkronkan status lampu dari MQTT ke widget lampu terkait."""
         if 1 <= lamp_index <= len(self.lamps):
             lamp = self.lamps[lamp_index - 1]
-            if lamp.isChecked() != state:
+            if lamp.isOn() != state:
                 lamp.blockSignals(True)
                 lamp.setChecked(state)
                 lamp.blockSignals(False)
@@ -1889,7 +1900,7 @@ class MainWindow(QMainWindow):
 
     def _on_ac_status_changed(self, state: bool):
         """Menyinkronkan status AC dari MQTT ke tombol dan label UI."""
-        if self.ac_button.isChecked() != state:
+        if self.ac_button.isOn() != state:
             self.ac_button.blockSignals(True)
             self.ac_button.setChecked(state)
             self.ac_button.blockSignals(False)
@@ -2946,6 +2957,19 @@ class MainWindow(QMainWindow):
                 label.setProperty("state", desired_state)
                 label.style().polish(label)
 
+    def _sync_socket_states_from_backend(self):
+        """Menyelaraskan status device dan relay Smart Socket dari cache backend."""
+        backends = getattr(self, "socket_backends", {})
+        for socket_number in range(1, 6):
+            backend = backends.get(socket_number)
+            if backend is None:
+                continue
+
+            if backend.device_online is not None:
+                self._on_socket_device_status(socket_number, backend.device_online)
+            if backend.relay_state is not None:
+                self._on_socket_relay_status(socket_number, backend.relay_state)
+
     def sync_ui_from_mqtt(self):
         """Menyinkronkan UI awal dengan state backend setelah koneksi aktif."""
         # Sinkronkan status lampu.
@@ -2954,9 +2978,17 @@ class MainWindow(QMainWindow):
         # Sinkronkan status AC.
         self.update_ac_ui_from_state()
 
-        # Inisialisasi label energi Smart Socket ke "--".
+        # Sinkronkan cache Smart Socket yang mungkin sudah diterima lebih dulu
+        # dari retained/live MQTT sebelum UI sempat memproses semua signal.
+        self._sync_socket_states_from_backend()
+
+        # Inisialisasi label energi Smart Socket ke "--" hanya untuk socket
+        # yang memang belum punya relay_state aktif.
         for i in range(1, 6):
-            self._clear_socket_energy_labels(i)
+            backend = getattr(self, "socket_backends", {}).get(i)
+            relay_on = bool(backend.relay_state) if backend and backend.relay_state is not None else False
+            if not relay_on:
+                self._clear_socket_energy_labels(i)
 
     def _safe_energy_value(self, value, max_limit=100000):
         """
