@@ -348,10 +348,13 @@ class GlobalRecordingSettingsDialog(QDialog):
         interval_seconds = max(1, interval_seconds)
         self.input_record_interval.setText(str(interval_seconds))
 
+        follow_schedule = self.chk_follow_schedule.isChecked()
+        autosave_enabled = self.chk_autosave.isChecked() or follow_schedule
+
         return {
-            "follow_schedule": self.chk_follow_schedule.isChecked(),
+            "follow_schedule": follow_schedule,
             "record_interval_seconds": float(interval_seconds),
-            "autosave_enabled": self.chk_autosave.isChecked(),
+            "autosave_enabled": autosave_enabled,
             "autosave_dir": self.input_autosave_dir.text().strip(),
             "save_as_default": self.chk_save_default.isChecked(),
         }
@@ -359,18 +362,32 @@ class GlobalRecordingSettingsDialog(QDialog):
     def _apply_to_all(self):
         """Menerapkan settings dialog ke semua socket lewat MainWindow."""
         if not hasattr(self.main_window, "apply_global_socket_monitoring_settings"):
-            return
-        self.main_window.apply_global_socket_monitoring_settings(**self._settings_payload())
+            return False
+        payload = self._settings_payload()
+        if payload["autosave_enabled"] and not payload["autosave_dir"]:
+            self._pick_folder()
+            payload = self._settings_payload()
+        if payload["autosave_enabled"] and not payload["autosave_dir"]:
+            QMessageBox.warning(
+                self,
+                "Autosave Folder Required",
+                "Select an autosave folder before enabling autosave or Follow Schedule.",
+            )
+            return False
+        self.main_window.apply_global_socket_monitoring_settings(**payload)
+        return True
 
     def _start_all(self):
         """Menerapkan settings lalu memulai recording semua socket."""
-        self._apply_to_all()
+        if not self._apply_to_all():
+            return
         if hasattr(self.main_window, "start_all_socket_recording"):
             self.main_window.start_all_socket_recording(source="manual")
 
     def _stop_all(self):
         """Menerapkan settings lalu menghentikan recording semua socket."""
-        self._apply_to_all()
+        if not self._apply_to_all():
+            return
         if hasattr(self.main_window, "stop_all_socket_recording"):
             self.main_window.stop_all_socket_recording(source="manual")
 
@@ -1178,10 +1195,11 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _metric_y_range(self, metric):
         return {
             "voltage": (200.0, 240.0),
-            "current": (0.0, 12.0),
-            "power": (0.0, 3000.0),
-            "frequency": (40.0, 60.0),
-            "pf": (0.0, 1.2),
+            "current": (0.0, 7.0),
+            "power": (0.0, 1500.0),
+            "energy": (0.0, 5.0),
+            "frequency": (45.0, 55.0),
+            "pf": (0.0, 1.1),
         }.get(metric)
 
     def _graph_range_key(self):
@@ -1336,6 +1354,24 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _on_follow_schedule_changed(self, *_):
         socket_number = self._selected_data_socket()
         enabled = self.chk_follow_schedule.isChecked()
+        if enabled:
+            try:
+                directory = self.main_window.get_socket_autosave_dir(socket_number)
+            except Exception:
+                directory = ""
+            if not directory:
+                self._on_pick_autosave_folder()
+                try:
+                    directory = self.main_window.get_socket_autosave_dir(socket_number)
+                except Exception:
+                    directory = ""
+            if not directory:
+                self.chk_follow_schedule.blockSignals(True)
+                self.chk_follow_schedule.setChecked(False)
+                self.chk_follow_schedule.blockSignals(False)
+                return
+            if hasattr(self.main_window, "set_socket_autosave_enabled"):
+                self.main_window.set_socket_autosave_enabled(socket_number, True)
         self.main_window.set_socket_follow_schedule(socket_number, enabled)
         if enabled and self._is_socket_schedule_window_active(socket_number):
             self.main_window.start_socket_recording(socket_number, source="schedule")
@@ -1414,6 +1450,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _on_autosave_changed(self, *_):
         socket_number = self._selected_data_socket()
         enabled = self.chk_autosave.isChecked() if hasattr(self, "chk_autosave") else False
+        try:
+            follow_schedule = self.main_window.is_socket_follow_schedule(socket_number)
+        except Exception:
+            follow_schedule = False
+        if follow_schedule and not enabled:
+            self.chk_autosave.blockSignals(True)
+            self.chk_autosave.setChecked(True)
+            self.chk_autosave.blockSignals(False)
+            return
         if enabled:
             try:
                 directory = self.main_window.get_socket_autosave_dir(socket_number)
@@ -1564,8 +1609,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         if hasattr(self, "chk_autosave"):
             self.chk_autosave.blockSignals(True)
-            self.chk_autosave.setChecked(autosave_enabled)
+            self.chk_autosave.setChecked(autosave_enabled or follow_schedule)
             self.chk_autosave.blockSignals(False)
+            self.chk_autosave.setEnabled(not follow_schedule)
+            if follow_schedule:
+                self.chk_autosave.setToolTip("Autosave is required while Follow Schedule is active.")
+            else:
+                self.chk_autosave.setToolTip(
+                    "Manual mode saves each day automatically while recording stays active."
+                )
         if hasattr(self, "input_record_interval"):
             self.input_record_interval.blockSignals(True)
             self.input_record_interval.setText(str(max(1, interval_seconds)))

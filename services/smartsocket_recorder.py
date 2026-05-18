@@ -2,6 +2,7 @@
 
 import csv
 from datetime import datetime
+from pathlib import Path
 
 
 class SmartSocketRecorder:
@@ -32,6 +33,7 @@ class SmartSocketRecorder:
 
     def __init__(self, socket_count=5):
         """Menyiapkan state recording terpisah untuk setiap Smart Socket."""
+        self._recovery_dir = None
         # Setiap socket menyimpan state monitoring dan recording sendiri
         # agar popup bisa bekerja independen tanpa global bookkeeping tambahan.
         self._states = {
@@ -43,6 +45,7 @@ class SmartSocketRecorder:
                 "records": [],
                 "last_source": None,
                 "last_record_at": None,
+                "active_record_date": None,
                 "record_interval_seconds": float(self.DEFAULT_RECORD_INTERVAL_SECONDS),
             }
             for socket_number in range(1, socket_count + 1)
@@ -61,6 +64,8 @@ class SmartSocketRecorder:
         state["recording"] = True
         state["last_source"] = source
         state["last_record_at"] = None
+        if not state.get("active_record_date"):
+            state["active_record_date"] = datetime.now().date().isoformat()
         return changed
 
     def stop(self, socket_number, source="manual"):
@@ -77,7 +82,10 @@ class SmartSocketRecorder:
 
     def set_follow_schedule(self, socket_number, enabled):
         """Mengatur apakah recording mengikuti trigger schedule."""
-        self._state(socket_number)["follow_schedule"] = bool(enabled)
+        state = self._state(socket_number)
+        state["follow_schedule"] = bool(enabled)
+        if enabled:
+            state["autosave_enabled"] = True
 
     def is_follow_schedule(self, socket_number):
         """Mengecek apakah mode follow schedule aktif untuk socket tertentu."""
@@ -155,6 +163,8 @@ class SmartSocketRecorder:
         }
         state["last_record_at"] = now
         state["records"].append(record)
+        state["active_record_date"] = record["timestamp"][:10]
+        self._append_recovery_record(socket_number, record)
         return record
 
     def get_records(self, socket_number):
@@ -163,7 +173,22 @@ class SmartSocketRecorder:
 
     def clear_records(self, socket_number):
         """Menghapus semua record milik satu socket."""
-        self._state(socket_number)["records"].clear()
+        state = self._state(socket_number)
+        state["records"].clear()
+        state["last_record_at"] = None
+        state["active_record_date"] = None
+        self._remove_recovery_file(socket_number)
+
+    def replace_records(self, socket_number, records):
+        """Mengganti isi record socket, dipakai setelah rollover harian."""
+        state = self._state(socket_number)
+        state["records"] = [dict(record) for record in records]
+        if state["records"]:
+            state["active_record_date"] = state["records"][-1].get("timestamp", "")[:10]
+        else:
+            state["active_record_date"] = None
+            state["last_record_at"] = None
+        self._rewrite_recovery_file(socket_number)
 
     def count(self, socket_number):
         """Menghitung jumlah record yang tersimpan untuk satu socket."""
@@ -172,11 +197,112 @@ class SmartSocketRecorder:
     def export_csv(self, socket_number, path):
         """Menulis semua sample milik satu socket ke file CSV."""
         records = self.get_records(socket_number)
+        return self.export_records_csv(records, path)
+
+    def export_records_csv(self, records, path):
+        """Menulis kumpulan record tertentu ke file CSV."""
         with open(path, "w", newline="", encoding="utf-8") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=self.FIELD_NAMES)
             writer.writeheader()
             writer.writerows(records)
         return len(records)
+
+    def set_recovery_dir(self, directory):
+        """Mengatur folder checkpoint recovery untuk data yang belum diekspor."""
+        self._recovery_dir = Path(directory) if directory else None
+        if self._recovery_dir:
+            self._recovery_dir.mkdir(parents=True, exist_ok=True)
+
+    def restore_recovery(self):
+        """Memulihkan record yang tersisa dari checkpoint lokal."""
+        restored = {}
+        if not self._recovery_dir:
+            return restored
+
+        for socket_number in self._states:
+            path = self._recovery_path(socket_number)
+            if not path or not path.exists():
+                continue
+
+            records = []
+            try:
+                with open(path, "r", newline="", encoding="utf-8") as csv_file:
+                    reader = csv.DictReader(csv_file)
+                    for row in reader:
+                        records.append(self._normalize_record(row, socket_number))
+            except Exception:
+                continue
+
+            if records:
+                self.replace_records(socket_number, records)
+                restored[socket_number] = len(records)
+
+        return restored
+
+    def _recovery_path(self, socket_number):
+        """Mengambil path checkpoint untuk satu socket."""
+        if not self._recovery_dir:
+            return None
+        return self._recovery_dir / f"smartsocket_{socket_number}_recovery.csv"
+
+    def _append_recovery_record(self, socket_number, record):
+        """Menambahkan satu sample ke checkpoint tanpa rewrite file besar."""
+        path = self._recovery_path(socket_number)
+        if not path:
+            return
+
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            write_header = not path.exists() or path.stat().st_size == 0
+            with open(path, "a", newline="", encoding="utf-8") as csv_file:
+                writer = csv.DictWriter(csv_file, fieldnames=self.FIELD_NAMES)
+                if write_header:
+                    writer.writeheader()
+                writer.writerow(record)
+        except Exception:
+            pass
+
+    def _rewrite_recovery_file(self, socket_number):
+        """Menyamakan checkpoint dengan records aktif setelah clear parsial."""
+        path = self._recovery_path(socket_number)
+        if not path:
+            return
+
+        records = self.get_records(socket_number)
+        if not records:
+            self._remove_recovery_file(socket_number)
+            return
+
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            self.export_records_csv(records, path)
+        except Exception:
+            pass
+
+    def _remove_recovery_file(self, socket_number):
+        """Menghapus checkpoint ketika data sudah aman diekspor atau di-clear."""
+        path = self._recovery_path(socket_number)
+        if not path:
+            return
+        try:
+            if path.exists():
+                path.unlink()
+        except Exception:
+            pass
+
+    def _normalize_record(self, row, socket_number):
+        """Menormalkan row CSV recovery agar typenya sama seperti record baru."""
+        return {
+            "timestamp": row.get("timestamp", ""),
+            "socket": int(row.get("socket") or socket_number),
+            "relay_state": row.get("relay_state", ""),
+            "voltage": self._to_float(row.get("voltage")),
+            "current": self._to_float(row.get("current")),
+            "power": self._to_float(row.get("power")),
+            "energy": self._to_float(row.get("energy")),
+            "frequency": self._to_float(row.get("frequency")),
+            "pf": self._to_float(row.get("pf")),
+        }
 
     @staticmethod
     def _to_float(value):

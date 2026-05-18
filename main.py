@@ -7,6 +7,7 @@ ke dalam satu jendela utama.
 """
 
 import sys,random,os,time,hashlib
+from datetime import datetime
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6.QtCore import (
     QCoreApplication, QPropertyAnimation, QDate, QDateTime, QMetaObject,
@@ -94,7 +95,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.1"
+    APP_VERSION = "v2.1.1"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
@@ -183,6 +184,12 @@ class MainWindow(QMainWindow):
         self.smartsocket_manager.start()
         self.smartsocket_recorder = SmartSocketRecorder()
         self.smartsocket_settings_manager = SmartSocketSettingsManager()
+        self.smartsocket_recorder.set_recovery_dir(
+            os.path.join(
+                os.path.dirname(str(self.smartsocket_settings_manager.settings_file)),
+                "smartsocket_recovery",
+            )
+        )
         self.smartsocket_protection_store = SmartSocketProtectionStore()
         self.global_smartsocket_monitoring_settings = {}
         self.socket_graph_range_overrides = {}
@@ -235,6 +242,8 @@ class MainWindow(QMainWindow):
             )
             self.socket_critical_auto_off_timers[socket_number] = auto_off_timer
         self._load_smartsocket_monitoring_settings()
+        self._restore_smartsocket_recovery()
+        self._start_socket_daily_autosave_timer()
 
         # Simpan preferensi format timer per socket untuk tampilan popup/UI.
         self.socket_timer_formats = {}  # {socket_number: "hms" atau "seconds"}
@@ -245,7 +254,6 @@ class MainWindow(QMainWindow):
         QTimer.singleShot(500, self.sync_ui_from_mqtt)
         QTimer.singleShot(1500, self._sync_socket_states_from_backend)
         QTimer.singleShot(3000, self._sync_socket_states_from_backend)
-
 
         # Rapikan margin root layout agar window custom terlihat penuh.
         for w in [self.ui.styleSheet, self.ui.bgApp]:
@@ -1945,6 +1953,8 @@ class MainWindow(QMainWindow):
     def set_socket_follow_schedule(self, socket_number: int, enabled: bool):
         """Mengatur apakah recording socket mengikuti trigger schedule."""
         self.smartsocket_recorder.set_follow_schedule(socket_number, enabled)
+        if enabled:
+            self.smartsocket_recorder.set_autosave_enabled(socket_number, True)
         state = "enabled" if enabled else "disabled"
         self._persist_socket_monitoring_settings(socket_number)
         self.log(f"[Socket {socket_number}] Follow schedule recording {state}")
@@ -1961,6 +1971,8 @@ class MainWindow(QMainWindow):
 
     def set_socket_autosave_enabled(self, socket_number: int, enabled: bool):
         """Mengaktifkan atau menonaktifkan autosave CSV untuk satu socket."""
+        if self.is_socket_follow_schedule(socket_number) and not enabled:
+            enabled = True
         self.smartsocket_recorder.set_autosave_enabled(socket_number, enabled)
         state = "enabled" if enabled else "disabled"
         self._persist_socket_monitoring_settings(socket_number)
@@ -2002,6 +2014,99 @@ class MainWindow(QMainWindow):
         count = self.smartsocket_recorder.export_csv(socket_number, path)
         self.log(f"[Socket {socket_number}] Exported {count} rows to CSV")
         return count
+
+    def _start_socket_daily_autosave_timer(self):
+        """Menjalankan pengecekan rollover harian untuk recording manual."""
+        self.socket_daily_autosave_timer = QTimer(self)
+        self.socket_daily_autosave_timer.setInterval(60 * 1000)
+        self.socket_daily_autosave_timer.timeout.connect(self._check_socket_daily_rollover)
+        self.socket_daily_autosave_timer.start()
+        QTimer.singleShot(1000, self._check_socket_daily_rollover)
+
+    def _restore_smartsocket_recovery(self):
+        """Memulihkan checkpoint record yang belum sempat diekspor."""
+        try:
+            restored = self.smartsocket_recorder.restore_recovery()
+        except Exception as exc:
+            self.log(f"[SmartSocket] Recovery restore failed: {exc}")
+            return
+
+        for socket_number, count in restored.items():
+            self.log(f"[Socket {socket_number}] Restored {count} unsaved recording rows")
+
+    def _unique_csv_path(self, directory: str, filename: str):
+        """Membuat path CSV tanpa menimpa file lama."""
+        base, ext = os.path.splitext(filename)
+        candidate = os.path.join(directory, filename)
+        suffix = 2
+        while os.path.exists(candidate):
+            candidate = os.path.join(directory, f"{base}_{suffix}{ext}")
+            suffix += 1
+        return candidate
+
+    def _autosave_socket_records(self, socket_number: int, records: list, filename: str):
+        """Menyimpan batch record tertentu ke folder autosave socket."""
+        autosave_dir = self.smartsocket_recorder.get_autosave_dir(socket_number)
+        if not autosave_dir:
+            self.log(f"[Socket {socket_number}] Autosave enabled but no folder set")
+            return None, 0
+
+        os.makedirs(autosave_dir, exist_ok=True)
+        path = self._unique_csv_path(autosave_dir, filename)
+        count = self.smartsocket_recorder.export_records_csv(records, path)
+        self.log(f"[Socket {socket_number}] Autosaved {count} rows to {path}")
+        return path, count
+
+    def _split_socket_records_by_date(self, socket_number: int):
+        """Memisahkan records socket menjadi data lama dan data hari ini."""
+        today = datetime.now().date().isoformat()
+        by_date = {}
+        current_records = []
+
+        for record in self.smartsocket_recorder.get_records(socket_number):
+            record_date = str(record.get("timestamp", ""))[:10]
+            if record_date and record_date < today:
+                by_date.setdefault(record_date, []).append(record)
+            else:
+                current_records.append(record)
+
+        return by_date, current_records
+
+    def _check_socket_daily_rollover(self):
+        """Autosave data hari lama tanpa menghentikan recording manual."""
+        if not hasattr(self, "smartsocket_recorder"):
+            return
+
+        for socket_number in range(1, 6):
+            if not self.smartsocket_recorder.is_autosave_enabled(socket_number):
+                continue
+            if (
+                self.smartsocket_recorder.is_follow_schedule(socket_number)
+                and self.smartsocket_recorder.is_recording(socket_number)
+            ):
+                continue
+
+            old_records_by_date, current_records = self._split_socket_records_by_date(socket_number)
+            if not old_records_by_date:
+                continue
+
+            remaining_records = list(current_records)
+            for record_date, records in sorted(old_records_by_date.items()):
+                if not records:
+                    continue
+                filename = f"smartsocket_{socket_number}_daily_{record_date}.csv"
+                try:
+                    _, count = self._autosave_socket_records(socket_number, records, filename)
+                    if count <= 0:
+                        remaining_records.extend(records)
+                except Exception as exc:
+                    remaining_records.extend(records)
+                    self.log(f"[Socket {socket_number}] Daily autosave failed: {exc}")
+
+            if len(remaining_records) != len(self.smartsocket_recorder.get_records(socket_number)):
+                remaining_records.sort(key=lambda record: str(record.get("timestamp", "")))
+                self.smartsocket_recorder.replace_records(socket_number, remaining_records)
+                self.log(f"[Socket {socket_number}] Daily rollover completed")
 
     def _load_smartsocket_monitoring_settings(self):
         """Memuat pengaturan monitoring Smart Socket dari penyimpanan lokal."""
@@ -2658,6 +2763,8 @@ class MainWindow(QMainWindow):
     ):
         """Menerapkan satu paket pengaturan monitoring ke seluruh socket."""
         autosave_dir = (autosave_dir or "").strip()
+        if follow_schedule:
+            autosave_enabled = True
         for socket_number in range(1, 6):
             self.set_socket_follow_schedule(socket_number, follow_schedule)
             self.set_socket_record_interval_seconds(socket_number, record_interval_seconds)
@@ -2883,6 +2990,8 @@ class MainWindow(QMainWindow):
                 self.smartsocket_recorder.is_follow_schedule(socket_number)
                 and status == "START_TRIGGER"
             ):
+                self.smartsocket_recorder.set_autosave_enabled(socket_number, True)
+                self._persist_socket_monitoring_settings(socket_number)
                 self.start_socket_recording(socket_number, source="schedule")
             elif (
                 self.smartsocket_recorder.is_follow_schedule(socket_number)
@@ -2893,21 +3002,21 @@ class MainWindow(QMainWindow):
                 # Lakukan autosave saat recording berbasis jadwal selesai,
                 # karena user bisa saja tidak sedang melihat popup socket.
                 try:
-                    if self.smartsocket_recorder.is_autosave_enabled(socket_number):
-                        autosave_dir = self.smartsocket_recorder.get_autosave_dir(socket_number)
-                        if autosave_dir:
-                            records = self.smartsocket_recorder.get_records(socket_number)
-                            if records:
-                                os.makedirs(autosave_dir, exist_ok=True)
-                                filename = (
-                                    f"smartsocket_{socket_number}_schedule_"
-                                    f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-                                )
-                                path = os.path.join(autosave_dir, filename)
-                                count = self.export_socket_records_csv(socket_number, path)
-                                self.log(f"[Socket {socket_number}] Autosaved {count} rows to {path}")
-                        else:
-                            self.log(f"[Socket {socket_number}] Autosave enabled but no folder set")
+                    self.smartsocket_recorder.set_autosave_enabled(socket_number, True)
+                    records = self.smartsocket_recorder.get_records(socket_number)
+                    if records:
+                        filename = (
+                            f"smartsocket_{socket_number}_schedule_"
+                            f"{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                        )
+                        _, count = self._autosave_socket_records(
+                            socket_number,
+                            records,
+                            filename,
+                        )
+                        if count > 0:
+                            self.smartsocket_recorder.clear_records(socket_number)
+                            self.log(f"[Socket {socket_number}] Schedule records cleared after autosave")
                 except Exception as exc:
                     self.log(f"[Socket {socket_number}] Autosave failed: {exc}")
 
