@@ -37,4 +37,4 @@ class SmartSocketSetup:
 
         if hasattr(main_window, "log"):
             main_window.log("[SmartSocket] Setup completed! All 5 sockets ready.")
-            main_window.log("[SmartSocket] Backend status initialized")
+            # main_window.log("[SmartSocket] Backend status initialized")

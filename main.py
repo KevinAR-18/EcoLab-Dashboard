@@ -104,6 +104,9 @@ class MainWindow(QMainWindow):
     SOCKET_CRITICAL_RECHECK_DELAY_SECONDS = 15
     SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS = 10
     SOCKET_CRITICAL_FIRST_RESPONSE_SECONDS = 15
+    MQTT_LOG_MODE_NORMAL = "normal"
+    MQTT_LOG_MODE_BAB4 = "communication"
+    MQTT_LOG_MODE_TECHNICAL = "detail"
 
     def __init__(self, user_session=None):
         """
@@ -122,9 +125,13 @@ class MainWindow(QMainWindow):
         # Inisialisasi UI hasil generate Qt Designer.
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.mqtt_log_mode = self.MQTT_LOG_MODE_NORMAL
+        self.log_history = []
+        self.max_log_history = 1000
 
         # Konfigurasi tampilan dasar window sebelum backend dijalankan.
         self.initUI()
+        self.setup_logging_mode_ui()
 
         # Tampilkan versi aplikasi pada area footer.
         self.set_app_version(self.APP_VERSION)
@@ -164,7 +171,8 @@ class MainWindow(QMainWindow):
             password=MQTT_PASSWORD,
             ca_cert_path=MQTT_CA_CERT,
             use_tls=MQTT_USE_TLS,
-            logger=self.log
+            logger=self.log_mqtt,
+            log_mode_getter=self.get_mqtt_log_mode,
         )
         self.mqtt.start()
 
@@ -295,9 +303,9 @@ class MainWindow(QMainWindow):
         )
 
         # SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
@@ -1134,19 +1142,85 @@ class MainWindow(QMainWindow):
     def ac_mode_fan(self):
         """Mengubah mode AC ke mode kipas."""
         self.acbutton_backend.mode_fan()
-        
-    def log(self, message: str):
+
+    def get_mqtt_log_mode(self):
+        """Mengembalikan mode log MQTT aktif untuk backend."""
+        return getattr(self, "mqtt_log_mode", self.MQTT_LOG_MODE_NORMAL)
+
+    def _should_show_log_entry(self, entry) -> bool:
+        """Menentukan apakah sebuah entri log tampil pada mode aktif."""
+        mode = self.get_mqtt_log_mode()
+        normalized = str(entry.get("level", "normal") or "normal").strip().lower()
+        message = str(entry.get("message", "") or "")
+        if mode == self.MQTT_LOG_MODE_TECHNICAL:
+            return True
+        if mode == self.MQTT_LOG_MODE_BAB4:
+            if message.startswith("[Growatt"):
+                return False
+            if message.startswith("[SmartSocket Manager]") or message.startswith("[SmartSocket]"):
+                return False
+            if message.startswith("[MQTT DEBUG] Request subscribe dikirim:"):
+                return False
+            if normalized == "normal" and (
+                message.startswith("[MQTT CORE] TLS enabled")
+                or message.startswith("[MQTT CORE] Plain MQTT")
+                or message.startswith("[MQTT CORE] Connecting to")
+                or message.startswith("[MQTT CORE] Connected to")
+                or message.startswith("[MQTT CORE] Subscribed to:")
+            ):
+                return False
+            return normalized in {"normal", "communication"}
+        return normalized == "normal"
+
+    def _record_log_entry(self, message: str, level: str = "normal"):
+        """Menyimpan satu entri log ke history memori."""
+        timestamp = QDateTime.currentDateTime().toString("HH:mm:ss")
+        self.log_history.append(
+            {
+                "time": timestamp,
+                "message": str(message),
+                "level": str(level or "normal").strip().lower(),
+            }
+        )
+        if len(self.log_history) > self.max_log_history:
+            self.log_history = self.log_history[-self.max_log_history :]
+
+    def _refresh_log_view(self):
+        """Menggambar ulang panel log berdasarkan mode aktif."""
+        if not hasattr(self.ui, "logPlainEdit"):
+            return
+
+        scrollbar = self.ui.logPlainEdit.verticalScrollBar()
+        was_at_bottom = scrollbar.value() >= max(0, scrollbar.maximum() - 5)
+        self.ui.logPlainEdit.setUpdatesEnabled(False)
+        self.ui.logPlainEdit.clear()
+        for entry in self.log_history:
+            if self._should_show_log_entry(entry):
+                self.ui.logPlainEdit.appendPlainText(
+                    f"[{entry['time']}] {entry['message']}"
+                )
+        self.ui.logPlainEdit.setUpdatesEnabled(True)
+        if was_at_bottom:
+            scrollbar.setValue(scrollbar.maximum())
+
+    def log_mqtt(self, message: str, level: str = "normal"):
+        """Logger khusus MQTT yang diarahkan ke panel log utama."""
+        self.log(message, level=level)
+
+    def log(self, message: str, level: str = "normal"):
         """Menjadwalkan penambahan log ke UI secara aman dari event loop Qt."""
         # Pastikan append log selalu aman dipanggil dari konteks callback/timer.
-        QTimer.singleShot(0, lambda: self._append_log(message))
+        QTimer.singleShot(0, lambda: self._append_log(message, level))
 
-    def _append_log(self, message: str):
-        """Menambahkan satu baris log bertimestamp ke panel log dashboard."""
-        time = QDateTime.currentDateTime().toString("HH:mm:ss")
-        self.ui.logPlainEdit.appendPlainText(f"[{time}] {message}")
-        self.ui.logPlainEdit.verticalScrollBar().setValue(
-            self.ui.logPlainEdit.verticalScrollBar().maximum()
-        )
+    def _append_log(self, message: str, level: str = "normal"):
+        """Menambahkan satu baris log ke history dan panel dashboard."""
+        self._record_log_entry(message, level)
+        if self._should_show_log_entry(self.log_history[-1]):
+            time = self.log_history[-1]["time"]
+            self.ui.logPlainEdit.appendPlainText(f"[{time}] {message}")
+            self.ui.logPlainEdit.verticalScrollBar().setValue(
+                self.ui.logPlainEdit.verticalScrollBar().maximum()
+            )
 
     @staticmethod
     def _set_text_if_changed(widget, text: str):
@@ -1563,6 +1637,85 @@ class MainWindow(QMainWindow):
                 if btn:
                     btn.setEnabled(True)
                     btn.setToolTip("")
+
+    def setup_logging_mode_ui(self):
+        """Menambahkan kontrol mode debug di panel log settings."""
+        if getattr(self, "mqtt_log_mode_frame", None) is not None:
+            return
+
+        frame = QFrame(self.ui.logFrame)
+        frame.setObjectName("mqttLogModeFrame")
+        frame.setStyleSheet(
+            "#mqttLogModeFrame {"
+            "background-color: #F7FAFE;"
+            "border: 1px solid #D6E2F1;"
+            "border-radius: 10px;"
+            "}"
+            "QLabel#mqttLogModeTitle {"
+            "font: bold 10.5pt 'Segoe UI';"
+            "color: #27445D;"
+            "}"
+            "QLabel#mqttLogModeHint {"
+            "color: #52606D;"
+            "font: 9.5pt 'Segoe UI';"
+            "}"
+            "QComboBox#mqttLogModeCombo {"
+            "background-color: #FFFFFF;"
+            "border: 1px solid #B8CDE0;"
+            "border-radius: 6px;"
+            "padding: 5px 8px;"
+            "font: 10pt 'Segoe UI';"
+            "min-width: 160px;"
+            "}"
+        )
+
+        layout = QHBoxLayout(frame)
+        layout.setContentsMargins(12, 10, 12, 10)
+        layout.setSpacing(12)
+
+        text_layout = QVBoxLayout()
+        text_layout.setSpacing(2)
+        title = QLabel("Debug Mode", frame)
+        title.setObjectName("mqttLogModeTitle")
+        hint = QLabel(
+            "Pilih tingkat tampilan debug tanpa menghapus riwayat log yang sudah tercatat.",
+            frame,
+        )
+        hint.setObjectName("mqttLogModeHint")
+        hint.setWordWrap(True)
+        text_layout.addWidget(title)
+        text_layout.addWidget(hint)
+
+        combo = QComboBox(frame)
+        combo.setObjectName("mqttLogModeCombo")
+        combo.addItem("Mode Normal", self.MQTT_LOG_MODE_NORMAL)
+        combo.addItem("Debug Communication", self.MQTT_LOG_MODE_BAB4)
+        combo.addItem("Debug Detail", self.MQTT_LOG_MODE_TECHNICAL)
+        combo.setCurrentIndex(max(0, combo.findData(self.mqtt_log_mode)))
+        combo.currentIndexChanged.connect(self._on_mqtt_log_mode_changed)
+
+        layout.addLayout(text_layout, 1)
+        layout.addWidget(combo, 0, Qt.AlignRight | Qt.AlignVCenter)
+
+        self.ui.verticalLayout_71.insertWidget(1, frame)
+        self.mqtt_log_mode_frame = frame
+        self.mqtt_log_mode_combo = combo
+
+    def _on_mqtt_log_mode_changed(self, index: int):
+        """Memperbarui mode log MQTT aktif dari pilihan user."""
+        if not hasattr(self, "mqtt_log_mode_combo"):
+            return
+        selected_mode = self.mqtt_log_mode_combo.itemData(index) or self.MQTT_LOG_MODE_NORMAL
+        self.mqtt_log_mode = str(selected_mode)
+        self._refresh_log_view()
+        if self.mqtt_log_mode in {self.MQTT_LOG_MODE_BAB4, self.MQTT_LOG_MODE_TECHNICAL}:
+            mqtt_client = getattr(self, "mqtt", None)
+            if mqtt_client is not None and hasattr(mqtt_client, "emit_debug_snapshot"):
+                mqtt_client.emit_debug_snapshot()
+        self.log(
+            f"[DEBUG] Display mode changed to {self.mqtt_log_mode_combo.currentText()}",
+            level="normal",
+        )
 
     def setup_socket_protection_settings_ui(self):
         """Membangun panel admin untuk mengatur proteksi OFF Smart Socket."""

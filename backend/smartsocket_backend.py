@@ -48,7 +48,8 @@ class SmartSocketBackend(QObject):
 
         # Subscribe tidak dilakukan di sini, tetapi lewat manager.
         if self.logger:
-            self.logger(f"[Smart Socket {self.socket_number}] Backend initialized")
+            # self.logger(f"[Smart Socket {self.socket_number}] Backend initialized")
+            pass
 
     def _subscribe_topics(self):
         """Placeholder lama; subscribe sekarang di-handle oleh manager."""
