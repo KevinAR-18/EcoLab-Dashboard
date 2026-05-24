@@ -529,14 +529,13 @@ Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
 
 ## License & Copyright
 
-Copyright 2025 **Stephanus Kevin Andika Rata**
+Copyright (c) 2026 **Stephanus Kevin Andika Rata**
 
-This project is developed as part of:
+This project was developed as part of:
 - **DTEDI Electronics Laboratory Internship 2025**
 - **Final Project / Tugas Akhir**
 - **Universitas Gadjah Mada**
 
-Usage terms:
-- For educational and research purposes
-- For laboratory and academic usage
-- Contact the author for commercial or redistribution requests
+The source code in this repository is released under the **MIT License**.
+You are free to use, modify, and distribute this software in accordance with the license terms.
+See the [LICENSE](LICENSE) file for full details.
