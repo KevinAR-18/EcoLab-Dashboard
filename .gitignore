@@ -95,6 +95,7 @@ esp32c3_local_http/firmware/esp32c3_smartsocket_http.ino
 esp32c3_local_http/python/esp32c3_http_client.py
 penjelasan_arsitektur_keamanan_mqtt.txt
 rangkuman_fitur_aplikasi_detail.txt
+release_note_v2.1.2.txt
 
 # =========================
 # Local Writing Workspace

@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.1.1"
+    APP_VERSION = "v2.1.2"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
@@ -1661,11 +1661,24 @@ class MainWindow(QMainWindow):
             "}"
             "QComboBox#mqttLogModeCombo {"
             "background-color: #FFFFFF;"
+            "color: #163247;"
             "border: 1px solid #B8CDE0;"
             "border-radius: 6px;"
             "padding: 5px 8px;"
             "font: 10pt 'Segoe UI';"
             "min-width: 160px;"
+            "}"
+            "QComboBox#mqttLogModeCombo QAbstractItemView {"
+            "background-color: #FFFFFF;"
+            "color: #163247;"
+            "selection-background-color: #D9EBF8;"
+            "selection-color: #0E2433;"
+            "border: 1px solid #B8CDE0;"
+            "outline: 0;"
+            "}"
+            "QComboBox#mqttLogModeCombo:disabled {"
+            "color: #7A8A99;"
+            "background-color: #F1F5F9;"
             "}"
         )
 
