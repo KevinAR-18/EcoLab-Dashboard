@@ -133,7 +133,7 @@ Dashboard Raspi/ui/temp.ui
 Dashboard Raspi/ui_py/ui_home.py
 Dashboard Raspi/ui_py/ui_lamp.py
 Dashboard Raspi/ui_py/ui_temp.py
-.exe
+*.exe
 EcoLabSetup 2.0.exe
 EcoLabSetup.ifp
 LICENSE_AGREEMENT.txt
@@ -146,3 +146,4 @@ ringkasan_fitur_smart_socket.txt
 EcoLabSetup.exe
 EcoLabSetup.exe
 EcoLabSetup.exe
+contohAlurSistem.png

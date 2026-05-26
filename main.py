@@ -303,9 +303,9 @@ class MainWindow(QMainWindow):
         )
 
         # SEMENTARA: DRAG BG APP (seluruh background)
-        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
