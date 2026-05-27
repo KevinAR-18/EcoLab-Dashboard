@@ -29,8 +29,8 @@ import paho.mqtt.client as mqtt
 MQTT_BROKER = "10.33.11.148"
 # MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS
-MQTT_USERNAME = "smartsocket5"
-MQTT_PASSWORD = "smart5"
+MQTT_USERNAME = os.getenv("ECOLAB_SMARTSOCKET5_MQTT_USER", "")
+MQTT_PASSWORD = os.getenv("ECOLAB_SMARTSOCKET5_MQTT_PASS", "")
 CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
 # CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
@@ -573,7 +573,7 @@ def main():
     print("  - Load Current Input (User Adjustable)")
     print("=" * 60)
 
-    client = mqtt.Client(client_id="smartsocket5_simulator")
+    client = mqtt.Client(client_id="ecolab_socket_5_simulator")
 
     context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
     context.load_verify_locations(CA_CERT)

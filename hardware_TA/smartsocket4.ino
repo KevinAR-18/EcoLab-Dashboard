@@ -24,10 +24,10 @@ const int   daylightOffset_sec = 0;    // Tidak ada daylight saving di Indonesia
 // ================= MQTT =================
 const char *mqtt_server = "10.33.11.148";
 const int mqtt_port = 8883;
-const char *mqtt_user = "smartsocket4";
-const char *mqtt_pass = "smart4";
+const char *mqtt_user = "";
+const char *mqtt_pass = "";
 
-const char* client_id = "smartsocket4";
+const char* client_id = "ecolab_socket_4";
 
 // MQTT topics
 const char *topic_control = "ecolab/socket/4/control";
@@ -962,4 +962,3 @@ void loop()
     handleSchedule();
     updateLEDIndicators();
 }
-

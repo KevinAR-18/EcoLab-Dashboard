@@ -37,8 +37,8 @@ const char* WIFI_PASSWORD = "ecolab321"; // Ganti dengan WiFi Password
 // ============================================================
 const char* MQTT_BROKER = "10.33.11.148";  // Ganti dengan IP broker
 const int MQTT_PORT = 8883;                   // TLS
-const char* MQTT_USERNAME = "mcub";
-const char* MQTT_PASSWORD = "mcub123";
+const char* MQTT_USERNAME = "";
+const char* MQTT_PASSWORD = "";
 const char* MQTT_CLIENT_ID = "ecolab_mcub";
 
 // TLS INSECURE MODE - No CA certificate verification

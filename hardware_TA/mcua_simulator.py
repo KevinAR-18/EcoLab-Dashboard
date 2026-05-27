@@ -23,8 +23,8 @@ import os
 MQTT_BROKER = "10.33.11.148"
 # MQTT_BROKER = "DESKTOP-CVPE153"  # Broker laptop
 MQTT_PORT = 8883  # TLS
-MQTT_USERNAME = "mcua"
-MQTT_PASSWORD = "mcua123"
+MQTT_USERNAME = os.getenv("ECOLAB_MCUA_MQTT_USER", "")
+MQTT_PASSWORD = os.getenv("ECOLAB_MCUA_MQTT_PASS", "")
 CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
 # CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
