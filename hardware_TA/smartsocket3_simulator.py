@@ -26,13 +26,13 @@ import paho.mqtt.client as mqtt
 # ============================================================
 # CONFIG
 # ============================================================
-MQTT_BROKER = "10.33.11.148"
-# MQTT_BROKER = "DESKTOP-CVPE153"
+# MQTT_BROKER = "10.33.11.148"
+MQTT_BROKER = "DESKTOP-CVPE153"
 MQTT_PORT = 8883  # TLS
-MQTT_USERNAME = os.getenv("ECOLAB_SMARTSOCKET3_MQTT_USER", "")
-MQTT_PASSWORD = os.getenv("ECOLAB_SMARTSOCKET3_MQTT_PASS", "")
-CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
-# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
+MQTT_USERNAME = ""
+MQTT_PASSWORD = ""
+# CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca.crt")
+CA_CERT = os.path.join(os.path.dirname(os.path.dirname(__file__)), "credentials", "ca2.crt")
 
 # Topics
 TOPIC_CONTROL = "ecolab/socket/3/control"
@@ -79,7 +79,7 @@ base_frequency = 50.0
 accumulated_energy = 0.0
 running = True
 
-SCHEDULE_FILE = "schedule_socket1.json"
+SCHEDULE_FILE = "schedule_socket3.json"
     
 
 def current_millis():
