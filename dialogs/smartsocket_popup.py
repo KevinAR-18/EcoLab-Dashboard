@@ -2032,6 +2032,20 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     # ================= TIMER HANDLERS =================
     def on_start_timer(self):
         """Handle Start Timer button click"""
+        if (
+            not getattr(self.main_window, "is_admin_user", lambda: False)()
+            and getattr(self.main_window, "is_socket_schedule_active", lambda _socket: False)(
+                self.socket_number
+            )
+        ):
+            QMessageBox.warning(
+                self,
+                "Timer Tidak Dapat Diaktifkan",
+                "Timer tidak dapat diaktifkan karena schedule sedang aktif.\n"
+                "Hapus schedule terlebih dahulu.",
+            )
+            return
+
         duration_input = self.input_timer_duration.text().strip()
 
         # Cek apakah input dalam format HH:MM:SS atau hanya detik
@@ -2127,6 +2141,20 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     # ================= SCHEDULE HANDLERS =================
     def on_set_schedule(self):
         """Handle Set Schedule button click"""
+        if (
+            not getattr(self.main_window, "is_admin_user", lambda: False)()
+            and getattr(self.main_window, "is_socket_timer_active", lambda _socket: False)(
+                self.socket_number
+            )
+        ):
+            QMessageBox.warning(
+                self,
+                "Schedule Tidak Dapat Diaktifkan",
+                "Schedule tidak dapat diaktifkan karena timer sedang berjalan.\n"
+                "Batalkan timer terlebih dahulu.",
+            )
+            return
+
         start_time = self.input_schedule_start.text().strip()
         stop_time = self.input_schedule_stop.text().strip()
 

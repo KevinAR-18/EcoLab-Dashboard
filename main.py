@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.1.2"
+    APP_VERSION = "v2.1.3"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
@@ -899,6 +899,21 @@ class MainWindow(QMainWindow):
         """Menangani klik switch Smart Socket lalu meneruskan ke backend."""
         self.log(f"Switch {switch_index}: {'ON' if state else 'OFF'}")
 
+        blocked_reason = self.get_socket_manual_control_block_reason(switch_index)
+        if blocked_reason:
+            backend = getattr(self, "socket_backends", {}).get(switch_index)
+            previous_state = getattr(backend, "relay_state", None)
+            if previous_state is None:
+                previous_state = not state
+            self._revert_socket_switch_state(switch_index, bool(previous_state))
+            self.log(f"[Socket {switch_index}] Manual control cancelled: {blocked_reason}")
+            QMessageBox.warning(
+                self,
+                "Kontrol Smart Socket Ditolak",
+                blocked_reason,
+            )
+            return
+
         if not state:
             allowed, reason = self._authorize_socket_power_off(switch_index)
             if not allowed:
@@ -956,6 +971,36 @@ class MainWindow(QMainWindow):
     def is_admin_user(self):
         """Mengecek apakah session aktif adalah admin."""
         return self._current_user_role() == "admin"
+
+    def is_socket_timer_active(self, socket_number: int) -> bool:
+        """Mengecek apakah timer socket sedang berjalan berdasarkan status MQTT."""
+        backend = getattr(self, "socket_backends", {}).get(socket_number)
+        timer_status = str(getattr(backend, "timer_status", "") or "").strip().upper()
+        return timer_status.startswith("ACTIVE:")
+
+    def is_socket_schedule_active(self, socket_number: int) -> bool:
+        """Mengecek apakah socket masih memiliki schedule aktif."""
+        backend = getattr(self, "socket_backends", {}).get(socket_number)
+        return self._socket_has_active_schedule(backend)
+
+    def get_socket_manual_control_block_reason(self, socket_number: int) -> str:
+        """Membatasi kontrol manual user ketika timer atau schedule sedang aktif."""
+        if self._current_user_role() != "user":
+            return ""
+
+        if self.is_socket_schedule_active(socket_number):
+            return (
+                f"Smart Socket {socket_number} tidak dapat dikontrol secara manual "
+                "karena schedule sedang aktif. Hapus schedule terlebih dahulu."
+            )
+
+        if self.is_socket_timer_active(socket_number):
+            return (
+                f"Smart Socket {socket_number} tidak dapat dikontrol secara manual "
+                "karena timer sedang berjalan. Batalkan timer terlebih dahulu."
+            )
+
+        return ""
 
     def _hash_socket_protection_password(self, password: str):
         """Membuat hash password proteksi socket."""
@@ -2723,12 +2768,16 @@ class MainWindow(QMainWindow):
         if not isinstance(schedule_status, dict):
             return False
 
+        mode = str(schedule_status.get("mode", "") or "").strip().lower()
+        raw_status = str(schedule_status.get("raw", "") or "").strip().upper()
+        if mode == "onetime" and raw_status == "STOP_TRIGGER":
+            return False
+
         for key in ("start", "stop"):
             value = str(schedule_status.get(key, "") or "").strip().upper()
             if value and value not in {"N/A", "CLEAR", "NONE", "NULL"}:
                 return True
 
-        raw_status = str(schedule_status.get("raw", "") or "").strip().upper()
         return raw_status == "START_TRIGGER"
         
     def _stop_socket_critical_timers(self, socket_number: int):

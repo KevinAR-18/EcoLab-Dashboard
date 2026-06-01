@@ -22,43 +22,52 @@ echo.
   --onefile ^
   --windowed ^
   --icon=icon\logoecolab.ico ^
+  --add-data "images;images" ^
   --add-data "icon;icon" ^
   --hidden-import=PySide6.QtCore ^
   --hidden-import=PySide6.QtGui ^
   --hidden-import=PySide6.QtWidgets ^
   --hidden-import=PySide6.QtCharts ^
+  --hidden-import=pyrebase ^
+  --hidden-import=requests ^
   --hidden-import=google.oauth2.service_account ^
   --hidden-import=google_auth_oauthlib.flow ^
   --hidden-import=google.auth.transport.requests ^
-  --exclude-module=PySide6.QtWebEngineCore ^
-  --exclude-module=PySide6.QtWebEngineWidgets ^
-  --exclude-module=PySide6.QtWebEngineQuick ^
-  --exclude-module=PySide6.QtQuick ^
-  --exclude-module=PySide6.QtQml ^
-  --exclude-module=PySide6.Qt3DCore ^
-  --exclude-module=PySide6.Qt3DRender ^
-  --exclude-module=PySide6.Qt3DInput ^
-  --exclude-module=PySide6.Qt3DLogic ^
-  --exclude-module=PySide6.Qt3DAnimation ^
-  --exclude-module=PySide6.QtMultimedia ^
-  --exclude-module=PySide6.QtMultimediaWidgets ^
-  --exclude-module=PySide6.QtPdf ^
-  --exclude-module=PySide6.QtPdfWidgets ^
-  --exclude-module=PySide6.QtDesigner ^
-  --exclude-module=PySide6.QtHelp ^
-  --exclude-module=PySide6.QtSql ^
-  --exclude-module=PySide6.QtTest ^
-  --exclude-module=PySide6.QtBluetooth ^
-  --exclude-module=PySide6.QtPositioning ^
-  --exclude-module=PySide6.QtSerialPort ^
-  --exclude-module=PySide6.QtNetworkAuth ^
-  --exclude-module=PySide6.QtVirtualKeyboard ^
-  --exclude-module=bleak ^
-  --exclude-module=winrt ^
-  --exclude-module=gevent ^
-  --exclude-module=greenlet ^
-  --exclude-module=google.cloud ^
-  --exclude-module=google.cloud.storage ^
+  --hidden-import=loginmain ^
+  --hidden-import=auth.session_manager ^
+  --hidden-import=auth.auth_service ^
+  --hidden-import=config.firebase_settings ^
+  --hidden-import=config.path_utils ^
+  --hidden-import=config.login_settings ^
+  --hidden-import=ui.ui_theme_helper ^
+  --hidden-import=app.setup.lamp_setup ^
+  --hidden-import=app.setup.switch_setup ^
+  --hidden-import=app.setup.ac_setup ^
+  --hidden-import=app.setup.arrow_setup ^
+  --hidden-import=dialogs.admin_window ^
+  --hidden-import=dialogs.smartsocket_popup ^
+  --hidden-import=app.setup.smartsocket_setup ^
+  --hidden-import=services.smartsocket_recorder ^
+  --hidden-import=services.smartsocket_settings_manager ^
+  --hidden-import=ui.ui_loginpage ^
+  --hidden-import=ui.ui_adminpanel ^
+  --hidden-import=ui.ui_mainwindow ^
+  --hidden-import=ui.ui_smartsocket_popup ^
+  --hidden-import=ui.ui_functions ^
+  --hidden-import=ui.ui_role_selection ^
+  --hidden-import=resources_rc ^
+  --hidden-import=widgets.lamp_button ^
+  --hidden-import=backend.growatt_backend ^
+  --hidden-import=backend.weathercloud_backend ^
+  --hidden-import=backend.mqtt_client ^
+  --hidden-import=backend.mqtt_dht22_backend ^
+  --hidden-import=backend.lampbutton_backend ^
+  --hidden-import=backend.acbutton_backend ^
+  --hidden-import=backend.growatt_worker ^
+  --hidden-import=backend.mcu_status_backend ^
+  --hidden-import=backend.smartsocket_backend ^
+  --collect-all=pyrebase ^
+  --collect-all=google ^
   launcher.py
 
 if %ERRORLEVEL% NEQ 0 (
