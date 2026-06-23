@@ -361,7 +361,7 @@ class AdminPanelWindow(QMainWindow):
         current_role = str(user_data.get("role", "user") or "user").strip().lower()
         target_role = str(new_role or current_role).strip().lower()
 
-        if self._is_superior_admin(user_email):
+        if self._is_superior_admin(user_email) and current_role == "admin":
             return (
                 "Superior Admin - role cannot be changed\n"
                 f"Protected: {user_email}"
