@@ -536,6 +536,5 @@ This project was developed as part of:
 - **Final Project / Tugas Akhir**
 - **Universitas Gadjah Mada**
 
-The source code in this repository is released under the **MIT License**.
-You are free to use, modify, and distribute this software in accordance with the license terms.
-See the [LICENSE](LICENSE) file for full details.
+This software is distributed under the terms in [LICENSE_AGREEMENT.txt](LICENSE_AGREEMENT.txt).
+All rights not expressly granted in that agreement are reserved.

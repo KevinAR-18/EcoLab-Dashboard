@@ -494,6 +494,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             )
 
         self._timer_duration_tooltip = self.input_timer_duration.toolTip()
+        self._timer_group_tooltip = self.groupBox_timer.toolTip()
+        self._timer_cancel_tooltip = self.btn_cancel_timer.toolTip()
         self._setup_monitoring_ui()
         self.refresh_monitoring_view()
         self._update_timer_controls_for_schedule()
@@ -611,14 +613,22 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         if blocked is None:
             blocked = self._is_timer_blocked_by_schedule()
         blocked_message = (
-            "Timer disabled because schedule is active. Clear schedule first."
+            "Timer tidak bisa dipakai karena Scheduling sedang aktif. "
+            "Clear Schedule terlebih dahulu."
         )
         self.input_timer_duration.setEnabled(not blocked)
         self.btn_start_timer.setEnabled(not blocked)
+        self.btn_cancel_timer.setEnabled(not blocked)
+        self.groupBox_timer.setToolTip(
+            blocked_message if blocked else self._timer_group_tooltip
+        )
         self.input_timer_duration.setToolTip(
             blocked_message if blocked else self._timer_duration_tooltip
         )
         self.btn_start_timer.setToolTip(blocked_message if blocked else "Start timer")
+        self.btn_cancel_timer.setToolTip(
+            blocked_message if blocked else self._timer_cancel_tooltip
+        )
 
     def _on_schedule_status_changed(self, *_):
         self._update_timer_controls_for_schedule()
