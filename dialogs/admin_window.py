@@ -23,15 +23,14 @@ from ui.ui_theme_helper import (
 from config.path_utils import resource_path
 
 # ============================================================
-# PRIMARY ADMIN EMAIL
-# Email admin utama yang TIDAK BOLEH diubah rolenya
-# Bisa diganti/ditambah untuk keamanan
+# SUPERIOR ADMIN EMAILS
+# Superior admin boleh mengubah role admin lain. Akun superior
+# sendiri tetap diproteksi agar tidak bisa diturunkan rolenya.
 # ============================================================
-PRIMARY_ADMIN_EMAILS = [
-    "admin@ecolab.com",  # Email admin utama (satu-satunya admin yang tidak bisa diubah)
-    # Tambahkan email admin penting lainnya di sini jika perlu
-    # "superadmin@ecolab.com",
+SUPERIOR_ADMIN_EMAILS = [
+    "admin@ecolab.com",
     "kevinandika18@gmail.com",
+    "isnan.nur@ugm.ac.id",
     "ecolabtedi@gmail.com",
 ]
 
@@ -330,17 +329,52 @@ class AdminPanelWindow(QMainWindow):
         # Load data dari Firebase
         self.load_firebase_data()
 
-    def _is_primary_admin(self, user_email):
-        """
-        Cek apakah user adalah primary admin yang TIDAK BOLEH diubah rolenya
+    def _normalized_email(self, email):
+        """Menormalkan email untuk pengecekan role admin khusus."""
+        return str(email or "").strip().lower()
 
-        Args:
-            user_email: Email user yang akan dicek
+    def _is_superior_admin(self, user_email):
+        """Cek apakah email termasuk superior admin."""
+        return self._normalized_email(user_email) in {
+            self._normalized_email(email) for email in SUPERIOR_ADMIN_EMAILS
+        }
 
-        Returns:
-            bool: True jika primary admin, False jika bukan
-        """
-        return user_email.lower() in [email.lower() for email in PRIMARY_ADMIN_EMAILS]
+    def _current_admin_email(self):
+        """Mengambil email admin yang sedang membuka admin panel."""
+        session = getattr(self.login_window, "user_session", None)
+        if session is None and hasattr(self.login_window, "get_user_session"):
+            try:
+                session = self.login_window.get_user_session()
+            except Exception:
+                session = None
+        if isinstance(session, dict):
+            return session.get("email", "")
+        return ""
+
+    def _current_admin_is_superior(self):
+        """Hanya superior admin yang boleh mengubah role admin."""
+        return self._is_superior_admin(self._current_admin_email())
+
+    def _role_change_block_reason(self, user_data, new_role=None):
+        """Menghasilkan alasan jika perubahan role harus diblokir."""
+        user_email = user_data.get("email", "")
+        current_role = str(user_data.get("role", "user") or "user").strip().lower()
+        target_role = str(new_role or current_role).strip().lower()
+
+        if self._is_superior_admin(user_email):
+            return (
+                "Superior Admin - role cannot be changed\n"
+                f"Protected: {user_email}"
+            )
+
+        admin_role_involved = current_role == "admin" or target_role == "admin"
+        if admin_role_involved and not self._current_admin_is_superior():
+            return (
+                "Only Superior Admin can change admin roles\n"
+                f"Current admin: {self._current_admin_email() or 'Unknown'}"
+            )
+
+        return ""
 
     def _fix_label_colors(self):
         """
@@ -460,27 +494,10 @@ class AdminPanelWindow(QMainWindow):
             role_combo.addItem("admin")
             role_combo.setCurrentText(user["role"])
 
-            # DISABLE dropdown jika user adalah PRIMARY ADMIN
-            if self._is_primary_admin(user["email"]):
+            role_block_reason = self._role_change_block_reason(user)
+            if role_block_reason:
                 role_combo.setEnabled(False)
-                # Tambahkan tooltip untuk informasi
-                role_combo.setToolTip(
-                    f"⛔ Primary Admin - Role cannot be changed\n"
-                    f"Protected: {user['email']}"
-                )
-                # Ubah style untuk menandakan disabled
-                role_combo.setStyleSheet("""
-                    QComboBox:disabled {
-                        background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #e9ecef, stop:1 #dee2e6);
-                        color: #6c757d;
-                        border: 2px solid #adb5bd;
-                        border-radius: 8px;
-                        padding: 6px 12px;
-                        font-size: 10pt;
-                        font-weight: 600;
-                        min-width: 80px;
-                    }
-                """)
+                role_combo.setToolTip(f"Role restricted: {role_block_reason}")
 
             role_combo.currentTextChanged.connect(
                 lambda text, uid=user["uid"]: self.on_role_changed(uid, text)
@@ -623,20 +640,19 @@ class AdminPanelWindow(QMainWindow):
                 self.load_firebase_data()
                 return
 
-            # VALIDASI: Cek apakah user adalah PRIMARY ADMIN
-            if self._is_primary_admin(user_data["email"]):
+            role_block_reason = self._role_change_block_reason(user_data, new_role)
+            if role_block_reason:
                 show_styled_warning(
                     self,
                     "Role Change Restricted",
-                    f"⛔ CANNOT CHANGE PRIMARY ADMIN ROLE!\n\n"
+                    f"ROLE CHANGE RESTRICTED!\n\n"
                     f"Email: {user_data['email']}\n"
-                    f"Current Role: {user_data['role']}\n\n"
-                    f"This is a PRIMARY ADMIN account.\n"
-                    f"Primary admin role cannot be changed to 'user' for security reasons.\n\n"
-                    f"Protected emails:\n"
-                    f"• {', '.join(PRIMARY_ADMIN_EMAILS)}"
+                    f"Current Role: {user_data['role']}\n"
+                    f"Target Role: {new_role}\n\n"
+                    f"Reason: {role_block_reason}\n\n"
+                    f"Superior admins:\n"
+                    f"- {', '.join(SUPERIOR_ADMIN_EMAILS)}"
                 )
-                # Refresh table untuk revert dropdown
                 self.load_firebase_data()
                 return
 
