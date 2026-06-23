@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.1.4"
+    APP_VERSION = "v2.1.3"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
@@ -302,10 +302,10 @@ class MainWindow(QMainWindow):
             self.ui_functions.mouse_double_click
         )
 
-        # SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        #SEMENTARA: DRAG BG APP (seluruh background)
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
