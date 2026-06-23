@@ -985,6 +985,8 @@ class MainWindow(QMainWindow):
 
     def get_socket_manual_control_block_reason(self, socket_number: int) -> str:
         """Membatasi kontrol manual user ketika timer atau schedule sedang aktif."""
+        # Admin tidak dibatasi di sini karena admin dipakai untuk kebutuhan override
+        # saat pengujian atau kondisi maintenance.
         if self._current_user_role() != "user":
             return ""
 
@@ -1219,6 +1221,8 @@ class MainWindow(QMainWindow):
 
     def _record_log_entry(self, message: str, level: str = "normal"):
         """Menyimpan satu entri log ke history memori."""
+        # Log disimpan dulu ke memory history, lalu panel UI hanya menampilkan
+        # entry yang lolos filter mode log aktif.
         timestamp = QDateTime.currentDateTime().toString("HH:mm:ss")
         self.log_history.append(
             {
@@ -1612,6 +1616,8 @@ class MainWindow(QMainWindow):
         """Mengatur hak akses kontrol device berdasarkan mode guest atau bukan."""
         if is_guest:
             # GUEST: Disable semua kontrol devices (read-only mode)
+            # Guest tetap bisa melihat data monitoring, tetapi semua tombol yang
+            # dapat mengubah state device dikunci.
 
             # === TOMBOL AKSI SMART SOCKET ===
             for i in range(1, 6):
@@ -2042,6 +2048,8 @@ class MainWindow(QMainWindow):
         try:
             from dialogs.admin_window import AdminPanelWindow
 
+            # Admin panel dibuat sebagai window terpisah agar pengelolaan user
+            # tidak bercampur dengan halaman monitoring dashboard.
             # Buka window admin panel.
             self.admin_panel_window = AdminPanelWindow(self)
             self.admin_panel_window.show()
@@ -2062,6 +2070,8 @@ class MainWindow(QMainWindow):
         popup_attr = f"_socket{socket_number}_popup"
 
         if hasattr(self, popup_attr):
+            # Kalau popup socket yang sama sudah terbuka, cukup fokuskan window
+            # tersebut supaya user tidak membuat banyak popup untuk satu socket.
             existing_popup = getattr(self, popup_attr)
             # Jika popup masih ada dan visible, fokus ke popup yang sudah ada
             try:
@@ -2147,6 +2157,8 @@ class MainWindow(QMainWindow):
     # interval sampling, dan penyimpanan preferensi monitoring.
     def start_socket_recording(self, socket_number: int, source="manual"):
         """Memulai perekaman data monitoring untuk satu Smart Socket."""
+        # Source dipakai untuk membedakan apakah recording dimulai dari tombol
+        # manual atau otomatis dari schedule.
         changed = self.smartsocket_recorder.start(socket_number, source=source)
         if changed:
             self.log(f"[Socket {socket_number}] Recording started ({source})")
@@ -2468,6 +2480,8 @@ class MainWindow(QMainWindow):
 
     def _warning_from_current(self, current_value: float, relay_on: bool):
         """Menentukan level warning berdasarkan arus dan status relay."""
+        # Warning hanya relevan ketika relay sedang ON. Jika relay OFF, nilai
+        # arus tidak perlu memicu popup karena socket memang tidak memasok beban.
         if not relay_on:
             return {
                 "active": False,
@@ -3043,6 +3057,8 @@ class MainWindow(QMainWindow):
         if not data:
             return
 
+        # Data dari MQTT disalin dulu agar normalisasi tampilan tidak mengubah
+        # payload asli yang tersimpan di backend.
         display_data = dict(data)
         try:
             current_value = float(display_data.get("current", 0) or 0)
@@ -3197,6 +3213,8 @@ class MainWindow(QMainWindow):
         import os
         from datetime import datetime
 
+        # START_TRIGGER dan STOP_TRIGGER dikirim hardware saat jadwal benar-benar
+        # dieksekusi, bukan hanya saat user menyimpan jam schedule.
         # DEBUG: cetak status mentah dari hardware
         # print(f"[DEBUG Schedule UI] Socket {socket_number} received: {repr(status)}")
 

@@ -17,6 +17,8 @@ class SmartSocketSettingsManager:
         """Menentukan path file settings untuk mode script maupun executable."""
         appdata_dir = os.getenv("APPDATA")
 
+        # Di mode installer, setting disimpan di APPDATA agar tidak hilang
+        # meskipun aplikasi dijalankan dari folder berbeda.
         if appdata_dir:
             settings_dir = Path(appdata_dir) / "EcoLab Dashboard"
         else:
@@ -50,6 +52,8 @@ class SmartSocketSettingsManager:
 
     def save_data(self, data):
         """Menyimpan struktur settings yang sudah dinormalisasi ke disk."""
+        # Struktur JSON selalu dipaksa punya global dan sockets agar pembacaan
+        # setting di MainWindow tidak perlu banyak pengecekan tambahan.
         payload = data if isinstance(data, dict) else {"global": {}, "sockets": {}}
         payload.setdefault("global", {})
         payload.setdefault("sockets", {})

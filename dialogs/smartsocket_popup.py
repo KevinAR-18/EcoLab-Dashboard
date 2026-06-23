@@ -593,6 +593,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def connect_buttons(self):
         """Connect all buttons to their handlers"""
         # Timer buttons
+        # Tombol timer mengirim durasi ke backend MQTT dalam satuan detik.
         self.btn_start_timer.clicked.connect(self.on_start_timer)
         self.btn_cancel_timer.clicked.connect(self.on_cancel_timer)
 
@@ -612,6 +613,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     def _update_timer_controls_for_schedule(self, blocked=None):
         if blocked is None:
             blocked = self._is_timer_blocked_by_schedule()
+        # Saat schedule aktif, timer dikunci agar tidak ada dua mekanisme
+        # otomatisasi yang saling bertabrakan.
         blocked_message = (
             "Timer tidak bisa dipakai karena Scheduling sedang aktif. "
             "Clear Schedule terlebih dahulu."
@@ -1932,6 +1935,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.input_protection_note.setEnabled(enabled)
 
     def _save_socket_protection_settings(self):
+        # Hanya admin yang boleh mengubah proteksi OFF karena setting ini
+        # memengaruhi izin user lain ketika mematikan socket.
         if not getattr(self.main_window, "is_admin_user", lambda: False)():
             QMessageBox.warning(
                 self,
@@ -1998,6 +2003,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         critical_stage = int(state.get("critical_stage", 0) or 0)
         critical_deadline = float(state.get("critical_deadline", 0.0) or 0.0)
 
+        # Warning tab mengikuti state warning yang dihitung di MainWindow.
         if not active:
             self.label_warning_level.setText("Status: Safe")
             self.label_warning_level.setStyleSheet(
@@ -2091,6 +2097,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         duration_input = self.input_timer_duration.text().strip()
 
         # Cek apakah input dalam format HH:MM:SS atau hanya detik
+        # Setelah valid, semua format dikonversi menjadi total detik untuk MQTT.
         total_seconds = self.parse_timer_duration(duration_input)
 
         if total_seconds is not None and total_seconds > 0:
@@ -2201,6 +2208,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
         stop_time = self.input_schedule_stop.text().strip()
 
         # Get mode from combo box (0=Daily, 1=Onetime)
+        # Mode ini dikirim ke hardware supaya jadwal bisa berulang atau sekali jalan.
         current_index = self.combo_schedule_mode.currentIndex()
         if current_index == 0:
             mode = "daily"

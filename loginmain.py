@@ -233,6 +233,8 @@ class LoginWindow(QMainWindow):
             return
 
         # Panggil auth service untuk proses login.
+        # Status akun seperti admin, pending, blocked, dan success
+        # dinormalkan di service lalu diproses di _handle_auth_result().
         result = self.auth_service.login_with_email(email, password)
         self._handle_auth_result(result, "Login")
 
@@ -319,12 +321,14 @@ class LoginWindow(QMainWindow):
             return
 
         # Panggil auth service untuk proses signup.
+        # Akun baru dibuat pending supaya admin bisa memverifikasi sebelum user masuk.
         result = self.auth_service.signup_with_email(email, password, username=username)
         self._handle_auth_result(result, "Signup", signup_username=username)
 
     def handle_guest_login(self):
         """Membuat guest session lalu langsung masuk ke mode monitoring tamu."""
         # Buat object session untuk guest mode.
+        # Guest tidak melalui Firebase karena hanya dipakai sebagai mode viewer.
         self.user_session = {
             "uid": "guest_temp",
             "username": "Guest Viewer",
@@ -535,6 +539,7 @@ class LoginWindow(QMainWindow):
                 return False
 
             # Build object session untuk user aktif.
+            # Session ini nanti dibaca dashboard untuk menentukan nama, role, dan hak akses.
             self.user_session = {
                 "uid": uid,
                 "username": user_data.get("username", ""),

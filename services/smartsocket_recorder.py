@@ -137,10 +137,12 @@ class SmartSocketRecorder:
     def append_energy(self, socket_number, data, relay_state):
         """Menambahkan satu sample monitoring jika socket sedang recording."""
         state = self._state(socket_number)
+        # Sample hanya disimpan ketika mode recording aktif.
         if not state["recording"]:
             return None
 
         now = datetime.now()
+        # Interval mencegah data terlalu rapat sehingga file CSV tidak membengkak.
         last = state.get("last_record_at")
         interval = float(
             state.get("record_interval_seconds") or self.DEFAULT_RECORD_INTERVAL_SECONDS
@@ -164,6 +166,7 @@ class SmartSocketRecorder:
         state["last_record_at"] = now
         state["records"].append(record)
         state["active_record_date"] = record["timestamp"][:10]
+        # Recovery file menjaga data sementara tetap ada jika aplikasi tertutup sebelum export.
         self._append_recovery_record(socket_number, record)
         return record
 

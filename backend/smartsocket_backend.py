@@ -57,6 +57,7 @@ class SmartSocketBackend(QObject):
 
     def on_message(self, topic, payload):
         """Menerima MQTT message lalu meneruskannya ke parser yang sesuai."""
+        # Topic MQTT dipisah per jenis data supaya parser dan signal UI tetap jelas.
         if topic == self.topics["relay"]:
             self._handle_relay_status(payload)
 
@@ -88,6 +89,7 @@ class SmartSocketBackend(QObject):
     def _handle_energy_data(self, payload):
         """Memproses update data energi dari payload JSON."""
         try:
+            # Payload energy berbentuk JSON dari device, lalu diteruskan ke UI sebagai dict.
             data = json.loads(payload)
             self.energy_data = data
             self.energy_changed.emit(data)
@@ -147,6 +149,8 @@ class SmartSocketBackend(QObject):
 
     def set_relay(self, state):
         """Mengirim command relay ON/OFF ke socket."""
+        # Command relay cukup ON/OFF, sedangkan feedback status datang lagi
+        # lewat topic relaystatus setelah hardware memproses perintah.
         payload = "ON" if state else "OFF"
         topic = f"{self.topic_prefix}/control"  # contoh: ecolab/socket/1/control
         self.mqtt.publish(topic, payload)
@@ -206,6 +210,7 @@ class SmartSocketManager(QObject):
             self.backends[i] = SmartSocketBackend(mqtt_client, i, logger)
 
         # Subscribe ke semua topic Smart Socket dengan wildcard.
+        # Dengan wildcard, manager cukup satu kali subscribe untuk socket 1 sampai 5.
         smartsocket_wildcard = "ecolab/socket/#"
 
         # Buat wrapper callback sesuai signature bawaan Paho MQTT.

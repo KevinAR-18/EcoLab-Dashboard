@@ -443,6 +443,7 @@ class AdminPanelWindow(QMainWindow):
         """Load semua data dari Firebase dan populate tabel & summary"""
         try:
             # Load summary data
+            # Summary dipakai untuk kartu total akun, pending, active, blocked, dan admin.
             summary = self.auth_service.get_user_summary()
 
             # Update summary labels
@@ -472,6 +473,7 @@ class AdminPanelWindow(QMainWindow):
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         for row, user in enumerate(users):
+            # Setiap row tabel mewakili satu user Firebase yang sudah dinormalisasi.
             # Nomor (CENTER)
             no_item = QTableWidgetItem(str(row + 1))
             no_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -494,6 +496,7 @@ class AdminPanelWindow(QMainWindow):
             role_combo.addItem("admin")
             role_combo.setCurrentText(user["role"])
 
+            # Role admin tertentu dilindungi supaya tidak sembarang diubah.
             role_block_reason = self._role_change_block_reason(user)
             if role_block_reason:
                 role_combo.setEnabled(False)
@@ -657,6 +660,7 @@ class AdminPanelWindow(QMainWindow):
                 return
 
             # Confirm dialog
+            # Perubahan role selalu minta konfirmasi karena langsung mengubah data Firebase.
             reply = show_styled_question(
                 self,
                 "Confirm Role Change",
@@ -699,6 +703,7 @@ class AdminPanelWindow(QMainWindow):
         try:
             if action == "approve":
                 # Approve account
+                # User pending baru bisa login setelah statusnya diaktifkan admin.
                 result = self.auth_service.approve_user(uid)
                 if result["status"] == "success":
                     show_styled_information(self, "Success", f"✅ User '{username}' approved successfully!")

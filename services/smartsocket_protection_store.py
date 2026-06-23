@@ -26,6 +26,7 @@ class SmartSocketProtectionStore:
 
     def get_all(self):
         """Mengambil semua proteksi Smart Socket dari Firebase."""
+        # Data proteksi disimpan per nomor socket di Firebase Realtime Database.
         snapshot = self.db.child(self.ROOT_PATH).get()
         raw = snapshot.val() or {}
         if not isinstance(raw, dict):
@@ -47,6 +48,7 @@ class SmartSocketProtectionStore:
 
     def set_one(self, socket_number, payload):
         """Menyimpan satu konfigurasi proteksi Smart Socket."""
+        # Normalisasi menjaga format data tetap konsisten walaupun input dari UI berubah.
         normalized = self._normalize(payload)
         self.db.child(self.ROOT_PATH).child(str(socket_number)).set(normalized)
         return normalized
