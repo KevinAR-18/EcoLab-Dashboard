@@ -488,8 +488,15 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.main_window.socket_warning_state_changed.connect(
                 self._on_warning_state_changed
             )
+        if hasattr(self.backend, "schedule_status_changed"):
+            self.backend.schedule_status_changed.connect(
+                self._on_schedule_status_changed
+            )
+
+        self._timer_duration_tooltip = self.input_timer_duration.toolTip()
         self._setup_monitoring_ui()
         self.refresh_monitoring_view()
+        self._update_timer_controls_for_schedule()
         self._update_rounded_mask()
 
     def paintEvent(self, event):
@@ -558,6 +565,13 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self._old_pos = None
 
     def closeEvent(self, event):
+        if hasattr(self.backend, "schedule_status_changed"):
+            try:
+                self.backend.schedule_status_changed.disconnect(
+                    self._on_schedule_status_changed
+                )
+            except (RuntimeError, TypeError):
+                pass
         if hasattr(self.main_window, "socket_recording_state_changed"):
             try:
                 self.main_window.socket_recording_state_changed.disconnect(
@@ -586,6 +600,28 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Close button
         self.btn_close.clicked.connect(self.accept)
+
+    def _is_timer_blocked_by_schedule(self):
+        """Timer dikunci selama socket masih punya schedule aktif."""
+        return getattr(self.main_window, "is_socket_schedule_active", lambda _socket: False)(
+            self.socket_number
+        )
+
+    def _update_timer_controls_for_schedule(self, blocked=None):
+        if blocked is None:
+            blocked = self._is_timer_blocked_by_schedule()
+        blocked_message = (
+            "Timer disabled because schedule is active. Clear schedule first."
+        )
+        self.input_timer_duration.setEnabled(not blocked)
+        self.btn_start_timer.setEnabled(not blocked)
+        self.input_timer_duration.setToolTip(
+            blocked_message if blocked else self._timer_duration_tooltip
+        )
+        self.btn_start_timer.setToolTip(blocked_message if blocked else "Start timer")
+
+    def _on_schedule_status_changed(self, *_):
+        self._update_timer_controls_for_schedule()
 
     # ================= MONITORING UI =================
     def _setup_monitoring_ui(self):
@@ -2031,11 +2067,8 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
     # ================= TIMER HANDLERS =================
     def on_start_timer(self):
         """Handle Start Timer button click"""
-        if (
-            not getattr(self.main_window, "is_admin_user", lambda: False)()
-            and getattr(self.main_window, "is_socket_schedule_active", lambda _socket: False)(
-                self.socket_number
-            )
+        if getattr(self.main_window, "is_socket_schedule_active", lambda _socket: False)(
+            self.socket_number
         ):
             QMessageBox.warning(
                 self,
@@ -2202,6 +2235,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
             self.backend.set_schedule_start(start_time)
         if stop_time:
             self.backend.set_schedule_stop(stop_time)
+        self._update_timer_controls_for_schedule(blocked=True)
 
     def on_clear_schedule(self):
         """Handle Clear Schedule button click"""
@@ -2214,6 +2248,7 @@ class SmartSocketPopup(QDialog, Ui_SmartSocketPopup):
 
         # Send MQTT command
         self.backend.clear_schedule()
+        self._update_timer_controls_for_schedule(blocked=False)
 
     # ================= HELPER FUNCTIONS =================
     def validate_time_format(self, time_str):
