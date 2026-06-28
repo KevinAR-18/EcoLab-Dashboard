@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
     socket_warning_state_changed = Signal(int)
 
     # APP VERSION
-    APP_VERSION = "v2.1.4"
+    APP_VERSION = "v2.1.5"
     SOCKET_WARNING_ELEVATED_CURRENT = 6.0
     SOCKET_WARNING_HIGH_CURRENT = 6.5
     SOCKET_WARNING_CRITICAL_CURRENT = 7.0
@@ -303,9 +303,9 @@ class MainWindow(QMainWindow):
         )
 
         #SEMENTARA: DRAG BG APP (seluruh background)
-        # self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
-        # self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
-        # self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
+        self.ui.bgApp.mousePressEvent = self.ui_functions.mouse_press
+        self.ui.bgApp.mouseMoveEvent = self.ui_functions.mouse_move
+        self.ui.bgApp.mouseDoubleClickEvent = self.ui_functions.mouse_double_click
 
         # TOMBOL UNTUK MEMBUKA/TUTUP SIDE MENU
         self.ui.toggleButton.clicked.connect(
@@ -611,12 +611,12 @@ class MainWindow(QMainWindow):
         # ☀️ PV Charging Current
         self.lblPVCurrent.setText(
             f"PV1/PV2 Recharging Current: "
-            f"{fmt(flow.get('pv1_charge_current'))} / {fmt(flow.get('pv2_charge_current'), ' A')}"
+            f"{fmt(flow.get('pv1_charge_current'), ' A', 3)} / {fmt(flow.get('pv2_charge_current'), ' A', 3)}"
         )
 
         # 🔌 Total Charge
         self.lblTotalCharge.setText(
-            f"Total Charge Current: {fmt(flow.get('total_charge_current'), 'A')}"
+            f"Total Charge Current: {fmt(flow.get('total_charge_current'), ' A', 3)}"
         )
 
         # ⚡ AC Input
@@ -2579,7 +2579,7 @@ class MainWindow(QMainWindow):
         msg_box.setText(
             f"Smart Socket {socket_number}\n"
             f"Current: {float(state.get('current', 0.0)):.3f} A\n"
-            f"Batas aman: {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A\n\n"
+            f"Batas aman: {self.SOCKET_WARNING_CRITICAL_CURRENT:.3f} A\n\n"
             "Cabut atau kurangi beban sekarang."
         )
         btn_shutdown = msg_box.addButton("Matikan Sekarang", QMessageBox.ButtonRole.DestructiveRole)
@@ -2689,7 +2689,7 @@ class MainWindow(QMainWindow):
         self.socket_warning_state_changed.emit(socket_number)
         self.log(
             f"[Socket {socket_number}] Load still above "
-            f"{self.SOCKET_WARNING_CRITICAL_CURRENT:.1f}A after grace period, "
+            f"{self.SOCKET_WARNING_CRITICAL_CURRENT:.3f}A after grace period, "
             f"final warning shown"
         )
         auto_off_timer = self.socket_critical_auto_off_timers.get(socket_number)
@@ -2699,7 +2699,7 @@ class MainWindow(QMainWindow):
         text = (
             f"Smart Socket {socket_number}\n"
             f"Current: {float(state.get('current', 0.0)):.3f} A\n"
-            f"Beban masih di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A.\n"
+            f"Beban masih di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.3f} A.\n"
             f"Socket akan dimatikan otomatis dalam "
             f"{int(self.SOCKET_CRITICAL_AUTO_OFF_DELAY_SECONDS)} detik jika arus tidak turun."
         )
@@ -2837,7 +2837,7 @@ class MainWindow(QMainWindow):
                 "Socket Auto-Off",
                 (
                     f"Smart Socket {socket_number} dimatikan otomatis karena "
-                    f"arus tetap di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.1f} A."
+                    f"arus tetap di atas {self.SOCKET_WARNING_CRITICAL_CURRENT:.3f} A."
                 ),
             )
 
