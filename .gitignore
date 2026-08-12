@@ -162,3 +162,24 @@ release_note_v2.1.4.txt
 *.exe
 EcoLabSetup*.exe
 setup*.exe
+
+# =========================
+# KiCad PCB — hanya file desain esensial
+# =========================
+hardware_TA/Rangkaian\ PCB/**/.history/
+hardware_TA/Rangkaian\ PCB/**/fp-info-cache
+hardware_TA/Rangkaian\ PCB/**/*.step
+hardware_TA/Rangkaian\ PCB/**/*.stp
+hardware_TA/Rangkaian\ PCB/**/*.SLDPRT
+hardware_TA/Rangkaian\ PCB/**/*.dxf
+hardware_TA/Rangkaian\ PCB/**/*.bak
+hardware_TA/Rangkaian\ PCB/**/*.zip
+hardware_TA/Rangkaian\ PCB/**/*-backups/
+hardware_TA/Rangkaian\ PCB/**/*.png
+hardware_TA/Rangkaian\ PCB/**/*.jpg
+hardware_TA/Rangkaian\ PCB/**/*.svg
+hardware_TA/Rangkaian\ PCB/**/*.html
+hardware_TA/Rangkaian\ PCB/**/*.txt
+hardware_TA/Rangkaian\ PCB/**/*.sample
+hardware_TA/Rangkaian\ PCB/**/LICENCE
+hardware_TA/Rangkaian\ PCB/**/README.*
