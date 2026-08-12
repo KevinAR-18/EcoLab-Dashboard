@@ -1,7 +1,8 @@
 # EcoLab Dashboard - Smart Laboratory Management System
 
 EcoLab Dashboard - DTEDI Electronics Laboratory Internship 2025 x Final Project  
-**Author:** Stephanus Kevin Andika Rata
+**Author:** Stephanus Kevin Andika Rata  
+**Internship Hardware (Smart AC & Lamp):** Ilham Purnomo
 
 ---
 
@@ -60,6 +61,7 @@ The system currently supports:
 - **Wemos D1 Mini** for Smart Lamp and Smart AC
 - **PZEM-004T v3.0** for Smart Socket energy monitoring
 - **DS1302 RTC** for Smart Socket timer and schedule
+- **PCB Smart AC & Smart Lamp** designed by **Ilham Purnomo** (KiCad)
 
 ---
 
@@ -329,6 +331,7 @@ Aplikasi EcoLab -  New/
 |   |-- lamp_button.py
 |   `-- switch_button.py
 |-- ui/
+|   |   (Qt Designer .ui source files)
 |   |-- ui_functions.py
 |   |-- ui_theme_helper.py
 |   |-- ui_loginpage.py
@@ -337,10 +340,10 @@ Aplikasi EcoLab -  New/
 |   |-- ui_role_selection.py
 |   `-- ui_smartsocket_popup.py
 |-- credentials/
-|-- file ui/
 |-- icon/
 |-- images/
 |-- hardware_TA/
+|   `-- PCB Designs/            (KiCad PCB layouts by Ilham Purnomo)
 `-- resources_rc.py
 ```
 
@@ -431,6 +434,17 @@ cd hardware_TA
 python smartsocket_simulator.py
 ```
 
+### PCB Designs (KiCad)
+
+- **Smart AC & Smart Lamp** — PCB designed by **Ilham Purnomo** during the 2025 internship.
+
+| PCB | Designer | Location | Description |
+|-----|----------|----------|-------------|
+| **PCB Smart AC** | Ilham Purnomo | `hardware_TA/PCB Designs/Rangkaian Control AC/PCB AC/` | AC control relay, transformer, and XL6009 DC-DC converter |
+| **PCB Smart Lamp** | Ilham Purnomo | `hardware_TA/PCB Designs/Rangkaian Control Lampu/PCB_LAMPU/` | Lamp control relay, transformer, and XL6009 DC-DC converter |
+
+Custom KiCad libraries are located under `Libraries for Arduino IDE/` in each project folder.
+
 ---
 
 ## Feature Details
@@ -463,6 +477,7 @@ python smartsocket_simulator.py
 - Admin-only power-off protection settings inside the Smart Socket popup
 - Power-off protection synced through Firebase so the same socket rules can be read from different PCs
 - Data recording, CSV export, and charts
+- **Final Project** — fully developed by **Stephanus Kevin Andika Rata** (Hardware & Software)
 
 ### Smart Lamp
 
@@ -470,6 +485,7 @@ python smartsocket_simulator.py
 - MQTT-based switching
 - Supports multiple lamp channels in the control room page
 - Developed together with **Ilham Purnomo**
+- Hardware PCB design: **Ilham Purnomo**
 
 ### Smart AC
 
@@ -477,6 +493,7 @@ python smartsocket_simulator.py
 - Cooling and fan modes
 - Temperature settings
 - Developed together with **Ilham Purnomo**
+- Hardware PCB design: **Ilham Purnomo**
 
 ### EcoLab Power Monitoring
 
@@ -518,6 +535,7 @@ launcher.py -> check session
 ## Contact
 
 **Stephanus Kevin Andika Rata**  
+Software Development & System Integration  
 DTEDI Electronics Laboratory Internship 2025  
 Final Project - EcoLab Smart Laboratory  
 DTEDI Electronics Laboratory  
@@ -525,16 +543,15 @@ Universitas Gadjah Mada
 
 Email: [kevinandika18@gmail.com](mailto:kevinandika18@gmail.com)
 
+**Ilham Purnomo**  
+Hardware PCB Design (Smart AC & Smart Lamp)  
+DTEDI Electronics Laboratory Internship 2025  
+DTEDI Electronics Laboratory  
+Universitas Gadjah Mada
+
 ---
 
 ## License & Copyright
 
-Copyright (c) 2026 **Stephanus Kevin Andika Rata**
-
-This project was developed as part of:
-- **DTEDI Electronics Laboratory Internship 2025**
-- **Final Project / Tugas Akhir**
-- **Universitas Gadjah Mada**
-
-This software is distributed under the terms in [LICENSE_AGREEMENT.txt](LICENSE_AGREEMENT.txt).
-All rights not expressly granted in that agreement are reserved.
+Copyright (c) 2026 **Stephanus Kevin Andika Rata**  
+PCB Design (Smart AC & Lamp): **Ilham Purnomo**
