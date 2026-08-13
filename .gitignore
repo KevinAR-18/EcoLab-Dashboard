@@ -45,6 +45,7 @@ Thumbs.db
 # =========================
 Modern_GUI_PyDracula_PySide6_or_PyQt6-master/
 /Unnecessary File/
+/Web/
 /build/
 /dist/
 /PlantUML_Diagrams/
@@ -183,3 +184,5 @@ hardware_TA/PCB\ Designs/**/*.txt
 hardware_TA/PCB\ Designs/**/*.sample
 hardware_TA/PCB\ Designs/**/LICENCE
 hardware_TA/PCB\ Designs/**/README.*
+
+
